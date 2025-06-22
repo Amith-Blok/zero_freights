@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { getConfirmedQuoteById } from '@/data/confirmed-quote'
 import { notFound } from 'next/navigation'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
-import { getDeliveryTypeLabel } from '@/types/shipping'
 import { ConfirmedQuoteCard } from './confirmed-quote-card'
 
 export default async function ConfirmedQuotePage(props: {
@@ -19,9 +18,8 @@ export default async function ConfirmedQuotePage(props: {
   const origin = locations?.[0]?.name || 'N/A'
   const destination = locations?.at(-1)?.name || 'N/A'
   const transitTime = confirmQuote.transit_time
-  const deliveryType = getDeliveryTypeLabel(confirmQuote.delivery_type)
   const transitTimeInfo = transitTime
-    ? `Est. ${transit_time} days ${deliveryType.toLowerCase()}`
+    ? `Est. ${transit_time} days port to port`
     : 'N/A'
   const totalInr = confirmQuote.confirmed_quote.reduce(
     (acc, value) => (acc += value.inr),
