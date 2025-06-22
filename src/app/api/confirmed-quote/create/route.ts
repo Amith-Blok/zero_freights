@@ -4,7 +4,7 @@ import { convertDToStdContainer } from '@/lib/container'
 import { currencyConverter } from '@/lib/exchange'
 import { sendQuoteInfoToZeroFreight } from '@/lib/mail'
 import { fclContainerToDContainer, formatPhoneNumber, toTitleCase } from '@/lib/utils'
-import { LocationZodSchema, OfferZodSchema } from '@/schema/models/offer-zod'
+import {  OfferZodSchema } from '@/schema/models/offer-zod'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {

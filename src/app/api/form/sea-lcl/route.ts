@@ -14,7 +14,7 @@ import {
 } from '../helper/lib'
 
 import { createQuote } from '@/data/quotes'
-import { appendAdditionalFees } from '../helper/table-data-appender'
+// import { appendAdditionalFees } from '../helper/table-data-appender'
 import { sendQuoteInfoToTeam } from '@/lib/mail'
 export async function POST(request: NextRequest) {
   try {
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
     ])
 
     //COMMENT: append additional fees
-    appendAdditionalFees(quoteTableData)
+    // appendAdditionalFees(quoteTableData)
 
     const totalSum = quoteTableData.reduce(
       (acc, item) => {

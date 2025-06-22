@@ -4,7 +4,7 @@ import {
   generateQuoteTableData,
   randomIdGenerator,
 } from '../helper/lib'
-import { appendAdditionalFees } from '../helper/table-data-appender'
+// import { appendAdditionalFees } from '../helper/table-data-appender'
 import { sendQuoteInfoToTeam } from '@/lib/mail'
 import { createQuote } from '@/data/quotes'
 import { WarehouseFormSchema } from '@/schema/warehouse-schema'
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     ])
 
     //COMMENT: appended additional fees
-    appendAdditionalFees(quoteTableData)
+    // appendAdditionalFees(quoteTableData)
 
     const totalSum = quoteTableData.reduce(
       (acc, item) => {
