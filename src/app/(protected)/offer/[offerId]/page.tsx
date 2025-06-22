@@ -4,12 +4,10 @@ import ShippingCard from '@/components/shared/shipping-card'
 import { getOfferById } from '@/data/offer'
 import { currencyConverter } from '@/lib/exchange'
 import { fclContainerToDContainer } from '@/lib/utils'
-import { notFound } from 'next/navigation'
 import { LocationType, SeaFreightType } from '@/models/offers'
 import { DContainerTypeSmallCase, STDContainerType } from '@/types/containers'
 import React from 'react'
 import { convertDToStdContainer } from '@/lib/container'
-import NotFound from '@/app/not-found'
 
 export default async function OfferPage(props: {
   params: Promise<{ offerId: string }>
