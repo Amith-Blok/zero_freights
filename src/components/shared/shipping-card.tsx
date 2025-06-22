@@ -1,0 +1,200 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import {
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Ship,
+  Home,
+  Anchor,
+  Train,
+} from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { DeliveryType, getDeliveryTypeLabel } from '@/types/shipping'
+import { inFormater } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
+import { LocationType } from '@/models/offers'
+
+interface ShippingCardProps {
+  lineName: string
+  containerType: string
+  containerLabel: string
+  transportMode: string
+  estimatedDays: number
+  portToDays: number
+  deliveryType: DeliveryType
+  locations: LocationType[]
+  price: number
+  currency: string
+  children: React.ReactNode
+  url: string
+  offerId: string
+}
+
+const LocationIcon = ({ type }: { type: 'door' | 'port' | 'rail' }) => {
+  if (type == 'door') return <Home className="h-4 w-4 text-gray-500" />
+  else if (type == 'port') return <Anchor className="h-4 w-4 text-zinc-600" />
+  else if (type == 'rail') return <Train className="h-4 w-4 text-zinc-600" />
+}
+
+const RouteDisplay = ({
+  locations,
+  // deliveryType,
+}: {
+  locations: LocationType[]
+  // deliveryType: DeliveryType
+}) => {
+  return (
+    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+      {locations.map((location, index) => (
+        <div key={index} className="flex items-center">
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+            <LocationIcon type={location.type} />
+            <div className="text-sm">
+              <div className="font-medium text-gray-700">{location.code}</div>
+              {location.name && (
+                <div className="text-xs text-gray-500">{location.name}</div>
+              )}
+            </div>
+          </div>
+          {index < locations.length - 1 && (
+            <div className="mx-0 mx-2 my-1 flex flex-col items-center sm:mx-2 sm:my-0 sm:flex-row">
+              <div className="h-0 h-8 w-0 w-8 border-l-2 border-dashed border-gray-300 sm:h-0 sm:w-8 sm:border-l-0 sm:border-t-2"></div>
+              <div className="mx-1 my-1 h-2 w-2 rounded-full bg-zinc-600 sm:mx-1 sm:my-0"></div>
+              <div className="h-0 h-8 w-0 w-8 border-l-2 border-dashed border-gray-300 sm:h-0 sm:w-8 sm:border-l-0 sm:border-t-2"></div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function ShippingCard({
+  lineName,
+  containerType,
+  containerLabel,
+  transportMode,
+  // estimatedDays,
+  portToDays,
+  deliveryType,
+  locations,
+  price,
+  // currency,
+  url,
+  offerId,
+  children,
+}: ShippingCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [loading, startTransition] = useTransition()
+  const router = useRouter()
+  const handleSubmit = (line: string) => {
+    // console.log("handleSubmit")
+    // console.log("fetchUrl",url,line)
+    startTransition(async () => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          line_name: line,
+          contianer_type: containerType,
+          offer_id: offerId,
+        }),
+      })
+      // Check for HTTP errors
+      if (!response.ok) {
+        // console.log({ message: 'Failed to fetch', status: response.status })
+        const errorResponse = await response.json()
+        toast({
+          variant: 'destructive',
+          title: 'Submission Failed',
+          description: errorResponse.error,
+        })
+        return
+      }
+      const result = await response.json()
+      if (result.confirmed_quote_id) {
+        router.push(`/confirmed-quote/${result.confirmed_quote_id}`)
+      }
+      // console.log({ result });
+    })
+  }
+
+  return (
+    <Card className="mx-auto w-full max-w-6xl border border-gray-200 shadow-sm">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-0">
+          <div className="flex-1">
+            {/* Header */}
+            <div className="mb-3 flex items-center gap-2">
+              <Ship className="h-5 w-5 text-zinc-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                {lineName} | {containerLabel}
+              </h3>
+            </div>
+
+            {/* Transport Info */}
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-gray-600">
+              <Badge variant="secondary" className="bg-zinc-50 text-zinc-700">
+                {transportMode}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="border-green-200 text-green-700"
+              >
+                {getDeliveryTypeLabel(deliveryType)}
+              </Badge>
+              <span className="text-sm">
+                Est. {portToDays.toString()} days port-to-port
+              </span>
+              <Info className="h-4 w-4 text-gray-400" />
+            </div>
+
+            {/* Route Display */}
+            <RouteDisplay locations={locations} />
+
+            {/* Expandable Content */}
+            {isExpanded && children && (
+              <div className="mt-4 rounded-lg bg-gray-50 p-4">{children}</div>
+            )}
+
+            {/* View More Button */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-3 flex items-center gap-1 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-700"
+            >
+              View {isExpanded ? 'less' : 'more'}
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+
+          {/* Price and Select Button */}
+          <div className="flex flex-row items-center justify-between gap-3 border-t pt-4 lg:ml-6 lg:flex-col lg:items-end lg:border-t-0 lg:pt-0">
+            <div className="text-left lg:text-right">
+              <div className="text-2xl font-bold text-gray-900">
+                {inFormater.format(price)}
+              </div>
+            </div>
+            <Button
+              onClick={() => handleSubmit(lineName.toLowerCase())}
+              disabled={loading}
+              className="shrink-0"
+            >
+              Select
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

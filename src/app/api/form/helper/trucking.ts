@@ -1,0 +1,177 @@
+import { meterToKilometer, meterToMile } from '@/lib/utils'
+import { calculateDistance } from './google-map'
+import { getUsLtlCityByZipcode } from '@/data/us-ltl-cities'
+import { getUsLtlBaseByFaZone } from '@/data/us-ltl-base'
+import { getUsLtlAirportByStartEndCode } from '@/data/us-ltl-aiport'
+import {
+  IN_AVERAGE_SPEED_KPH,
+  IN_DAILY_DRIVING_HOURS,
+  US_AVERAGE_SPEED_MPH,
+  US_DAILY_DRIVING_HOURS,
+} from '@/constants/trucking'
+
+export async function usTrucking({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+}): Promise<{ cost: number; estimatedDays: number }> {
+  const distanceInMeter = await calculateDistance(
+    { latitude: start_latitude, longitude: start_longitude },
+    {
+      latitude: end_latitude,
+      longitude: end_longitude,
+    }
+  )
+  const distance = meterToMile(distanceInMeter)
+  const totalDistance = 2 * distance
+  const estimatedDays = calcualteEstimatedDay({ country: 'IND', totalDistance })
+  const truckingCost = totalDistance * 3
+  const profit = 250
+  const grandTotal = Math.max(truckingCost + profit, 601)
+  return { cost: grandTotal, estimatedDays }
+}
+export async function inTrucking({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+  ton,
+  times = 2,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+  ton: number
+  times?: number
+}): Promise<{ cost: number; estimatedDays: number }> {
+  const distanceInMeter = await calculateDistance(
+    { latitude: start_latitude, longitude: start_longitude },
+    {
+      latitude: end_latitude,
+      longitude: end_longitude,
+    }
+  )
+  const distance = meterToKilometer(distanceInMeter)
+  const totalDistance = times * distance
+  const estimatedDays = calcualteEstimatedDay({ country: 'IND', totalDistance })
+  const desielCost = (totalDistance / 2.5) * 100
+  const tollCost = 1000
+  const driverCost = Math.ceil(totalDistance / 300) * 1000
+  const emiCost = 3500
+  const overWeightCost = ton >= 19.5 ? Math.min(30 * totalDistance, 12000) : 0
+  const sum = desielCost + tollCost + driverCost + emiCost + overWeightCost
+  const profit = sum * 0.12
+  const grandTotal = sum + profit
+  return { cost: grandTotal, estimatedDays }
+}
+
+export function usLandFClTrucking(distance: number): number {
+  const totalDistance = 2 * distance
+  const truckingCost = totalDistance * 3.5
+  const profit = 250
+  const grandTotal = truckingCost + profit
+  return grandTotal
+}
+
+export async function inLtlTruckingCost({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+  ton,
+  cbm,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+  ton: number
+  cbm: number
+}) {
+  //calculate indian trucking cost
+  const inTruckingCost = await inTrucking({
+    start_latitude,
+    start_longitude,
+    end_latitude,
+    end_longitude,
+    ton,
+  })
+  // console.log({ InTruckingCost });
+  const oneUnit = Math.max(inTruckingCost.cost / 4, 11000)
+  // console.log(oneUnit);
+  //NOTE:INR Currenecy
+  if (cbm <= 15) return oneUnit
+  if (cbm <= 30) return oneUnit * 2
+  if (cbm <= 45) return oneUnit * 3
+  return oneUnit * 4
+}
+
+export async function usLtlTruckingCost({
+  zipcode,
+  airportCode,
+  kg,
+}: {
+  zipcode: string
+  airportCode?: string
+  kg: number
+}) {
+  const deliveryCity = await getUsLtlCityByZipcode(zipcode).catch((error) => {
+    console.log(error)
+    return null
+  })
+  if (!deliveryCity) return null
+  const { fa_station: faStation, zone } = deliveryCity
+
+  const baseLtl = await getUsLtlBaseByFaZone({ faStation, zone })
+
+  if (!baseLtl) return null
+  const { cost: baseLtlCostPerKg, min: minBaseLtlCost } = baseLtl
+  let baseLtlCost = baseLtlCostPerKg * kg
+  baseLtlCost = Math.max(baseLtlCost, minBaseLtlCost)
+
+  if (!airportCode) {
+    //adding some profit
+    return baseLtlCost * 0.335 + 250
+  }
+  const airportLtl = await getUsLtlAirportByStartEndCode({
+    startCode: airportCode,
+    endCode: faStation,
+  })
+  if (!airportLtl) return baseLtlCost * 0.335 + 250
+  const {
+    airport_pickup_cost: airportPickupCostPerKg,
+    min_delivery_cost: minDeliveryCost,
+    delivery_cost: deliveryCostPerKg,
+  } = airportLtl
+  const airportPickupCost = airportPickupCostPerKg * kg
+  const deliveryCost = Math.max(deliveryCostPerKg, minDeliveryCost)
+
+  return baseLtlCost + airportPickupCost + deliveryCost * 0.335 + 250
+}
+
+const calcualteEstimatedDay = ({
+  country,
+  totalDistance,
+}: {
+  country: 'US' | 'IND'
+  totalDistance: number
+}) => {
+  // console.log({totalDistance})
+  if (country == 'US') {
+    //totalDistance in miles
+    return Math.ceil(
+      totalDistance / (US_AVERAGE_SPEED_MPH / US_DAILY_DRIVING_HOURS)
+    )
+  }
+  //totalDistance in km
+  return Math.ceil(
+    totalDistance / IN_AVERAGE_SPEED_KPH / IN_DAILY_DRIVING_HOURS
+  )
+}

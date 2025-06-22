@@ -1,0 +1,37 @@
+import { COUNTRIES } from '@/constants'
+import mongoose from 'mongoose'
+const AirlineSchema = new mongoose.Schema({
+  airline_code: { type: String, required: true },
+  airline_name: { type: String, required: true },
+  cost: { type: Number, required: true },
+})
+const AirFreightSchema = new mongoose.Schema(
+  {
+    start_code: {
+      type: String,
+      required: true,
+    },
+    end_code: {
+      type: String,
+      required: true,
+    },
+    port_country: {
+      type: String,
+      required: true,
+      enum: COUNTRIES,
+    },
+    airlines: {
+      type: [AirlineSchema],
+      required: true,
+    },
+  },
+  {
+    collection: 'air_freight',
+  }
+)
+
+export type AirFreightType = mongoose.InferSchemaType<typeof AirFreightSchema>
+export type AirlineType = mongoose.InferSchemaType<typeof AirlineSchema>
+
+export default mongoose.models.air_freight ||
+  mongoose.model('air_freight', AirFreightSchema)
