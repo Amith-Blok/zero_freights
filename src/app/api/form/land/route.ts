@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    console.log(data)
+    console.log(data )
     // const validateData = LandFormSchema.safeParse(data)
     // if (!validateData.success) {
     //   return NextResponse.json({ error: 'invalid data' }, { status: 400 })

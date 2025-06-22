@@ -9,16 +9,12 @@ import { LocationType, SeaFreightType } from '@/models/offers'
 import { DContainerTypeSmallCase, STDContainerType } from '@/types/containers'
 import React from 'react'
 import { convertDToStdContainer } from '@/lib/container'
+import NotFound from '@/app/not-found'
 
 export default async function OfferPage(props: {
   params: Promise<{ offerId: string }>
 }) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/new_sample.json`
-  )
-  if (!response) {
-    return notFound()
-  }
+
   const param = await props.params
   const offerId = param.offerId
   const offers = await getOfferById(offerId)
