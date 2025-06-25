@@ -17,9 +17,8 @@ export default async function HomePage(props: {
   return (
     <div className="flex w-full items-center justify-center bg-transparent">
       <CardWrapper
-        cardTitle="Request a quote"
-        cardDescription={`Secure the finest rates available from the industry's premier
-      logistics providers.`}
+        cardTitle="Instant Quote"
+        cardDescription="For India to US ,Canada & Europe."
         titleClass="text-2xl"
         cardClass="my-5  md:m-5 w-full min-h-screen bg-white bg-opacity-95"
       >

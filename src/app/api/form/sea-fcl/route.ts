@@ -14,6 +14,7 @@ import { calculateTotalOfferCost } from '../helper/total'
 import { createForm } from '@/data/form'
 import { createOffer } from '@/data/offer'
 import { LocationType } from '@/models/offers'
+import { toTitleCase } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -218,32 +219,33 @@ export async function POST(request: NextRequest) {
     let locations: LocationType[] = []
     if (pickup_check) {
       locations.push({
-        name: pickup_location?.description ?? '',
-        code: ori_country,
+        name: toTitleCase(pickup_location?.description ?? ''),
+        code: ori_country.toUpperCase(),
         type: 'door',
       })
     }
     locations.push({
-      name: ori_port_rail.port_name.toUpperCase(),
+      name: toTitleCase(ori_port_rail.port_name.toUpperCase()),
       code: ori_port_rail.port_code.toUpperCase(),
       type: `${ori_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
     })
-    if (ori_port_rail.type == 'RAIL') {
+    if (ori_port_rail.type == 'RAIL' && !!ori_port_if_rail?.port_name) {
       locations.push({
-        name: ori_port_if_rail?.port_name ?? '',
-        code: ori_port_if_rail?.port_code ?? '',
+        name: toTitleCase(ori_port_if_rail?.port_name ?? ''),
+        code: ori_port_if_rail?.port_code.toUpperCase() ?? '',
         type: 'port',
       })
     }
-    if (des_port_rail.type == 'RAIL') {
+
+    if (des_port_rail.type == 'RAIL' && !!des_port_if_rail?.port_name) {
       locations.push({
-        name: des_port_if_rail?.port_name ?? '',
-        code: des_port_if_rail?.port_code ?? '',
+        name: toTitleCase(des_port_if_rail?.port_name.toUpperCase() ?? ''),
+        code: des_port_if_rail?.port_code.toUpperCase() ?? '',
         type: 'port',
       })
     }
     locations.push({
-      name: des_port_rail.port_name.toUpperCase(),
+      name: toTitleCase(des_port_rail.port_name.toUpperCase()),
       code: des_port_rail.port_code.toUpperCase(),
       type: `${des_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
     })

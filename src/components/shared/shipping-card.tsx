@@ -49,7 +49,7 @@ const RouteDisplay = ({
   // deliveryType: DeliveryType
 }) => {
   return (
-    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+    <div className="mb-2 flex flex-col gap-2 lg:flex-row lg:items-center">
       {locations.map((location, index) => (
         <div key={index} className="flex items-center">
           <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
@@ -62,10 +62,10 @@ const RouteDisplay = ({
             </div>
           </div>
           {index < locations.length - 1 && (
-            <div className="mx-0 mx-2 my-1 flex flex-col items-center sm:mx-2 sm:my-0 sm:flex-row">
-              <div className="h-0 h-8 w-0 w-8 border-l-2 border-dashed border-gray-300 sm:h-0 sm:w-8 sm:border-l-0 sm:border-t-2"></div>
-              <div className="mx-1 my-1 h-2 w-2 rounded-full bg-zinc-600 sm:mx-1 sm:my-0"></div>
-              <div className="h-0 h-8 w-0 w-8 border-l-2 border-dashed border-gray-300 sm:h-0 sm:w-8 sm:border-l-0 sm:border-t-2"></div>
+            <div className="mx-0 my-1 flex flex-col items-center lg:mx-2 lg:my-0 lg:flex-row">
+              <div className="h-5 w-5 border-l-2 border-dashed border-gray-300 lg:h-0 lg:w-5 lg:border-l-0 lg:border-t-2"></div>
+              <div className="mx-1 my-1 hidden h-2 w-2 rounded-full bg-zinc-600 lg:block"></div>
+              <div className="h-5 w-5 border-l-2 border-dashed border-gray-300 lg:h-0 lg:w-5 lg:border-l-0 lg:border-t-2"></div>
             </div>
           )}
         </div>
@@ -128,7 +128,7 @@ export default function ShippingCard({
 
   return (
     <Card className="mx-auto w-full max-w-6xl border border-gray-200 shadow-sm">
-      <CardContent className="p-6">
+      <CardContent className="p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-0">
           <div className="flex-1">
             {/* Header */}

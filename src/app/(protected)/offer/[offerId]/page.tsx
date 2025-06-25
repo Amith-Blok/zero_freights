@@ -12,7 +12,6 @@ import { convertDToStdContainer } from '@/lib/container'
 export default async function OfferPage(props: {
   params: Promise<{ offerId: string }>
 }) {
-
   const param = await props.params
   const offerId = param.offerId
   const offers = await getOfferById(offerId)
@@ -38,6 +37,7 @@ export default async function OfferPage(props: {
     }),
   }))
   // console.log({ filteredLocalCharges })
+  console.log({ location: offers.locations })
   return (
     <div className="flex w-full items-center justify-center bg-transparent">
       <CardWrapper
