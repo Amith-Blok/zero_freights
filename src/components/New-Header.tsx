@@ -92,8 +92,8 @@ export default function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/logo_zf.png"
-              width={300}
-              height={82}
+              width={160}
+              height={60}
               alt="Zero Freights logo"
             />
           </Link>
@@ -194,8 +194,7 @@ export default function Header() {
                   <Link href="/" className="flex items-center">
                     <Image
                       src="/logo_zf.png"
-                      width={300}
-                      height={82}
+                      height={32}
                       alt="Zero Freights logo"
                     />
                   </Link>

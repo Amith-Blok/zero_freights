@@ -38,7 +38,7 @@ const Header = () => {
               <Image
                 src="/logo_zf.png"
                 width={300}
-                height={82}
+                height={52}
                 alt="Zero Freights logo"
               />
             </Link>
