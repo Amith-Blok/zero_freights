@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Zero Freights — Zero Hassles, Just Freight',
+  title: 'Zero Freights — Ship at cost to cost',
   description:
-    'Zero Freights simplifies global logistics. Get instant shipping quotes, reliable freight forwarding, and seamless supply chain support. Zero hassles, just freight.',
+    'Zero Freights simplifies global logistics. Get instant shipping quotes, reliable freight forwarding, and seamless supply chain support. Ship at cost to cost.',
   keywords: [
     'freight forwarding',
     'logistics services',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     'Zero Freights',
     'supply chain solutions',
     'door to door shipping',
-    'customs clearance'
+    'customs clearance',
   ],
   authors: [{ name: 'Amith A G', url: 'https://github.com/Amith-AG' }],
   creator: 'Zero Freights',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://zerofreights.com'),
   openGraph: {
-    title: 'Zero Freights — Zero Hassles, Just Freight',
+    title: 'Zero Freights — Ship at Cost to Cost',
     description:
       'Experience hassle-free freight forwarding and global shipping solutions. From ocean to air — Zero Freights delivers seamless logistics.',
     url: 'https://zerofreights.com',
@@ -57,13 +57,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Zero Freights — Zero Hassles, Just Freight',
+    title: 'Zero Freights — Ship at Cost to Cost',
     description:
       'Get transparent rates and reliable global freight services with Zero Freights. Your logistics partner in seamless shipping.',
     creator: '@zerofreights',
   },
   category: 'Logistics',
-};
+}
 
 export default function RootLayout({
   children,
