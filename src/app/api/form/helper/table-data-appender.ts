@@ -2,6 +2,7 @@
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { US_ALL_ADDITIONAL_FEES } from '@/constants/us-custom'
 import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
+import { ContainerCost } from '@/models/offer/shared-types'
 
 //COMMENT: append additional fees to the data array
 // export const appendAdditionalFees = (data: DataType[]) => {
@@ -26,18 +27,18 @@ import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 // }
 
 //COMMENT: append additional fees to the data array
-// export const appendAdditionalFees = (data: ConfimredQuoteDataType[]) => {
-//   US_ALL_ADDITIONAL_FEES.forEach((fee) => {
-//     data.push({
-//       label: fee.name,
-//       currency: fee.currency,
-//       additional_notes: 'Blok Custom additions',
-//       d2: fee.value,
-//       d4: fee.value,
-//       d5: fee.value,
-//     })
-//   })
-// }
+export const appendAdditionalFees = (data: ContainerCost[]) => {
+  US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+    data.push({
+      label: fee.name,
+      currency: fee.currency,
+      additional_notes: 'Blok Custom additions',
+      d2: fee.value,
+      d4: fee.value,
+      d5: fee.value,
+    })
+  })
+}
 export const newAppendAdditionalFees = (data: ConfimredQuoteDataType[]) => {
   US_ALL_ADDITIONAL_FEES.forEach((fee) => {
     const cost = fee.value
