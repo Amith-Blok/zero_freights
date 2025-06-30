@@ -67,6 +67,7 @@ const OfferComp = async ({ offerId }: { offerId: string }) => {
     const { package_type, carrier, estimated_days } = offers
     return (
       <WarehouseComp
+        mode="WAR"
         locations={offers.locations}
         containerType={package_type}
         containerLabel={package_type}
