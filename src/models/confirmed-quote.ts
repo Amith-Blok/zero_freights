@@ -11,7 +11,8 @@ const ExchangeSchema = new mongoose.Schema(
     _id: false,
   }
 )
-const ConfimredQuoteData = new mongoose.Schema(
+
+export const ConfimredQuoteData = new mongoose.Schema(
   {
     label: { type: String, required: true },
     inr: { type: Number, required: true },
@@ -21,11 +22,16 @@ const ConfimredQuoteData = new mongoose.Schema(
     _id: false,
   }
 )
+
 const LocationSchema = new mongoose.Schema(
   {
     code: { type: String, required: false },
     name: { type: String, require: true },
-    type: { type: String, enum: ['door', 'port', 'rail'], required: true },
+    type: {
+      type: String,
+      enum: ['door', 'port', 'rail', 'air', 'warehouse'],
+      required: true,
+    },
   },
   {
     _id: false,
@@ -34,11 +40,11 @@ const LocationSchema = new mongoose.Schema(
 
 const UserSchema = new mongoose.Schema(
   {
-    user_id: { type: String, required: true },
-    user_name: { type: String, required: true },
-    user_email: { type: String, required: true },
-    user_company: { type: String, required: true },
-    user_phone: { type: String, required: true },
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    company: { type: String, required: true },
+    phone: { type: String, required: true },
   },
   {
     _id: false,
@@ -59,12 +65,12 @@ const ConfimredQuoteSchema = new mongoose.Schema(
   {
     form_id: { type: String, required: true },
     offer_id: { type: String, required: true },
-    offer_date: { type: Date, required: true },
+    offer_date: { type: String, required: true },
     user: { type: UserSchema, required: true },
     subject: { type: String, required: true },
     place_of_supply: { type: String, required: true },
     bill_to: { type: String, required: true },
-    tag: { type: String, required: true },
+    tags: { type: [String], required: true },
     start_code: { type: String, required: true },
     end_code: { type: String, required: true },
     container_type: { type: String, required: true },
@@ -78,15 +84,16 @@ const ConfimredQuoteSchema = new mongoose.Schema(
       required: true,
     },
     locations: { type: [LocationSchema], required: true },
-    confirmed_quote: { type: [ConfimredQuoteData], required: true },
-    created_at: { type: Date, required: true },
+    data: { type: [ConfimredQuoteData], required: true },
   },
   {
-    versionKey: false,
     collection: 'confirmed_quotes',
+    timestamps: { createdAt: 'created_at', updatedAt: false },
+    versionKey: false,
   }
 )
 
 export type ConfimredQuoteType = InferSchemaType<typeof ConfimredQuoteSchema>
+export type ConfimredQuoteDataType = InferSchemaType<typeof ConfimredQuoteData>
 export default mongoose.models.confirmed_quotes ||
   mongoose.model('confirmed_quotes', ConfimredQuoteSchema)

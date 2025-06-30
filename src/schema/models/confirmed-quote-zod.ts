@@ -16,15 +16,15 @@ const ConfirmedQuoteDataZodSchema = z.object({
 const LocationZodSchema = z.object({
   code: z.string().optional(),
   name: z.string(),
-  type: z.enum(['door', 'port', 'rail']),
+  type: z.enum(['door', 'port', 'rail', 'air', 'warehouse']),
 })
 
 const UserZodSchema = z.object({
-  user_id: z.string(),
-  user_name: z.string(),
-  user_email: z.string(),
-  user_company: z.string(),
-  user_phone: z.string(),
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  company: z.string(),
+  phone: z.string(),
 })
 
 export const TotalCostZodSchema = z.object({
@@ -35,12 +35,12 @@ export const TotalCostZodSchema = z.object({
 export const ConfirmedQuoteZodSchema = z.object({
   form_id: z.string(),
   offer_id: z.string(),
-  offer_date: z.date(),
+  offer_date: z.string(),
   user: UserZodSchema,
   subject: z.string(),
   place_of_supply: z.string(),
   bill_to: z.string(),
-  tag: z.string(),
+  tags: z.array(z.string()),
   start_code: z.string(),
   end_code: z.string(),
   container_type: z.string(),
@@ -55,8 +55,7 @@ export const ConfirmedQuoteZodSchema = z.object({
   carrier: z.string(),
   transit_time: z.number(),
   locations: z.array(LocationZodSchema),
-  confirmed_quote: z.array(ConfirmedQuoteDataZodSchema),
-  created_at: z.date(),
+  data: z.array(ConfirmedQuoteDataZodSchema),
 })
 
 export type ConfirmedQuoteZodType = z.infer<typeof ConfirmedQuoteZodSchema>

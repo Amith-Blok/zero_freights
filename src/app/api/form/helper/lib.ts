@@ -1,6 +1,8 @@
 import { FIVE_PERCENTAGE_GST_CODE_LIST } from '@/constants'
 import { USD_TO_INR } from '@/constants/exchange-value'
 import { INR_TO_USD } from '@/constants/exchange-value'
+import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
+import { RateInfoType } from '@/types/common'
 import { QuoteFormProcessedData } from '@/types/global'
 import { DataType } from '@/types/quotes'
 
@@ -60,6 +62,25 @@ export function generateQuoteTableData(
     })
   }
   return data
+}
+export function formateRateInfoToConfirmQuoteData(
+  formData: RateInfoType[]
+): ConfimredQuoteDataType[] {
+  let records = []
+  for (let data of formData) {
+    const cost = data.value
+    if (cost == 0) {
+      continue
+    }
+    const costUsd = data.currency == 'USD' ? cost : cost * INR_TO_USD
+    const costInr = data.currency == 'USD' ? cost * USD_TO_INR : cost
+    records.push({
+      label: data.name,
+      usd: costUsd,
+      inr: costInr,
+    })
+  }
+  return records
 }
 export function randomIdGenerator() {
   return Math.floor(Math.random() * Date.now()).toString()

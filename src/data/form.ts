@@ -1,7 +1,7 @@
 import mongoosedb from '@/lib/mongoose-db'
 import form from '@/models/form'
 
-export const createForm = async (data: Object) => {
+export const createForm = async (data: Object): Promise<string> => {
   if (!data) {
     console.log('missing data while create form')
     throw Error('Missing data while create form')
@@ -13,5 +13,6 @@ export const createForm = async (data: Object) => {
     throw Error("couldn't create form something went wrong")
   }
   console.log('Success from created', response._id)
-  return response._id
+
+  return response._id.toString()
 }

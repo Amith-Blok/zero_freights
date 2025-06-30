@@ -2,7 +2,7 @@ import { getAllIndiaOutboundHaulageRatesByCode } from '@/data/india-outbound-hau
 import { SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
-import { weightTOMetricTon } from '@/lib/utils'
+import { formatPhoneNumber, weightTOMetricTon } from '@/lib/utils'
 import { formatLines } from '../helper/lines-rate-formatter'
 import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
 import { inTrucking, usTrucking } from '../helper/trucking'
@@ -12,9 +12,10 @@ import { getLinesChargesByCode } from '@/data/lines-charges'
 import { exchangeValues } from '@/lib/exchange'
 import { calculateTotalOfferCost } from '../helper/total'
 import { createForm } from '@/data/form'
-import { createOffer } from '@/data/offer'
-import { LocationType } from '@/models/offers'
+import { Location as LocationType } from '@/models/offer/shared-types'
 import { toTitleCase } from '@/lib/utils'
+import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
+import { convertFclToStdContainer } from '@/lib/container'
 
 export async function POST(request: NextRequest) {
   try {
@@ -262,7 +263,7 @@ export async function POST(request: NextRequest) {
     appendAdditionalFees(quoteTableData.local_charges)
 
     //Calculate Total Sum for INR and USD for all lines
-    for (let line of quoteTableData.sea_freights) {
+    for (let line of quoteTableData.line_charges) {
       const cost = calculateTotalOfferCost([
         line.data,
         ...quoteTableData.local_charges,
@@ -292,26 +293,30 @@ export async function POST(request: NextRequest) {
     //
     const blok_quote_id = randomIdGenerator()
     // console.log({ blok_quote_id });
-    const offer_id = await createOffer({
+    const user = {
+      id: 'BLOK_UNKNOW_USER',
+      name: toTitleCase(user_name) || '',
+      email: email || '',
+      company: toTitleCase(company_name) || '',
+      phone: phone ? formatPhoneNumber(phone) : '',
+    }
+    const offer_id = await createSeaFclOffer({
       offer_id: blok_quote_id,
       form_id: formId,
-      user_id: 'BLOK_UNKNOW_USER',
-      user_email: email,
-      user_name,
-      user_phone: phone,
-      user_company: company_name,
+      user,
       subject,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,
       start_code: startSeaPort?.port_code || '',
       end_code: endSeaPort?.port_code || '',
-      tag: 'FCL',
+      mode: 'SEA_FCL',
+      tags: ['FCL'],
       container_type: fcl_container_type,
+      package_type: convertFclToStdContainer(fcl_container_type),
       delivery_type: 'door_to_door',
       locations: locations as any,
       exchanges: exchangeValues(),
       offers: quoteTableData as any,
-      created_at: new Date(),
     })
 
     //TODO: Not require move it to quote api

@@ -13,7 +13,9 @@ export const formatLines = ({
   for (let [idx, line] of lines.entries()) {
     const lineName = line.line_name
     const portToDays = line.estimated_days > 1 ? line.estimated_days : 40
-    const validTo = line.valid_to || ''
+    const validTo =
+      line.valid_to ||
+      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
     for (let section of line.sections) {
       for (let item of section.data) {
@@ -47,5 +49,5 @@ export const formatLines = ({
       data: sea_freights[idx],
     })
   }
-  return { sea_freights: sea_freights_records, local_charges: locals }
+  return { line_charges: sea_freights_records, local_charges: locals }
 }

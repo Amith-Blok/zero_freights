@@ -9,6 +9,9 @@ import {
   Home,
   Anchor,
   Train,
+  Plane,
+  Factory,
+  Truck,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,17 +20,22 @@ import { DeliveryType, getDeliveryTypeLabel } from '@/types/shipping'
 import { inFormater } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
-import { LocationType } from '@/models/offers'
+import {
+  Location,
+  LocationType,
+  OfferModeTypes,
+} from '@/models/offer/shared-types'
 
 interface ShippingCardProps {
   lineName: string
   containerType: string
   containerLabel: string
   transportMode: string
+  modeType: OfferModeTypes
   estimatedDays: number
   portToDays: number
   deliveryType: DeliveryType
-  locations: LocationType[]
+  locations: Location[]
   price: number
   currency: string
   children: React.ReactNode
@@ -35,17 +43,27 @@ interface ShippingCardProps {
   offerId: string
 }
 
-const LocationIcon = ({ type }: { type: 'door' | 'port' | 'rail' }) => {
+const LocationIcon = ({ type }: { type: LocationType }) => {
   if (type == 'door') return <Home className="h-4 w-4 text-gray-500" />
   else if (type == 'port') return <Anchor className="h-4 w-4 text-zinc-600" />
   else if (type == 'rail') return <Train className="h-4 w-4 text-zinc-600" />
+  else if (type == 'air') return <Plane className="h-4 w-4 text-zinc-600" />
+  else if (type == 'warehouse')
+    return <Factory className="h-4 w-4 text-zinc-600" />
+}
+const ModeIcon = ({ mode }: { mode: OfferModeTypes }) => {
+  if (mode == 'WAR') return <Factory className="h-5 w-5 text-zinc-600" />
+  else if (mode == 'AIR') return <Plane className="h-5 w-5 text-zinc-600" />
+  else if (mode == 'SEA_FCL' || mode == 'SEA_LCL')
+    return <Ship className="h-5 w-5 text-zinc-600" />
+  else if (mode == 'LAND') return <Truck className="h-5 w-5 text-zinc-600" />
 }
 
 const RouteDisplay = ({
   locations,
   // deliveryType,
 }: {
-  locations: LocationType[]
+  locations: Location[]
   // deliveryType: DeliveryType
 }) => {
   return (
@@ -78,6 +96,7 @@ export default function ShippingCard({
   lineName,
   containerType,
   containerLabel,
+  modeType,
   transportMode,
   // estimatedDays,
   portToDays,
@@ -103,7 +122,7 @@ export default function ShippingCard({
         },
         body: JSON.stringify({
           line_name: line,
-          contianer_type: containerType,
+          container_type: containerType,
           offer_id: offerId,
         }),
       })
@@ -133,7 +152,7 @@ export default function ShippingCard({
           <div className="flex-1">
             {/* Header */}
             <div className="mb-3 flex items-center gap-2">
-              <Ship className="h-5 w-5 text-zinc-600" />
+              <ModeIcon mode={modeType} />
               <h3 className="text-lg font-semibold text-gray-900">
                 {lineName} | {containerLabel}
               </h3>

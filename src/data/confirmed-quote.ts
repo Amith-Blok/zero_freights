@@ -3,10 +3,6 @@ import confirmedQuote, { ConfimredQuoteType } from '@/models/confirmed-quote'
 import { ConfirmedQuoteZodType } from '@/schema/models/confirmed-quote-zod'
 
 export const createConfirmedQuote = async (data: ConfirmedQuoteZodType) => {
-  if (!data) {
-    console.log('no data found, failed to create offer')
-    throw Error('no data found, failed to create offer')
-  }
   await mongoosedb()
   const response = await confirmedQuote.create(data)
   if (!response) {

@@ -1,5 +1,7 @@
 // import { INR_TO_USD, USD_TO_INR } from '@/constants'
+import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { US_ALL_ADDITIONAL_FEES } from '@/constants/us-custom'
+import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 import { RateByContainerType } from '@/models/offers'
 
 //COMMENT: append additional fees to the data array
@@ -34,6 +36,18 @@ export const appendAdditionalFees = (data: RateByContainerType[]) => {
       d2: fee.value,
       d4: fee.value,
       d5: fee.value,
+    })
+  })
+}
+export const newAppendAdditionalFees = (data: ConfimredQuoteDataType[]) => {
+  US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+    const cost = fee.value
+    const costUsd = fee.currency == 'USD' ? cost : cost * INR_TO_USD
+    const costInr = fee.currency == 'USD' ? cost * USD_TO_INR : cost
+    data.push({
+      label: fee.name,
+      inr: costInr,
+      usd: costUsd,
     })
   })
 }

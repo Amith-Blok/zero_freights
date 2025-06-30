@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
+  formateRateInfoToConfirmQuoteData,
   generateQuoteMetaDetails,
-  generateQuoteTableData,
   randomIdGenerator,
 } from '../helper/lib'
-// import { appendAdditionalFees } from '../helper/table-data-appender'
-import { sendQuoteInfoToTeam } from '@/lib/mail'
-import { createQuote } from '@/data/quotes'
+
 import { WarehouseFormSchema } from '@/schema/warehouse-schema'
 import { getWarehouseByPortCode } from '@/data/warehouses'
+import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { RateInfoType } from '@/types/common'
+import { createForm } from '@/data/form'
+import { createWarehouseOffer } from '@/data/offer/warehouse-offer'
+import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
+import { exchangeValues } from '@/lib/exchange'
+import { Location, LocationType } from '@/models/offer/shared-types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +25,7 @@ export async function POST(request: NextRequest) {
     const {
       modes,
       is_google_location,
+      country,
       pickup_location,
       dg,
       delivery_location,
@@ -32,12 +38,15 @@ export async function POST(request: NextRequest) {
     } = validateData.data
 
     // Narrow the type based on `is_google_location`
-    let pickupLocationDescription: string, cbmTon: { cbm: number; ton: number }
+    let pickupLocationDescription: string,
+      cbmTon: { cbm: number; ton: number },
+      pickupLocationType: LocationType = 'port'
 
     if (is_google_location) {
       // TypeScript now knows this must be the Google schema
       pickupLocationDescription = (pickup_location as { description: string })
         .description
+      pickupLocationType = 'door'
     } else {
       // TypeScript now knows this must be the Port schema
       pickupLocationDescription = (pickup_location as { port_name: string })
@@ -100,6 +109,9 @@ export async function POST(request: NextRequest) {
         ? 1.5 * cbm * storage_days
         : 4.5 * cbm * storage_days
     } else if (modes == 'LTL_WAREHOUSE') {
+      if (pickupLocationType !== 'door') {
+        pickupLocationType = 'air'
+      }
       const { ltl_load, ltl_cbm_ton } = validateData.data
       const { cbm } = ltl_cbm_ton
       cbmTon = ltl_cbm_ton
@@ -118,42 +130,31 @@ export async function POST(request: NextRequest) {
     truckingCost.value =
       (await getWarehouseByPortCode(delivery_location.port_code)).cost ?? 0
 
-    const quoteTableData = generateQuoteTableData([
+    const formatedQuoteTableData = formateRateInfoToConfirmQuoteData([
       perPalletIn,
       perPalletOut,
       truckingCost,
       storageCharge,
-    ])
+    ] as RateInfoType[])
 
     //COMMENT: appended additional fees
-    // appendAdditionalFees(quoteTableData)
+    newAppendAdditionalFees(formatedQuoteTableData)
 
-    const totalSum = quoteTableData.reduce(
+    const { totalInrCost, totalUsdCost } = formatedQuoteTableData.reduce(
       (acc, item) => {
         return {
-          totalInrCost: acc.totalInrCost + item.total_amount,
-          totalUsdCost: acc.totalUsdCost + item.cost_usd,
-          subtotalInrCost: acc.subtotalInrCost + item.cost_inr,
-          gstFiveInrTotal:
-            item.gst_percentage == 5
-              ? acc.gstFiveInrTotal + item.gst_amount
-              : acc.gstFiveInrTotal,
-          gstEighteenInrTotal:
-            item.gst_percentage == 18
-              ? acc.gstEighteenInrTotal + item.gst_amount
-              : acc.gstEighteenInrTotal,
+          totalInrCost: acc.totalInrCost + item.inr,
+          totalUsdCost: acc.totalUsdCost + item.usd,
         }
       },
       {
         totalInrCost: 0,
         totalUsdCost: 0,
-        subtotalInrCost: 0,
-        gstFiveInrTotal: 0,
-        gstEighteenInrTotal: 0,
       } // Initial values
     )
 
     let firstSlug = `Warehouse ${modes} ${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON FROM ${pickupLocationDescription}  To ${delivery_location.port_name} (${icoterms}`
+
     //quote details
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
@@ -164,53 +165,61 @@ export async function POST(request: NextRequest) {
         firstSlug,
         icoterms,
       })
-    //send email
 
-    const quote_id = await createQuote({
-      blok_quote_id: randomIdGenerator(),
-      user_id: email,
-      user_name,
+    let locations: Location[] = []
+    locations.push({
+      name: pickupLocationDescription,
+      code: country.toUpperCase(),
+      type: pickupLocationType,
+    })
+    locations.push({
+      name: delivery_location.port_name,
+      code: country.toUpperCase(),
+      type: 'warehouse',
+    })
+
+    //FormId
+    const formId = await createForm(validateData)
+
+    const blok_quote_id = randomIdGenerator()
+    const user = {
+      id: 'BLOK_UNKNOW_USER',
+      name: toTitleCase(user_name) || '',
+      email: email || '',
+      company: toTitleCase(company_name) || '',
+      phone: phone ? formatPhoneNumber(phone) : '',
+    }
+    const offer_id = await createWarehouseOffer({
+      offer_id: blok_quote_id,
+      form_id: formId,
+      user,
       subject,
-      quote_date: new Date(),
-      user_company: company_name,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,
-      total_inr: totalSum.totalInrCost,
-      sub_total_inr_cost: totalSum.subtotalInrCost,
-      gst_eighteen_inr_cost: totalSum.gstEighteenInrTotal,
-      gst_five_inr_cost: totalSum.gstFiveInrTotal,
-      total_usd: totalSum.totalUsdCost,
-      line: 'All',
-      line_quotation_number: '#' + new Date().getTime(),
-      estimated_day: 0,
-      valid_from: new Date().toLocaleDateString('en-CA'),
-      valid_to: new Date(
-        Date.now() + 30 * 24 * 60 * 60 * 1000
-      ).toLocaleDateString('en-CA'),
-      routing: [],
-      form_data: validateData.data,
-      data: quoteTableData,
+      start_code: pickup_location.place_id || '',
+      end_code: delivery_location?.port_code || '',
+      mode: 'WAR',
+      tags: ['WARHOUSE'],
+      package_type: `${cbmTon.cbm.toFixed(2)} CBM`,
+      carrier: 'Forward Air',
+      estimated_days: storage_days,
+      total_cost: { inr: totalInrCost, usd: totalUsdCost },
+      pointDetination: `${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON`,
+      delivery_type: 'door_to_door',
+      locations: locations,
+      exchanges: exchangeValues(),
+      offers: formatedQuoteTableData,
     })
-    await sendQuoteInfoToTeam({
-      user_name,
-      subject,
-      total: totalSum.totalInrCost,
-      quoteLink: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.quote.bloksupplychain.com'}/quote/${quote_id}`,
-      company_name,
-      phone_number: phone,
-      email,
-    })
+
     return NextResponse.json(
-      {
-        quote_id,
-      },
+      { offer_id, formatedQuoteTableData },
       { status: 200 }
     )
   } catch (error) {
     console.log(error)
     return NextResponse.json(
       {
-        error: `no quote for this request. Please try again with another form input `,
+        error: `no quote for this request. Please try again with another form input. Error:${error} `,
       },
       { status: 500 }
     )

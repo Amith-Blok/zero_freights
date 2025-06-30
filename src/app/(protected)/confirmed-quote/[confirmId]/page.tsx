@@ -13,7 +13,7 @@ export default async function ConfirmedQuotePage(props: {
   const confirmQuote = await getConfirmedQuoteById(params.confirmId)
   if (!confirmQuote) return notFound()
 
-  const { user, locations, carrier, container_type, tag, transit_time } =
+  const { user, locations, carrier, container_type, tags, transit_time } =
     confirmQuote
   const origin = locations?.[0]?.name || 'N/A'
   const destination = locations?.at(-1)?.name || 'N/A'
@@ -21,7 +21,7 @@ export default async function ConfirmedQuotePage(props: {
   const transitTimeInfo = transitTime
     ? `Est. ${transit_time} days port to port`
     : 'N/A'
-  const totalInr = confirmQuote.confirmed_quote.reduce(
+  const totalInr = confirmQuote.data.reduce(
     (acc, value) => (acc += value.inr),
     0
   )
@@ -41,18 +41,18 @@ export default async function ConfirmedQuotePage(props: {
 
       {/* Selected Offer Details */}
       <ConfirmedQuoteCard
-        userName={toTitleCase(user.user_name)}
-        userEmail={user.user_email}
-        userPhone={formatPhoneNumber(user.user_phone)}
-        userCompany={toTitleCase(user.user_company)}
+        userName={toTitleCase(user.name)}
+        userEmail={user.email}
+        userPhone={formatPhoneNumber(user.phone)}
+        userCompany={toTitleCase(user.company)}
         transitInfo={transitTimeInfo}
         origin={origin}
         destination={destination}
         containerType={container_type}
-        tag={tag.toUpperCase()}
+        tag={tags[0].toUpperCase()}
         carrier={carrier.toUpperCase()}
         total={totalInr}
-        tableData={confirmQuote.confirmed_quote}
+        tableData={confirmQuote.data}
       />
 
       {/* Next Steps + Contact */}

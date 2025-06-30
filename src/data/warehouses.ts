@@ -1,4 +1,5 @@
 // import { COUNTRIES } from '@/constants';
+import mongoosedb from '@/lib/mongoose-db'
 import warehouse, { WarehousesType } from '@/models/warehouses'
 
 export async function nearestWarehouse({
@@ -32,9 +33,12 @@ export async function nearestWarehouse({
 
 export const getWarehouseByPortCode = async (portCode: string) => {
   try {
+    console.log({ portCode })
     if (!portCode) {
       throw new Error('portCode not found')
     }
+
+    await mongoosedb()
     const response = await warehouse
       .findOne({ port_code: portCode })
       .lean<WarehousesType>()
