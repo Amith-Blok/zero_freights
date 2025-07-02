@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
-import { COUNTRIES_LIST } from '@/constants'
-import { PredictionWithZipcode } from '@/types/google'
+// import { COUNTRIES_LIST } from '@/constants'
+import { Prediction } from '@/types/google'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
@@ -19,37 +19,32 @@ export const OriginAirForm = () => {
   const resetString = useMemo(() => {
     return `${watchOriCountry}-${watchPlaceId}`
   }, [watchOriCountry, watchPlaceId])
-  const OriLocationUrl =
-    watchOriCountry == 'US'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchOriCountry}`
+
   return (
     <>
       <CheckBoxWrapper
         label="Do you want pick up trucking service?"
         field="pickup_check"
-        disable
       />
       <div className="mt-5 flex flex-col items-center gap-2 md:flex-row">
         <SelectWrapper
           label="Country"
           field="ori_country"
-          data={COUNTRIES_LIST}
+          data={[{ label: 'IND', value: 'IN' }]}
           divClass={`w-full ${watchPick && 'md:w-1/3'} `}
         />
 
         {watchPick && (
-          <FilteredCombobox<PredictionWithZipcode>
+          <FilteredCombobox<Prediction>
             label="Pickup Location"
             placeHolder="pincode or address"
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
-            fetchUrl={OriLocationUrl}
+            fetchUrl={`/api/autos/google?country=${watchOriCountry}`}
             valueSetterCallback={(location) => {
               setValue('pickup_location', {
                 description: location.description,
                 place_id: location.place_id,
-                zipcode: location.zipcode,
               })
             }}
           />

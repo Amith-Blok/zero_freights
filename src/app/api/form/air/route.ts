@@ -2,16 +2,17 @@ import { airFreightByStartEndCode } from '@/data/air-freight'
 import { AirFormSchema } from '@/schema/air-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCheapestAirLineRecord } from '../helper/airline'
-import { inLtlTruckingCost, usLtlTruckingCost } from '../helper/trucking'
+import { inLtlTruckingCost, newUsLtlTruckingCost } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
-import {
-  generateQuoteMetaDetails,
-  generateQuoteTableData,
-  randomIdGenerator,
-} from '../helper/lib'
-// import { appendAdditionalFees } from '../helper/table-data-appender'
-import { sendQuoteInfoToTeam } from '@/lib/mail'
-import { createQuote } from '@/data/quotes'
+import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
+import { USD_TO_INR } from '@/constants'
+import { INR_TO_USD } from '@/constants/exchange-value'
+import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { exchangeValues } from '@/lib/exchange'
+import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
+import { createForm } from '@/data/form'
+import { Location } from '@/models/offer/shared-types'
+import { createAirOffer } from '@/data/offer/air'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,42 +39,42 @@ export async function POST(request: NextRequest) {
     const { ton, cbm, kg } = air_cbm_ton
 
     const terminalCost = {
-      name: 'Terminal Cost',
-      code: 'TERMINAL_COST',
+      label: 'Terminal Cost',
       currency: 'USD',
-      value: 375,
+      usd: 375,
+      inr: 375 * USD_TO_INR,
     }
     const ams = {
-      name: 'AMS Cost',
-      code: 'AMS',
+      label: 'AMS Cost',
       currency: 'USD',
-      value: 20,
+      usd: 20,
+      inr: 20 * USD_TO_INR,
     }
 
     const awb = {
-      name: 'AWB Cost',
-      code: 'AWB',
+      label: 'AWB Cost',
       currency: 'USD',
-      value: 15,
+      usd: 15,
+      inr: 15 * USD_TO_INR,
     }
 
     const airFreight = {
-      name: 'Air Freight',
-      code: 'BLOK_AIR_FREIGHT',
+      label: 'Air Freight',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const pickupLTL = {
-      name: 'Pickup LTL',
-      code: 'PICKUP_LTL',
+      label: 'Pickup LTL',
       currency: ori_country == 'IN' ? 'INR' : 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const destinationLTL = {
-      name: 'Destination LTL',
-      code: 'DESTINATION_LTL',
+      label: 'Destination LTL',
       currency: ori_country == 'IN' ? 'USD' : 'INR',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     //AIR Freight
     const startCode = ori_airport.port_code
@@ -89,50 +90,70 @@ export async function POST(request: NextRequest) {
       )
     }
     const cheapestAirlineRecord = getCheapestAirLineRecord(airlines.airlines)
-    airFreight.value = cheapestAirlineRecord.cost * kg
-    airFreight.name = `Air Freight:${cheapestAirlineRecord.airline_name}(${cheapestAirlineRecord.cost}$/kg)`
+    airFreight.usd = cheapestAirlineRecord.cost * kg
+    airFreight.inr = airFreight.usd * USD_TO_INR
+    airFreight.label = `Air Freight:${cheapestAirlineRecord.airline_name}(${cheapestAirlineRecord.cost}$/kg)`
 
     //pickupLTL and deliveryLTL
     if (ori_country == 'IN') {
-      //pickup INDIA country trucking
+      // pickup from india pickup location --> india airport
       if (pickup_check && pickup_location) {
         const { lat: pickupLocationLat, lng: pickupLocationLng } =
           await getGoogleLocationByPlaceId(pickup_location.place_id)
-        pickupLTL.value = await inLtlTruckingCost({
-          start_latitude: ori_airport.lat,
-          start_longitude: ori_airport.lng,
-          end_latitude: pickupLocationLat,
-          end_longitude: pickupLocationLng,
+
+        pickupLTL.inr = await inLtlTruckingCost({
+          start_latitude: pickupLocationLat,
+          start_longitude: pickupLocationLng,
+          end_latitude: ori_airport.lat,
+          end_longitude: ori_airport.lng,
           ton,
           cbm,
         })
+        pickupLTL.usd = pickupLTL.inr * INR_TO_USD
       }
-
       //delivery USA or other country trucking
       if (delivery_check && delivery_location) {
-        destinationLTL.value =
-          (await usLtlTruckingCost({
-            airportCode: des_airport.port_code,
-            zipcode: delivery_location.zipcode || '',
-            kg,
-          })) ?? 0
+        const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
+          await getGoogleLocationByPlaceId(delivery_location.place_id)
+        //destinationLTL from USA airport --> USA delivery location
+        destinationLTL.usd = await newUsLtlTruckingCost({
+          start_latitude: des_airport.lat,
+          start_longitude: des_airport.lng,
+          end_latitude: deliveryLocationLat,
+          end_longitude: deliveryLocationLng,
+          cbm,
+          weight: kg,
+          unit: 'KG',
+        })
+
+        destinationLTL.inr = destinationLTL.usd * USD_TO_INR
       }
-    } else {
+    }
+    //Country is USA
+    else {
       //pickup us or other country trucking
       if (pickup_check && pickup_location) {
-        pickupLTL.value =
-          (await usLtlTruckingCost({
-            airportCode: ori_airport.port_code,
-            zipcode: pickup_location.zipcode || '',
-            kg,
-          })) ?? 0
+        const { lat: pickupLocationLat, lng: pickupLocationLng } =
+          await getGoogleLocationByPlaceId(pickup_location.place_id)
+        // pickLTL from USA pickup location --> USA airport
+        pickupLTL.usd = await newUsLtlTruckingCost({
+          start_latitude: pickupLocationLat,
+          start_longitude: pickupLocationLng,
+          end_latitude: ori_airport.lat,
+          end_longitude: ori_airport.lng,
+          cbm,
+          weight: kg,
+          unit: 'KG',
+        })
+        pickupLTL.inr = pickupLTL.usd * USD_TO_INR
       }
 
       //destionation  india country trucking
       if (delivery_check && delivery_location) {
         const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
           await getGoogleLocationByPlaceId(delivery_location.place_id)
-        destinationLTL.value = await inLtlTruckingCost({
+        // destinationLTL from IND airport --> IND delivery location
+        destinationLTL.inr = await inLtlTruckingCost({
           start_latitude: des_airport.lat,
           start_longitude: des_airport.lng,
           end_latitude: deliveryLocationLat,
@@ -140,42 +161,57 @@ export async function POST(request: NextRequest) {
           ton,
           cbm,
         })
+        destinationLTL.usd = destinationLTL.inr * INR_TO_USD
       }
     }
-    const quoteTableData = generateQuoteTableData([
-      airFreight,
-      pickupLTL,
-      destinationLTL,
-      terminalCost,
-      ams,
-      awb,
-    ])
+    const quoteTableData = [airFreight, terminalCost, ams, awb]
+
+    let locations: Location[] = [
+      {
+        name: ori_airport.port_name,
+        code: ori_airport.port_code,
+        type: 'air',
+      },
+      {
+        name: des_airport.port_name,
+        code: des_airport.port_code,
+        type: 'air',
+      },
+    ]
+
+    if (pickup_check && pickup_location) {
+      locations.splice(0, 0, {
+        name: pickup_location.description,
+        code: ori_country,
+        type: 'door',
+      })
+      quoteTableData.splice(1, 0, pickupLTL) // Insert at index 1
+    }
+
+    if (delivery_check && delivery_location) {
+      locations.push({
+        name: pickup_location.description,
+        code: ori_country,
+        type: 'door',
+      })
+      // Insert at index 2 if pickupLTL was inserted, else at index 1
+      const insertIndex = pickup_check && pickup_location ? 2 : 1
+      quoteTableData.splice(insertIndex, 0, destinationLTL)
+    }
 
     //COMMENT: appended additional fees
-    // appendAdditionalFees(quoteTableData)
+    newAppendAdditionalFees(quoteTableData)
 
-    const totalSum = quoteTableData.reduce(
+    const { totalInrCost, totalUsdCost } = quoteTableData.reduce(
       (acc, item) => {
         return {
-          totalInrCost: acc.totalInrCost + item.total_amount,
-          totalUsdCost: acc.totalUsdCost + item.cost_usd,
-          subtotalInrCost: acc.subtotalInrCost + item.cost_inr,
-          gstFiveInrTotal:
-            item.gst_percentage == 5
-              ? acc.gstFiveInrTotal + item.gst_amount
-              : acc.gstFiveInrTotal,
-          gstEighteenInrTotal:
-            item.gst_percentage == 18
-              ? acc.gstEighteenInrTotal + item.gst_amount
-              : acc.gstEighteenInrTotal,
+          totalInrCost: acc.totalInrCost + item.inr,
+          totalUsdCost: acc.totalUsdCost + item.usd,
         }
       },
       {
         totalInrCost: 0,
         totalUsdCost: 0,
-        subtotalInrCost: 0,
-        gstFiveInrTotal: 0,
-        gstEighteenInrTotal: 0,
       } // Initial values
     )
 
@@ -190,45 +226,43 @@ export async function POST(request: NextRequest) {
         icoterms,
         shipline: cheapestAirlineRecord.airline_code,
       })
-    //send email
 
-    const quote_id = await createQuote({
-      blok_quote_id: randomIdGenerator(),
-      user_id: email,
-      user_name,
+    //FormId
+    const formId = await createForm(validateData)
+
+    const blok_quote_id = randomIdGenerator()
+    const user = {
+      id: 'BLOK_UNKNOW_USER',
+      name: toTitleCase(user_name) || '',
+      email: email || '',
+      company: toTitleCase(company_name) || '',
+      phone: phone ? formatPhoneNumber(phone) : '',
+    }
+    const offer_id = await createAirOffer({
+      offer_id: blok_quote_id,
+      form_id: formId,
+      user,
       subject,
-      quote_date: new Date(),
-      user_company: company_name,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,
-      total_inr: totalSum.totalInrCost,
-      sub_total_inr_cost: totalSum.subtotalInrCost,
-      gst_eighteen_inr_cost: totalSum.gstEighteenInrTotal,
-      gst_five_inr_cost: totalSum.gstFiveInrTotal,
-      total_usd: totalSum.totalUsdCost,
-      line: 'All',
-      line_quotation_number: '#' + new Date().getTime(),
-      estimated_day: 0,
-      valid_from: new Date().toLocaleDateString('en-CA'),
-      valid_to: new Date(
-        Date.now() + 30 * 24 * 60 * 60 * 1000
-      ).toLocaleDateString('en-CA'),
-      routing: [],
-      form_data: validateData.data,
-      data: quoteTableData,
+      start_code: pickup_location.place_id || '',
+      end_code: delivery_location.description || '',
+      mode: 'AIR',
+      tags: ['AIR'],
+      package_type: `${cbm.toFixed(2)} CBM `,
+      carrier: 'Forward Air',
+      total_cost: { inr: totalInrCost, usd: totalUsdCost },
+      pointDetination: pointDetination,
+      delivery_type: 'door_to_door',
+      locations: locations,
+      exchanges: exchangeValues(),
+      offers: quoteTableData,
     })
-    await sendQuoteInfoToTeam({
-      user_name,
-      subject,
-      total: totalSum.totalInrCost,
-      quoteLink: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.quote.bloksupplychain.com'}/quote/${quote_id}`,
-      company_name,
-      phone_number: phone,
-      email,
-    })
+
     return NextResponse.json(
       {
-        quote_id,
+        offer_id,
+        quoteTableData,
       },
       { status: 200 }
     )

@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
-import { COUNTRIES_LIST } from '@/constants'
+// import { COUNTRIES_LIST } from '@/constants'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { AirPortsType } from '@/models/air-ports'
-import { PredictionWithZipcode } from '@/types/google'
+import { Prediction } from '@/types/google'
 
 export const DestinationAirForm = () => {
   const { watch, setValue, control } = useFormContext()
@@ -19,10 +19,7 @@ export const DestinationAirForm = () => {
   const resetString = useMemo(() => {
     return `${watchDesCountry}-${watchDesPlaceId}`
   }, [watchDesCountry, watchDesPlaceId])
-  const deliveryLocationUrl =
-    watchDesCountry == 'US'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchDesCountry}`
+
   return (
     <>
       <CheckBoxWrapper
@@ -34,24 +31,21 @@ export const DestinationAirForm = () => {
         <SelectWrapper
           label="Country"
           field="des_country"
-          data={COUNTRIES_LIST}
+          data={[{ value: 'US', label: 'US' }]}
           divClass={`w-full ${watchDesPick && 'md:w-1/3'} `}
         />
 
         {watchDesPick && (
-          <FilteredCombobox<PredictionWithZipcode>
+          <FilteredCombobox<Prediction>
             label=" Location"
             placeHolder="pincode or address"
             fieldName="delivery_location"
-            getOptionLabel={(option) =>
-              `${option.description}${watchDesCountry == 'US' && ' (' + option.zipcode + ')'}`
-            }
-            fetchUrl={deliveryLocationUrl}
+            getOptionLabel={(option) => `${option.description}`}
+            fetchUrl={`/api/autos/google?country=${watchDesCountry}`}
             valueSetterCallback={(location) => {
               setValue('delivery_location', {
                 description: location.description,
                 place_id: location.place_id,
-                zipcode: location.zipcode,
               })
             }}
           />

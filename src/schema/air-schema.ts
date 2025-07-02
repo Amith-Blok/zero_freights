@@ -15,7 +15,6 @@ export const AirFormSchema = z.object({
   pickup_location: z.object({
     description: z.string(),
     place_id: z.string(),
-    zipcode: z.string().optional(),
   }),
   des_country: z.enum(COUNTRIES),
   des_airport: z.object({
@@ -29,7 +28,6 @@ export const AirFormSchema = z.object({
   delivery_location: z.object({
     description: z.string(),
     place_id: z.string(),
-    zipcode: z.string().optional(),
   }),
   air_load: z.array(
     z.object({
