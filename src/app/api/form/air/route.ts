@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
       mode: 'AIR',
       tags: ['AIR'],
       package_type: `${cbm.toFixed(2)} CBM `,
-      carrier: 'Forward Air',
+      carrier: toTitleCase(cheapestAirlineRecord.airline_name ?? 'Air INDIA'),
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
       delivery_type: 'door_to_door',
