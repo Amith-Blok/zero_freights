@@ -50,7 +50,7 @@ export const AirForm = () => {
       }
       const result = await response.json()
       if (result.offer_id) {
-        router.push(`/form/${result.offer_id}`)
+        router.push(`/offer/${result.offer_id}`)
       }
       // console.log({ result });
     })
