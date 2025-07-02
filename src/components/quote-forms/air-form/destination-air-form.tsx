@@ -24,7 +24,7 @@ export const DestinationAirForm = () => {
     <>
       <CheckBoxWrapper
         label="Do you want pick up trucking service?"
-        field="pickup_check"
+        field="delivery_check"
       />
       <div className="mt-5 flex flex-col items-center gap-2 md:flex-row">
         <SelectWrapper
