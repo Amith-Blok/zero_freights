@@ -6,7 +6,7 @@ import {
   UseFormSetValue,
   useWatch,
 } from 'react-hook-form'
-import { Prediction, PredictionWithZipcode } from '@/types/google'
+import { Prediction } from '@/types/google'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 export const DestinationLandForm = () => {
   const { setValue, control } = useFormContext()
@@ -119,10 +119,6 @@ const AirportDestinationForm = ({
   watchCountry: string
   setValue: UseFormSetValue<FieldValues>
 }) => {
-  const deliveryLocationUrl =
-    watchCountry == 'US'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchCountry}`
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
@@ -133,20 +129,17 @@ const AirportDestinationForm = ({
           divClass={`w-full md:w-1/4 `}
           labelClass="required block"
         />
-        <FilteredCombobox<PredictionWithZipcode>
+        <FilteredCombobox<Prediction>
           label="Destination Location"
           placeHolder="pincode or address"
           fieldName="delivery_location"
-          getOptionLabel={(option) =>
-            `${option.description}${option.zipcode ? ' (' + option.zipcode + ')' : ''}`
-          }
-          fetchUrl={deliveryLocationUrl}
+          getOptionLabel={(option) => option.description}
+          fetchUrl={`/api/autos/google?country=${watchCountry}`}
           divClass="w-full md:w-3/4"
           valueSetterCallback={(location) => {
             setValue('delivery_location', {
               description: location.description,
               place_id: location.place_id,
-              zipcode: location.zipcode,
             })
           }}
         />

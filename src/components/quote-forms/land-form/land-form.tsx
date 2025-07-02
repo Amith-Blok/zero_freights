@@ -48,8 +48,8 @@ export const LandForm = () => {
       }
 
       const result = await response.json()
-      if (result.quote_id) {
-        router.push(`/quote/${result.quote_id}`)
+      if (result.offer_id) {
+        router.push(`/offer/${result.offer_id}`)
       }
       // console.log({ result });
     })

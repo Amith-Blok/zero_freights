@@ -1,3 +1,4 @@
+'use client'
 import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
 import { LAND_MODES } from '@/constants'

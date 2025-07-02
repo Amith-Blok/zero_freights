@@ -15,7 +15,6 @@ const CommonSchema = z.object({
   delivery_location: z.object({
     description: z.string().min(1, { message: 'required' }),
     place_id: z.string().min(1, { message: 'required' }),
-    zipcode: z.string().optional(),
   }),
   hsn: z.object({
     hsn_code: z.string(),
@@ -55,7 +54,6 @@ export const DomesticTruckingSchema = z
     pickup_location: z.object({
       description: z.string().min(1, { message: 'required' }),
       place_id: z.string().min(1, { message: 'required' }),
-      zipcode: z.string().optional(),
     }),
     domestic_container_type: z.enum(LCL_PACKAGE_TYPE),
     domestic_load: z.array(

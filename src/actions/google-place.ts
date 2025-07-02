@@ -19,10 +19,12 @@ export const googleAutoByInput = async (input: string, country: string) => {
 }
 export const getGoogleLocationByPlaceId = async (placeid: string) => {
   try {
+    if (!placeid) return
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeid}&key=${GOOGLE_API_KEY}`
     )
     const data = (await response.json()) as GeoLocationResponse
+    if (!data.result?.geometry.location) throw new Error('Location not found')
     return data.result.geometry.location
   } catch (error) {
     console.error('Error fetching geolocation:', (error as Error).message)

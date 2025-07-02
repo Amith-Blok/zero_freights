@@ -1,4 +1,4 @@
-import { meterToKilometer, meterToMile } from '@/lib/utils'
+import { calculateCWT, meterToKilometer, meterToMile } from '@/lib/utils'
 import { calculateDistance } from './google-map'
 import { getUsLtlCityByZipcode } from '@/data/us-ltl-cities'
 import { getUsLtlBaseByFaZone } from '@/data/us-ltl-base'
@@ -9,6 +9,13 @@ import {
   US_AVERAGE_SPEED_MPH,
   US_DAILY_DRIVING_HOURS,
 } from '@/constants/trucking'
+import { FclWeightUnitType } from '@/schema/sea-schema'
+import { CBM_TO_CFT, KG_TO_LBS } from '@/constants/weight'
+import {
+  FORWARD_AIR_FUEL_SURCHARGE_PERCENTAGE,
+  FREIGHT_CLASS_RATES,
+  US_LTL_FLAT_RATES_BY_MILES,
+} from '../constant'
 
 export async function usTrucking({
   start_latitude,
@@ -174,4 +181,72 @@ const calcualteEstimatedDay = ({
   return Math.ceil(
     totalDistance / IN_AVERAGE_SPEED_KPH / IN_DAILY_DRIVING_HOURS
   )
+}
+
+export async function newUsLtlTruckingCost({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+  weight,
+  unit,
+  cbm,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+  weight: number
+  unit: FclWeightUnitType
+  cbm: number
+}) {
+  // const BASE_RATE = 35
+  const CWT = calculateCWT({ value: weight, unit })
+
+  const distanceInMeter = await calculateDistance(
+    {
+      latitude: start_latitude,
+      longitude: start_longitude,
+    },
+    {
+      latitude: end_latitude,
+      longitude: end_longitude,
+    }
+  )
+  const distance = meterToMile(distanceInMeter)
+  const volumenInCft = cbm * CBM_TO_CFT
+  const lbsWeight = unit == 'KG' ? weight * KG_TO_LBS : weight
+  const density = lbsWeight / volumenInCft
+
+  // Freight Class
+
+  const freightClass = FREIGHT_CLASS_RATES.find(
+    (rate) => rate.minDensity <= density
+  )
+  const freightClassRatePerCWT = freightClass ? freightClass.rate * CWT : 0
+
+  //BASE TRUCKING RATE
+
+  const baseTrucking = US_LTL_FLAT_RATES_BY_MILES.find(
+    (rate) => rate.min <= distance && rate.max >= distance
+  )
+  console.log({ baseTrucking })
+  const baseTruckingRate = baseTrucking ? baseTrucking.rate : distance * 3
+  //FORWARD AIR fuel surcharges
+  const fuelSurcharges =
+    baseTruckingRate * FORWARD_AIR_FUEL_SURCHARGE_PERCENTAGE
+  const total = baseTruckingRate + freightClassRatePerCWT + fuelSurcharges
+  console.log({
+    CWT,
+    distance,
+    volumenInCft,
+    lbsWeight,
+    density,
+    freightClass,
+    freightClassRatePerCWT,
+    baseTruckingRate,
+    fuelSurcharges,
+    total,
+  })
+  return total
 }

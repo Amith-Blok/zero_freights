@@ -4,6 +4,7 @@ import { SelectDataType } from '@/types/global'
 import { FclWeightUnitType } from '@/schema/sea-schema'
 import { DContainerType } from '@/types/sea'
 import { EUROPEAN_UNION_COUNTREIS_ISO } from '@/constants'
+import { KG_TO_LBS } from '@/constants/weight'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -114,4 +115,14 @@ export function toTitleCase(text: string): string {
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
+}
+
+export function calculateCWT({
+  value,
+  unit,
+}: {
+  value: number
+  unit: FclWeightUnitType
+}): number {
+  return unit === 'KG' ? (value * KG_TO_LBS) / 100 : value / 100
 }

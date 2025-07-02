@@ -44,6 +44,7 @@ const WarOfferSchema = z
 const AirOfferSchema = z
   .object({
     mode: z.literal('AIR'),
+    carrier: z.string(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
   })
@@ -52,6 +53,7 @@ const AirOfferSchema = z
 const LandOfferSchema = z
   .object({
     mode: z.literal('LAND'),
+    carrier: z.string(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
   })

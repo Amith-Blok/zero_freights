@@ -91,16 +91,19 @@ export interface WarehouseOffer extends Offer {
 }
 
 export interface AirOffer extends Offer {
+  carrier: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
 
 export interface LandOffer extends Offer {
+  carrier: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
 
 export interface SeaLclOffer extends Offer {
+  carrier: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }

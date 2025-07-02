@@ -58,7 +58,12 @@ export async function POST(request: NextRequest) {
       packageLabel = package_type
       carrierName = carrier
       tranist = estimated_days
-      //TODO: add transit time
+    } else if (mode == 'LAND') {
+      const { carrier, package_type } = safeParseOffer.data
+      confirmedQuote = offers
+      packageLabel = package_type
+      carrierName = carrier
+      tranist = 0
     } else {
       return NextResponse.json({ error: 'invalid request' }, { status: 400 })
     }

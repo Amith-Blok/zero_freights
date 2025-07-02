@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
       start_code: pickup_location.place_id || '',
       end_code: delivery_location?.port_code || '',
       mode: 'WAR',
-      tags: ['WARHOUSE'],
+      tags: ['WAREHOUSE'],
       package_type: `${cbmTon.cbm.toFixed(2)} CBM`,
       carrier: 'Forward Air',
       estimated_days: storage_days,

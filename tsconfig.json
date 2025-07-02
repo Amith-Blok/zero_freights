@@ -29,10 +29,11 @@
     ".next/types/**/*.ts",
     "src/data/blok-lines-rates.ts.bak",
     "src/app/(protected)/quote/[quoteId]/_page.tsx.bak",
-    "src/app/api/form/land/route.ts",
+    "src/app/api/form/land/route.ts.bak",
     "src/app/api/form/sea-fcl/route.ts",
     "src/models/offers.ts.bak",
-    "src/app/api/confirmed-quote/route.ts.bak"
-, "src/data/offer.ts.bak"  ],
+    "src/app/api/confirmed-quote/route.ts.bak",
+    "src/data/offer.ts.bak"
+  ],
   "exclude": ["node_modules"]
 }

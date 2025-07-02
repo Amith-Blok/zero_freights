@@ -1,5 +1,5 @@
 // import { AirForm } from '@/components/quote-forms/air-form/air-form'
-// import { LandForm } from '@/components/quote-forms/land-form/land-form'
+import { LandForm } from '@/components/quote-forms/land-form/land-form'
 import { SeaForm } from '@/components/quote-forms/sea-form/sea-form'
 import { WarehouseForm } from '@/components/quote-forms/warehouse-form/warehouse-form'
 import { CardWrapper } from '@/components/shared/card-wrapper'
@@ -48,8 +48,7 @@ export default async function HomePage(props: {
                 <ComingSoon />
               </TabsContent>
               <TabsContent value="LAND">
-                {/* <LandForm /> */}
-                <ComingSoon />
+                <LandForm />
               </TabsContent>
               <TabsContent value="WAR">
                 <WarehouseForm />
