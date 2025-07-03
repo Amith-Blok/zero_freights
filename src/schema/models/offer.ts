@@ -58,6 +58,14 @@ const LandOfferSchema = z
     offers: z.array(LabeledCostZodSchema),
   })
   .merge(OfferBaseSchema)
+const SeaLclOfferSchema = z
+  .object({
+    mode: z.literal('SEA_LCL'),
+    carrier: z.string(),
+    total_cost: TotalCostZodSchema,
+    offers: z.array(LabeledCostZodSchema),
+  })
+  .merge(OfferBaseSchema)
 
 const SeaFclOfferSchema = z
   .object({
@@ -74,4 +82,5 @@ export const OfferZodSchema = z.discriminatedUnion('mode', [
   AirOfferSchema,
   LandOfferSchema,
   SeaFclOfferSchema,
+  SeaLclOfferSchema,
 ])

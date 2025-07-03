@@ -20,7 +20,6 @@ const CommonSchema = z.object({
     .object({
       description: z.string().min(1, { message: 'required' }),
       place_id: z.string().min(1, { message: 'required' }),
-      zipcode: z.string().optional(),
     })
     .nullish(),
   ori_port_rail: z.object({
@@ -45,7 +44,6 @@ const CommonSchema = z.object({
     .object({
       description: z.string().min(1, { message: 'required' }),
       place_id: z.string().min(1, { message: 'required' }),
-      zipcode: z.string().optional(),
     })
     .nullish(),
   des_port_rail: z.object({

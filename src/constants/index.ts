@@ -3,7 +3,7 @@ import { HEADER_ROUTES } from './site-map'
 export { USD_TO_INR, INR_TO_USD, HEADER_ROUTES }
 export const SEA_MODES = [
   { label: 'Full container load(FCL)', value: 'FCL' },
-  { label: 'Less container load(LCL)', value: 'LCL', disable: true },
+  { label: 'Less container load(LCL)', value: 'LCL' },
   { label: 'Bulk', value: 'BULK', disable: true },
 ]
 export const LAND_MODES = [

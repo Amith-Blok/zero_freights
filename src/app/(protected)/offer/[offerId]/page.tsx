@@ -8,6 +8,7 @@ import { SeaFclComp } from './sea-fcl-comp'
 import WarehouseComp from './warehouse-comp'
 import LandComp from './land-comp'
 import AirComp from './air-comp'
+import SeaLclComp from './sea-lcl-comp'
 
 export default async function OfferPage(props: {
   params: Promise<{ offerId: string }>
@@ -103,6 +104,22 @@ const OfferComp = async ({ offerId }: { offerId: string }) => {
     return (
       <AirComp
         mode="AIR"
+        locations={offers.locations}
+        containerType={package_type}
+        containerLabel={package_type}
+        tags={offers.tags[0]}
+        offerId={offerId}
+        offers={offers.offers}
+        carrier={carrier}
+        price={offers.total_cost.inr}
+        estimatedDays={0}
+      />
+    )
+  } else if (offers.mode === 'SEA_LCL') {
+    const { package_type, carrier } = offers
+    return (
+      <SeaLclComp
+        mode="SEA_LCL"
         locations={offers.locations}
         containerType={package_type}
         containerLabel={package_type}

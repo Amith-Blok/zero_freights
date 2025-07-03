@@ -17,10 +17,7 @@ export const DestinationSeaForm = () => {
   const watchDesCountry = useWatch({ control, name: 'des_country' })
   const watchDesPortRail = useWatch({ control, name: 'des_port_rail' })
   const { port_code: watchCode, type: watchType } = watchDesPortRail ?? {}
-  const deliveryLocationUrl =
-    watchDesCountry == 'US' && watchMode !== 'FCL'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchDesCountry}`
+
   return (
     <>
       <CheckBoxWrapper
@@ -44,7 +41,7 @@ export const DestinationSeaForm = () => {
             getOptionLabel={(option) => option.description}
             fieldName="delivery_location"
             placeHolder="pincode or address"
-            fetchUrl={deliveryLocationUrl}
+            fetchUrl={`/api/autos/google?country=${watchDesCountry}`}
             valueSetterCallback={(location) => {
               setValue('delivery_location', {
                 description: location.description,

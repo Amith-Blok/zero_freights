@@ -1,21 +1,21 @@
-/* eslint-disable no-unused-vars */
 import { SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { getLCLSeaFreightCostByCode } from '@/data/lcl-sea-freight'
 import {
   inLtlTruckingCost,
-  usLtlTruckingCost,
+  newUsLtlTruckingCost,
 } from '@/app/api/form/helper/trucking'
 import { getGoogleLocationByPlaceId } from '@/app/api/form/helper/google-map'
-import {
-  generateQuoteMetaDetails,
-  generateQuoteTableData,
-  randomIdGenerator,
-} from '../helper/lib'
+import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
 
-import { createQuote } from '@/data/quotes'
-// import { appendAdditionalFees } from '../helper/table-data-appender'
-import { sendQuoteInfoToTeam } from '@/lib/mail'
+import { INR_TO_USD, USD_TO_INR } from '@/constants'
+import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
+import { createForm } from '@/data/form'
+import { exchangeValues } from '@/lib/exchange'
+import { Location } from '@/models/offer/shared-types'
+import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
@@ -35,9 +35,12 @@ export async function POST(request: NextRequest) {
       pickup_location,
       ori_country,
       ori_port_rail,
+      ori_port_if_rail,
+      des_country,
       delivery_check,
       delivery_location,
       des_port_rail,
+      des_port_if_rail,
       lcl_cbm_ton,
       icoterms,
       user_name,
@@ -47,58 +50,58 @@ export async function POST(request: NextRequest) {
     } = validateData.data
 
     const seaLclFreight = {
-      name: 'LCL Sea Freight',
-      code: 'BLOK_SEA_LCL_FREIGHT',
+      label: 'LCL Sea Freight',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const terminalCharge = {
-      name: 'Terminal Charge',
-      code: 'TERMINAL_CHARGE',
+      label: 'Terminal Charge',
       currency: 'INR',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const docCharge = {
-      name: 'DOC Charge',
-      code: 'DOC_CHARGE',
+      label: 'DOC Charge',
       currency: 'INR',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const vgmCharge = {
-      name: 'VGM Charge',
-      code: 'VGM_CHARGE',
+      label: 'VGM Charge',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const ddcCharge = {
-      name: 'DDC Charge',
-      code: 'DDC_CHARGE',
+      label: 'DDC Charge',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const loadUnLoadFee = {
-      name: 'Load Unload Fee',
-      code: 'LOAD_UNLOAD_FEE',
+      label: 'Load Unload Fee',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const chasisFee = {
-      name: 'Chasis Fee',
-      code: 'CHASIS_FEE',
+      label: 'Chasis Fee',
       currency: 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const pickupLTL = {
-      name: 'Pickup LTL',
-      code: 'PICKUP_LTL',
+      label: 'Pickup LTL',
       currency: ori_country == 'IN' ? 'INR' : 'USD',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
     const destinationLTL = {
-      name: 'Destination LTL',
-      code: 'DESTINATION_LTL',
+      label: 'Destination LTL',
       currency: ori_country == 'IN' ? 'USD' : 'INR',
-      value: 0,
+      usd: 0,
+      inr: 0,
     }
 
     const seaFreightCostDB = await getLCLSeaFreightCostByCode(
@@ -117,57 +120,88 @@ export async function POST(request: NextRequest) {
     }
     let { cbm, ton, kg } = lcl_cbm_ton
     let lbsPerHundred = (ton * 2204.62) / 100
-    loadUnLoadFee.value = Math.max(97, lbsPerHundred * 5.02)
-    seaLclFreight.value = seaFreightCostDB * cbm
-    terminalCharge.value = Math.max(
+
+    loadUnLoadFee.usd = Math.max(97, lbsPerHundred * 5.02)
+    loadUnLoadFee.inr = loadUnLoadFee.usd * USD_TO_INR
+
+    seaLclFreight.usd = seaFreightCostDB * cbm
+    seaLclFreight.inr = seaLclFreight.usd * USD_TO_INR
+
+    terminalCharge.inr = Math.max(
       1250 * Math.max(2, cbm),
       1750 * Math.max(2, ton)
     )
-    docCharge.value = 4250
-    vgmCharge.value = 20 * cbm
-    ddcCharge.value = Math.max(50, 28.1 * cbm)
-    chasisFee.value = Math.max(15, Math.max(5 * cbm, 5 * ton))
+    terminalCharge.usd = terminalCharge.inr / INR_TO_USD
+
+    docCharge.inr = 4250
+    docCharge.usd = docCharge.inr / INR_TO_USD
+
+    vgmCharge.usd = 20 * cbm
+    vgmCharge.inr = vgmCharge.usd * USD_TO_INR
+
+    ddcCharge.usd = Math.max(50, 28.1 * cbm)
+    ddcCharge.inr = ddcCharge.usd * USD_TO_INR
+
+    chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
+    chasisFee.inr = chasisFee.usd * USD_TO_INR
 
     //pickupLTL and deliveryLTL
     if (ori_country == 'IN') {
       //pickup INDIA country trucking
 
       if (pickup_check && pickup_location) {
+        // pickup india --> sea port
         const { lat: pickupLocationLat, lng: pickupLocationLng } =
           await getGoogleLocationByPlaceId(pickup_location.place_id)
-        pickupLTL.value = await inLtlTruckingCost({
-          start_latitude: ori_port_rail.lat,
-          start_longitude: ori_port_rail.lng,
-          end_latitude: pickupLocationLat,
-          end_longitude: pickupLocationLng,
+        pickupLTL.inr = await inLtlTruckingCost({
+          start_latitude: pickupLocationLat,
+          start_longitude: pickupLocationLng,
+          end_latitude: ori_port_rail.lat,
+          end_longitude: ori_port_rail.lng,
           ton,
           cbm,
         })
+        pickupLTL.usd = pickupLTL.inr * INR_TO_USD
       }
 
       //delivery USA or other country trucking
       if (delivery_check && delivery_location) {
-        destinationLTL.value =
-          (await usLtlTruckingCost({
-            zipcode: delivery_location.zipcode || '',
-            kg,
-          })) ?? 0
+        const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
+          await getGoogleLocationByPlaceId(delivery_location.place_id)
+        const usLtl = await newUsLtlTruckingCost({
+          start_latitude: des_port_rail.lat,
+          start_longitude: des_port_rail.lng,
+          end_latitude: deliveryLocationLat,
+          end_longitude: deliveryLocationLng,
+          weight: kg,
+          unit: 'KG',
+          cbm,
+        })
+        destinationLTL.usd = usLtl ?? 0
+        destinationLTL.inr = destinationLTL.usd * USD_TO_INR
       }
     } else {
-      //pickup us or other country trucking
+      //pickup USA or other country trucking
       if (pickup_check && pickup_location) {
-        destinationLTL.value =
-          (await usLtlTruckingCost({
-            zipcode: pickup_location.zipcode || '',
-            kg,
-          })) ?? 0
+        const { lat: pickupLocationLat, lng: pickupLocationLng } =
+          await getGoogleLocationByPlaceId(pickup_location.place_id)
+        pickupLTL.usd = await newUsLtlTruckingCost({
+          start_latitude: pickupLocationLat,
+          start_longitude: pickupLocationLng,
+          end_latitude: ori_port_rail.lat,
+          end_longitude: ori_port_rail.lng,
+          weight: kg,
+          unit: 'KG',
+          cbm,
+        })
+        pickupLTL.inr = pickupLTL.usd * INR_TO_USD
       }
 
       //destionation  india country trucking
       if (delivery_check && delivery_location) {
         const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
           await getGoogleLocationByPlaceId(delivery_location.place_id)
-        destinationLTL.value = await inLtlTruckingCost({
+        destinationLTL.inr = await inLtlTruckingCost({
           start_latitude: des_port_rail.lat,
           start_longitude: des_port_rail.lng,
           end_latitude: deliveryLocationLat,
@@ -175,10 +209,11 @@ export async function POST(request: NextRequest) {
           ton,
           cbm,
         })
+        destinationLTL.usd = destinationLTL.inr * INR_TO_USD
       }
     }
     //quote table data
-    const quoteTableData = generateQuoteTableData([
+    const quoteTableData = [
       seaLclFreight,
       pickupLTL,
       terminalCharge,
@@ -188,35 +223,75 @@ export async function POST(request: NextRequest) {
       chasisFee,
       loadUnLoadFee,
       destinationLTL,
-    ])
+    ]
 
     //COMMENT: append additional fees
-    // appendAdditionalFees(quoteTableData)
+    newAppendAdditionalFees(quoteTableData)
 
-    const totalSum = quoteTableData.reduce(
+    const { totalInrCost, totalUsdCost } = quoteTableData.reduce(
       (acc, item) => {
         return {
-          totalInrCost: acc.totalInrCost + item.total_amount,
-          totalUsdCost: acc.totalUsdCost + item.cost_usd,
-          subtotalInrCost: acc.subtotalInrCost + item.cost_inr,
-          gstFiveInrTotal:
-            item.gst_percentage == 5
-              ? acc.gstFiveInrTotal + item.gst_amount
-              : acc.gstFiveInrTotal,
-          gstEighteenInrTotal:
-            item.gst_percentage == 18
-              ? acc.gstEighteenInrTotal + item.gst_amount
-              : acc.gstEighteenInrTotal,
+          totalInrCost: acc.totalInrCost + item.inr,
+          totalUsdCost: acc.totalUsdCost + item.usd,
         }
       },
       {
         totalInrCost: 0,
         totalUsdCost: 0,
-        subtotalInrCost: 0,
-        gstFiveInrTotal: 0,
-        gstEighteenInrTotal: 0,
       } // Initial values
     )
+
+    let locations: Location[] = []
+    if (pickup_check && pickup_location)
+      locations.push({
+        name: pickup_location.description,
+        code: ori_country,
+        type: 'door',
+      })
+    if (ori_port_rail)
+      locations.push({
+        name: ori_port_rail.port_name,
+        code: ori_port_rail.port_code,
+        type:
+          ori_country === 'IN'
+            ? ori_port_rail.type == 'PORT'
+              ? 'port'
+              : 'rail'
+            : 'port',
+      })
+    if (ori_port_if_rail && ori_country === 'IN') {
+      locations.push({
+        name: ori_port_if_rail.port_name,
+        code: ori_port_if_rail.port_code,
+        type: 'port',
+      })
+    }
+    if (des_port_if_rail && des_country === 'IN') {
+      locations.push({
+        name: des_port_if_rail.port_name,
+        code: des_port_if_rail.port_code,
+        type: 'port',
+      })
+    }
+    if (des_port_rail) {
+      locations.push({
+        name: des_port_rail.port_name,
+        code: des_port_rail.port_code,
+        type:
+          des_country === 'IN'
+            ? des_port_rail.type == 'PORT'
+              ? 'port'
+              : 'rail'
+            : 'port',
+      })
+    }
+    if (delivery_check && delivery_location)
+      locations.push({
+        name: delivery_location.description,
+        code: des_country,
+        type: 'door',
+      })
+
     //quote details
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
@@ -230,46 +305,43 @@ export async function POST(request: NextRequest) {
 
     //send email
 
-    const quote_id = await createQuote({
-      blok_quote_id: randomIdGenerator(),
-      user_id: email,
-      user_name,
+    //FormId
+    const formId = await createForm(validateData)
+
+    const blok_quote_id = randomIdGenerator()
+    const user = {
+      id: 'BLOK_UNKNOW_USER',
+      name: toTitleCase(user_name) || '',
+      email: email || '',
+      company: toTitleCase(company_name) || '',
+      phone: phone ? formatPhoneNumber(phone) : '',
+    }
+    const offer_id = await createSeaLclOffer({
+      offer_id: blok_quote_id,
+      form_id: formId,
+      user,
       subject,
-      quote_date: new Date(),
-      user_company: company_name,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,
-      total_inr: totalSum.totalInrCost,
-      sub_total_inr_cost: totalSum.subtotalInrCost,
-      gst_eighteen_inr_cost: totalSum.gstEighteenInrTotal,
-      gst_five_inr_cost: totalSum.gstFiveInrTotal,
-      total_usd: totalSum.totalUsdCost,
-      line: 'All',
-      line_quotation_number: '#' + new Date().getTime(),
-      estimated_day: 0,
-      valid_from: new Date().toLocaleDateString('en-CA'),
-      valid_to: new Date(
-        Date.now() + 30 * 24 * 60 * 60 * 1000
-      ).toLocaleDateString('en-CA'),
-      routing: [],
-      form_data: validateData.data,
-      data: quoteTableData,
+      start_code: pickup_check
+        ? pickup_location?.place_id || ''
+        : ori_port_rail.port_name,
+      end_code: delivery_check
+        ? delivery_location?.place_id || ''
+        : des_port_rail.port_name,
+      mode: 'SEA_LCL',
+      tags: ['LCL'],
+      package_type: `${cbm.toFixed(2)} CBM`,
+      carrier: 'Hapag',
+      total_cost: { inr: totalInrCost, usd: totalUsdCost },
+      pointDetination: pointDetination,
+      delivery_type: 'door_to_door',
+      locations: locations,
+      exchanges: exchangeValues(),
+      offers: quoteTableData,
     })
-    await sendQuoteInfoToTeam({
-      user_name,
-      subject,
-      total: totalSum.totalInrCost,
-      quoteLink: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.quote.bloksupplychain.com'}/quote/${quote_id}`,
-      company_name,
-      phone_number: phone,
-      email,
-    })
-    return NextResponse.json(
-      {
-        quote_id,
-      },
-      { status: 200 }
-    )
+
+    return NextResponse.json({ offer_id, quoteTableData }, { status: 200 })
   } catch (error) {
     console.log(error)
     return NextResponse.json(

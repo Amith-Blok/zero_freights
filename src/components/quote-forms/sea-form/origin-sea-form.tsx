@@ -7,7 +7,7 @@ import { COUNTRIES_LIST } from '@/constants'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import { FilteredCombobox } from '../_components/filtered-combobox'
-import { PredictionWithZipcode } from '@/types/google'
+import { Prediction } from '@/types/google'
 
 export const OriginSeaForm = () => {
   const { watch, setValue, control } = useFormContext()
@@ -17,10 +17,6 @@ export const OriginSeaForm = () => {
   const watchOriPortRail = useWatch({ control, name: 'ori_port_rail' })
   const watchPlaceId = useWatch({ control, name: 'pickup_location.place_id' })
   const { port_code: watchCode, type: watchType } = watchOriPortRail ?? {}
-  const OriLocationUrl =
-    watchOriCountry == 'US' && watchMode !== 'FCL'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchOriCountry}`
 
   return (
     <>
@@ -39,17 +35,16 @@ export const OriginSeaForm = () => {
         />
 
         {watchPick && (
-          <FilteredCombobox<PredictionWithZipcode>
+          <FilteredCombobox<Prediction>
             label="Pickup Location"
             placeHolder="pincode or address"
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
-            fetchUrl={OriLocationUrl}
+            fetchUrl={`/api/autos/google?country=${watchOriCountry}`}
             valueSetterCallback={(location) => {
               setValue('pickup_location', {
                 description: location.description,
                 place_id: location.place_id,
-                zipcode: location.zipcode,
               })
             }}
           />
