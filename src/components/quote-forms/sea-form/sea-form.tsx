@@ -11,13 +11,13 @@ import { CargoAllForm } from '../_components/cargo-all-form'
 import { SEA_DEFAULT_VALUES } from '@/constants'
 import { DevTool } from '@hookform/devtools'
 import { SeaFormResetStore } from '@/store/form-restore'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '@/components/ui/select'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { FormMetaProvider } from '@/provider'
@@ -72,18 +72,18 @@ export const SeaForm = () => {
     })
   }
   const router = useRouter()
-  const restoreData = SeaFormResetStore((state) => state.sea)
+  // const restoreData = SeaFormResetStore((state) => state.sea)
 
-  function restoreByIdx(idx: number) {
-    // console.log({ idx });
-    seaForm.reset(restoreData[idx].data)
-  }
+  // function restoreByIdx(idx: number) {
+  //   // console.log({ idx });
+  //   seaForm.reset(restoreData[idx].data)
+  // }
   return (
     <FormMetaProvider.Provider value={{ loading }}>
       <FormProvider {...seaForm}>
         <form onSubmit={seaForm.handleSubmit(onHandleSubmit)}>
           {/* restore history */}
-          <Select
+          {/* <Select
             onValueChange={async (idx) => {
               restoreByIdx(+idx)
               await new Promise((resolve) => setTimeout(resolve, 400))
@@ -104,7 +104,7 @@ export const SeaForm = () => {
                 <SelectItem value="nill">No History</SelectItem>
               )}
             </SelectContent>
-          </Select>
+          </Select> */}
           <div className="flex w-full flex-col gap-2 bg-white lg:flex-row">
             <CardWrapper
               cardTitle="Load"

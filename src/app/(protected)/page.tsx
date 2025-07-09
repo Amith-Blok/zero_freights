@@ -13,6 +13,7 @@ export default async function HomePage(props: {
   if (!['SEA', 'LAND', 'AIR', 'WAR'].includes(defaultMode)) {
     defaultMode = 'SEA'
   }
+  console.log({ defaultMode })
   return (
     <div className="flex w-full items-center justify-center bg-transparent">
       <CardWrapper
@@ -21,41 +22,48 @@ export default async function HomePage(props: {
         titleClass="text-2xl"
         cardClass="my-5  md:m-5 w-full min-h-screen bg-white bg-opacity-95"
       >
-        <Tabs defaultValue={defaultMode}>
-          <div className="flex flex-col">
-            <div className="w-full md:w-[400px]">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="SEA" className="text-xs md:text-sm">
-                  🌊Sea
-                </TabsTrigger>
-                <TabsTrigger value="AIR" className="text-xs md:text-sm">
-                  ✈️Air
-                </TabsTrigger>
-                <TabsTrigger value="LAND" className="text-xs md:text-sm">
-                  🚛Land
-                </TabsTrigger>
-                <TabsTrigger value="WAR" className="text-xs md:text-sm">
-                  🏭Warehouse
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <div>
-              <TabsContent value="SEA">
-                <SeaForm />
-              </TabsContent>
-              <TabsContent value="AIR">
-                <AirForm />
-              </TabsContent>
-              <TabsContent value="LAND">
-                <LandForm />
-              </TabsContent>
-              <TabsContent value="WAR">
-                <WarehouseForm />
-              </TabsContent>
-            </div>
-          </div>
-        </Tabs>
+        {/* TODO: wrap it in suspense with skeleton ui */}
+        <TabComponent key={defaultMode} defaultTab={defaultMode} />
       </CardWrapper>
     </div>
+  )
+}
+
+const TabComponent = (params: { defaultTab: string }) => {
+  return (
+    <Tabs defaultValue={params.defaultTab}>
+      <div className="flex flex-col">
+        <div className="w-full md:w-[400px]">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="SEA" className="text-xs md:text-sm">
+              🌊Sea
+            </TabsTrigger>
+            <TabsTrigger value="AIR" className="text-xs md:text-sm">
+              ✈️Air
+            </TabsTrigger>
+            <TabsTrigger value="LAND" className="text-xs md:text-sm">
+              🚛Land
+            </TabsTrigger>
+            <TabsTrigger value="WAR" className="text-xs md:text-sm">
+              🏭Warehouse
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        <div>
+          <TabsContent value="SEA">
+            <SeaForm />
+          </TabsContent>
+          <TabsContent value="AIR">
+            <AirForm />
+          </TabsContent>
+          <TabsContent value="LAND">
+            <LandForm />
+          </TabsContent>
+          <TabsContent value="WAR">
+            <WarehouseForm />
+          </TabsContent>
+        </div>
+      </div>
+    </Tabs>
   )
 }

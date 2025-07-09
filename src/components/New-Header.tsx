@@ -38,18 +38,18 @@ import Image from 'next/image'
 const companyMenuItems = [
   {
     title: 'About Us',
-    href: '/about',
+    href: 'https://www.bloksupplychain.com/about',
     description: 'Learn about our company and mission',
   },
   {
     title: 'Our Team',
-    href: '/team',
+    href: 'https://www.bloksupplychain.com',
     description: 'Meet our logistics experts',
   },
-  { title: 'Careers', href: '/careers', description: 'Join our growing team' },
+  // { title: 'Careers', href: '/careers', description: 'Join our growing team' },
   {
     title: 'News & Updates',
-    href: '/news',
+    href: 'https://www.bloksupplychain.com/news',
     description: 'Latest company news and industry insights',
   },
 ]
@@ -57,25 +57,25 @@ const companyMenuItems = [
 const servicesMenuItems = [
   {
     title: 'Sea Freight',
-    href: '/services/sea',
+    href: '/?mode=SEA',
     description: 'Ocean shipping solutions worldwide',
     icon: Globe,
   },
   {
     title: 'Air Freight',
-    href: '/services/air',
+    href: '/?mode=AIR',
     description: 'Fast air cargo services',
     icon: Package,
   },
   {
     title: 'Land Transport',
-    href: '/services/land',
+    href: '/?mode=LAND',
     description: 'Ground transportation and trucking',
     icon: Truck,
   },
   {
     title: 'Warehouse Solutions',
-    href: '/services/warehouse',
+    href: '/?mode=WAR',
     description: 'Storage and distribution services',
     icon: Package,
   },
@@ -85,15 +85,15 @@ export default function Header() {
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 py-1 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4 pt-1">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/logo_zf.png"
-              width={160}
-              height={60}
+              width={190}
+              height={50}
               alt="Zero Freights logo"
             />
           </Link>
@@ -166,7 +166,9 @@ export default function Header() {
                   className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-stone-50 hover:text-stone-600 focus:bg-stone-50 focus:text-stone-600 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
                   asChild
                 >
-                  <Link href="/documentation">Documentation</Link>
+                  <Link href="https://www.bloksupplychain.com">
+                    Documentation
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -194,6 +196,7 @@ export default function Header() {
                   <Link href="/" className="flex items-center">
                     <Image
                       src="/logo_zf.png"
+                      width={190}
                       height={32}
                       alt="Zero Freights logo"
                     />
