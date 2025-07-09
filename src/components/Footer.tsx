@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Phone, MapPin, Mail, Globe } from 'lucide-react'
+import { Phone, MapPin, Mail, Globe, Calculator } from 'lucide-react'
 import Image from 'next/image'
 
 export default function Footer() {
@@ -86,7 +86,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
-                  <Phone className="h-4 w-4 text-green-600" />
+                  <Calculator className="h-4 w-4 text-green-600" />
                 </div>
                 <div className="text-sm">
                   <p className="font-medium text-gray-900">+91 22 4750 7283</p>
