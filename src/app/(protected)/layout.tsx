@@ -1,3 +1,4 @@
+import Footer from '@/components/Footer'
 import Header from '@/components/New-Header'
 import { Toaster } from '@/components/ui/toaster'
 export default async function FormLayoutPage({
@@ -7,15 +8,10 @@ export default async function FormLayoutPage({
 }) {
   return (
     <>
-      <Header />
       <main className="absolute min-h-screen min-w-[100%] justify-center">
-        {/* <Image */}
-        {/*   src="/layout_bg.jpg" */}
-        {/*   fill */}
-        {/*   alt="layout_bg" */}
-        {/*   className="relative -z-10" */}
-        {/* /> */}
+        <Header />
         {children}
+        <Footer />
       </main>
       <Toaster />
     </>
