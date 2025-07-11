@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       ori_airport,
       des_airport,
       ori_country,
+      des_country,
       air_cbm_ton,
       pickup_check,
       pickup_location,
@@ -190,8 +191,8 @@ export async function POST(request: NextRequest) {
 
     if (delivery_check && delivery_location) {
       locations.push({
-        name: pickup_location.description,
-        code: ori_country,
+        name: delivery_location.description,
+        code: des_country,
         type: 'door',
       })
       // Insert at index 2 if pickupLTL was inserted, else at index 1
