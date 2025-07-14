@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 // import { COUNTRIES_LIST } from '@/constants'
@@ -9,16 +9,28 @@ import { AirPortsType } from '@/models/air-ports'
 import { Prediction } from '@/types/google'
 
 export const DestinationAirForm = () => {
-  const { watch, setValue, control } = useFormContext()
+  const { watch, setValue, resetField, control } = useFormContext()
   const watchDesPick = watch('delivery_check') as boolean
+  useEffect(() => {
+    if (!watchDesPick) {
+      resetField('des_airport')
+      resetField('delivery_location')
+    }
+  }, [watchDesPick, resetField])
+
   const watchDesCountry = useWatch({ control, name: 'des_country' }) as string
   const watchDesPlaceId = useWatch({
     control,
     name: 'delivery_location.place_id',
   }) as string
   const resetString = useMemo(() => {
-    return `${watchDesCountry}-${watchDesPlaceId}`
-  }, [watchDesCountry, watchDesPlaceId])
+    return `${watchDesCountry}-${watchDesPlaceId}-${watchDesPick}`
+  }, [watchDesCountry, watchDesPlaceId, watchDesPick])
+
+  const airportApi = watchDesPick
+    ? `/api/autos/air-ports?country=${watchDesCountry}&place_id=${watchDesPlaceId}`
+    : `/api/autos/air-ports/all?country=${watchDesCountry}`
+  console.log({ airportApi })
 
   return (
     <>
@@ -56,7 +68,7 @@ export const DestinationAirForm = () => {
         label="Airport"
         placeHolder="Airport name or Airport code"
         fieldName="des_airport"
-        fetchUrl={`/api/autos/air-ports?country=${watchDesCountry}&place_id=${watchDesPlaceId}`}
+        fetchUrl={airportApi}
         getOptionLabel={(option) => `${option.port_name}-(${option.port_code})`}
         valueSetterCallback={(port) => {
           const { port_name, port_code, location, port_type } = port

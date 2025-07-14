@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 // import { COUNTRIES_LIST } from '@/constants'
@@ -8,17 +8,25 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { AirPortsType } from '@/models/air-ports'
 export const OriginAirForm = () => {
-  const { watch, setValue, control } = useFormContext()
-
+  const { watch, setValue, control, resetField } = useFormContext()
   const watchPick = watch('pickup_check') as boolean
+  useEffect(() => {
+    if (!watchPick) {
+      resetField('pickup_location')
+      resetField('ori_airport')
+    }
+  }, [watchPick, resetField])
   const watchOriCountry = useWatch({ control, name: 'ori_country' }) as string
   const watchPlaceId = useWatch({
     control,
     name: 'pickup_location.place_id',
   }) as string
   const resetString = useMemo(() => {
-    return `${watchOriCountry}-${watchPlaceId}`
-  }, [watchOriCountry, watchPlaceId])
+    return `${watchOriCountry}-${watchPlaceId}-${watchPick}`
+  }, [watchOriCountry, watchPlaceId, watchPick])
+  const airportApi = watchPick
+    ? `/api/autos/air-ports?country=${watchOriCountry}&place_id=${watchPlaceId}`
+    : `/api/autos/air-ports/all?country=${watchOriCountry}`
 
   return (
     <>
@@ -37,7 +45,7 @@ export const OriginAirForm = () => {
         {watchPick && (
           <FilteredCombobox<Prediction>
             label="Pickup Location"
-            placeHolder="pincode or address"
+            placeHolder="Enter pincode or address"
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
             fetchUrl={`/api/autos/google?country=${watchOriCountry}`}
@@ -56,7 +64,7 @@ export const OriginAirForm = () => {
         label="Airport"
         placeHolder="Airport name or Airport code"
         fieldName="ori_airport"
-        fetchUrl={`/api/autos/air-ports?country=${watchOriCountry}&place_id=${watchPlaceId}`}
+        fetchUrl={airportApi}
         getOptionLabel={(option) => `${option.port_name}-(${option.port_code})`}
         valueSetterCallback={(port) => {
           const { port_name, port_code, location, port_type } = port
