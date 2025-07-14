@@ -1,5 +1,5 @@
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { COUNTRIES_LIST } from '@/constants'
+import { COUNTRIES_LAND_LIST } from '@/constants'
 import {
   useFormContext,
   FieldValues,
@@ -53,7 +53,7 @@ const SeaPortDestinationForm = ({
         <SelectWrapper
           label="Country"
           field="country"
-          data={COUNTRIES_LIST}
+          data={COUNTRIES_LAND_LIST}
           divClass={`w-full md:w-1/4 `}
           labelClass="required block"
         />
@@ -89,7 +89,7 @@ const DomesticDestinationForm = ({
         <SelectWrapper
           label="Country"
           field="country"
-          data={COUNTRIES_LIST}
+          data={COUNTRIES_LAND_LIST}
           divClass={`w-full md:w-1/4 `}
           labelClass="required block"
         />
@@ -125,7 +125,7 @@ const AirportDestinationForm = ({
         <SelectWrapper
           label="Country"
           field="country"
-          data={COUNTRIES_LIST}
+          data={[{ label: 'US', value: 'US' }]}
           divClass={`w-full md:w-1/4 `}
           labelClass="required block"
         />

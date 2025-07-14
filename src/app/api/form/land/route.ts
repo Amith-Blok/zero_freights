@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
           sourceCurrency: 'INR',
           targetCurrency: 'USD',
         })
-      } else if (country == 'US') {
+      } else {
         const usLtl = await newUsLtlTruckingCost({
           start_latitude: pickupLat,
           start_longitude: pickupLng,
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
           sourceCurrency: 'INR',
           targetCurrency: 'USD',
         })
-      } else if (country == 'US') {
+      } else {
         const usLtl = await newUsLtlTruckingCost({
           start_latitude: pickup_location.lat,
           start_longitude: pickup_location.lng,
@@ -274,7 +274,7 @@ export async function POST(request: NextRequest) {
       mode: 'LAND',
       tags: ['Land'],
       package_type: packageLabel,
-      carrier: 'Forward Air',
+      carrier: 'Land Freight',
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
       delivery_type: 'door_to_door',

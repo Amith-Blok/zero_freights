@@ -3,6 +3,6 @@ export const LAND_DEFAULT_VALUES = {
   pickup_location: undefined,
   hsn: undefined,
   icoterms: 'DDP',
-  country: 'IN',
+  country: 'US',
   delivery_location: undefined,
 } as const

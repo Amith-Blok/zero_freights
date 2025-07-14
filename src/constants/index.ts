@@ -22,6 +22,11 @@ export const COUNTRIES_LIST = [
   { value: 'EU', label: 'EU', disable: true },
   { value: 'CA', label: 'CA', disable: true },
 ]
+export const COUNTRIES_LAND_LIST = [
+  { value: 'US', label: 'US' },
+  { value: 'EU', label: 'EU' },
+  { value: 'CA', label: 'CA' },
+]
 export const COUNTRIES_SEA_FCL_LCL_LIST = [
   { value: 'IN', label: 'IND' },
   { value: 'US', label: 'US' },
