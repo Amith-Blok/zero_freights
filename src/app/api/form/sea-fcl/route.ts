@@ -16,6 +16,7 @@ import { Location as LocationType } from '@/models/offer/shared-types'
 import { toTitleCase } from '@/lib/utils'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { convertFclToStdContainer } from '@/lib/container'
+import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,15 @@ export async function POST(request: NextRequest) {
       company_name,
       user_name,
     } = validateData.data
+
+    const IN_FCL_CLEARANCE_FEE = {
+      label: 'Clearance Fee',
+      currency: 'INR',
+      additional_notes: '',
+      d2: CLEARANCE_FEE_OBJ.inr,
+      d4: CLEARANCE_FEE_OBJ.inr,
+      d5: CLEARANCE_FEE_OBJ.inr,
+    }
 
     // Shipline rates
     let startSeaPort, endSeaPort
@@ -258,7 +268,10 @@ export async function POST(request: NextRequest) {
         type: 'door',
       })
     }
-
+    //COMMENT: added clearance fee if origin is india
+    if (ori_country == 'IN') {
+      quoteTableData.local_charges.splice(1, 0, IN_FCL_CLEARANCE_FEE)
+    }
     //COMMENT: append additional fees
     appendAdditionalFees(quoteTableData.local_charges)
 

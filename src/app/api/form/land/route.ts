@@ -16,6 +16,7 @@ import { Location } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
 import { convertFclToStdContainer } from '@/lib/container'
+import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
 export async function POST(request: NextRequest) {
   try {
@@ -209,7 +210,10 @@ export async function POST(request: NextRequest) {
     }
 
     const quoteTableData = [truckingCost] as ConfimredQuoteDataType[]
-
+    //COMMENT: added clearance fee if origin is india
+    if (country == 'IN') {
+      quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
+    }
     // //COMMENT: appended additional fees
     newAppendAdditionalFees(quoteTableData)
 

@@ -13,6 +13,7 @@ import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { Location } from '@/models/offer/shared-types'
 import { createAirOffer } from '@/data/offer/air'
+import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
 export async function POST(request: NextRequest) {
   try {
@@ -200,6 +201,11 @@ export async function POST(request: NextRequest) {
       quoteTableData.splice(insertIndex, 0, destinationLTL)
     }
 
+    //COMMENT: added clearance fee if origin is india
+    if (ori_country == 'IN') {
+      quoteTableData.splice(2, 0, CLEARANCE_FEE_OBJ)
+    }
+
     //COMMENT: appended additional fees
     newAppendAdditionalFees(quoteTableData)
 
@@ -246,8 +252,8 @@ export async function POST(request: NextRequest) {
       subject,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,
-      start_code: pickup_location.place_id || '',
-      end_code: delivery_location.description || '',
+      start_code: ori_airport.port_code || '',
+      end_code: des_airport.port_code || '',
       mode: 'AIR',
       tags: ['AIR'],
       package_type: `${cbm.toFixed(2)} CBM `,

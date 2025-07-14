@@ -15,6 +15,7 @@ import { createForm } from '@/data/form'
 import { exchangeValues } from '@/lib/exchange'
 import { Location } from '@/models/offer/shared-types'
 import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
+import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
 export async function POST(request: NextRequest) {
   try {
@@ -224,7 +225,10 @@ export async function POST(request: NextRequest) {
       loadUnLoadFee,
       destinationLTL,
     ]
-
+    //COMMENT: added clearance fee if origin is india
+    if (ori_country == 'IN') {
+      quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
+    }
     //COMMENT: append additional fees
     newAppendAdditionalFees(quoteTableData)
 

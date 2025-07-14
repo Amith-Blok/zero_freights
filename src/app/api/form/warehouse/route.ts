@@ -137,6 +137,11 @@ export async function POST(request: NextRequest) {
       storageCharge,
     ] as RateInfoType[])
 
+    // COMMENT: added clearance fee if country is IN
+    //  if (country == 'IN') {
+    //     formatedQuoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
+    //   }
+
     //COMMENT: appended additional fees
     newAppendAdditionalFees(formatedQuoteTableData)
 

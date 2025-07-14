@@ -12,10 +12,12 @@ export const AirFormSchema = z.object({
   }),
 
   pickup_check: z.boolean(),
-  pickup_location: z.object({
-    description: z.string(),
-    place_id: z.string(),
-  }),
+  pickup_location: z
+    .object({
+      description: z.string(),
+      place_id: z.string(),
+    })
+    .optional(),
   des_country: z.enum(COUNTRIES),
   des_airport: z.object({
     port_name: z.string(),
@@ -25,10 +27,12 @@ export const AirFormSchema = z.object({
     type: z.string(),
   }),
   delivery_check: z.boolean(),
-  delivery_location: z.object({
-    description: z.string(),
-    place_id: z.string(),
-  }),
+  delivery_location: z
+    .object({
+      description: z.string(),
+      place_id: z.string(),
+    })
+    .optional(),
   air_load: z.array(
     z.object({
       air_wid: z.coerce.number(),
