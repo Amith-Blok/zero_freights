@@ -7,7 +7,7 @@ import {
 
 import { WarehouseFormSchema } from '@/schema/warehouse-schema'
 import { getWarehouseByPortCode } from '@/data/warehouses'
-import { newAppendAdditionalFees } from '../helper/table-data-appender'
+// import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { RateInfoType } from '@/types/common'
 import { createForm } from '@/data/form'
 import { createWarehouseOffer } from '@/data/offer/warehouse-offer'
@@ -141,9 +141,6 @@ export async function POST(request: NextRequest) {
     //  if (country == 'IN') {
     //     formatedQuoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
     //   }
-
-    //COMMENT: appended additional fees
-    newAppendAdditionalFees(formatedQuoteTableData)
 
     const { totalInrCost, totalUsdCost } = formatedQuoteTableData.reduce(
       (acc, item) => {
