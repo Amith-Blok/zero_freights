@@ -1,8 +1,11 @@
 // import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
-import { US_ALL_ADDITIONAL_FEES } from '@/constants/us-custom'
+import {
+  US_AIR_ADDITIONAL_FEES,
+  US_ALL_ADDITIONAL_FEES,
+} from '@/constants/us-custom'
 import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
-import { ContainerCost } from '@/models/offer/shared-types'
+import { ContainerCost, OfferModeTypes } from '@/models/offer/shared-types'
 
 //COMMENT: append additional fees to the data array
 // export const appendAdditionalFees = (data: DataType[]) => {
@@ -39,8 +42,13 @@ export const appendAdditionalFees = (data: ContainerCost[]) => {
     })
   })
 }
-export const newAppendAdditionalFees = (data: ConfimredQuoteDataType[]) => {
-  US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+export const newAppendAdditionalFees = (
+  data: ConfimredQuoteDataType[],
+  mode?: OfferModeTypes
+) => {
+  const additionalFees =
+    mode === 'AIR' ? US_AIR_ADDITIONAL_FEES : US_ALL_ADDITIONAL_FEES
+  additionalFees.forEach((fee) => {
     const cost = fee.value
     const costUsd = fee.currency == 'USD' ? cost : cost * INR_TO_USD
     const costInr = fee.currency == 'USD' ? cost * USD_TO_INR : cost

@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
     }
 
     //COMMENT: appended additional fees
-    newAppendAdditionalFees(quoteTableData)
+    newAppendAdditionalFees(quoteTableData, 'AIR')
 
     const { totalInrCost, totalUsdCost } = quoteTableData.reduce(
       (acc, item) => {
