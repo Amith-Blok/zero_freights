@@ -19,11 +19,14 @@ import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse and validate the incoming request data
     const data = await request.json()
     const validateData = SeaFormSchema.safeParse(data)
     if (!validateData.success) {
       return NextResponse.json({ error: 'invalid data' }, { status: 400 })
     }
+
+    // Ensure the mode is LCL (Less than Container Load)
     const { modes } = validateData.data
     if (modes != 'LCL') {
       return NextResponse.json(
@@ -31,6 +34,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Destructure necessary fields from validated data
     const {
       pickup_check,
       pickup_location,
@@ -50,6 +55,7 @@ export async function POST(request: NextRequest) {
       phone,
     } = validateData.data
 
+    // Initialize cost objects for various charges
     const seaLclFreight = {
       label: 'LCL Sea Freight',
       currency: 'USD',
@@ -105,6 +111,7 @@ export async function POST(request: NextRequest) {
       inr: 0,
     }
 
+    // Fetch sea freight cost from the database
     const seaFreightCostDB = await getLCLSeaFreightCostByCode(
       des_port_rail.port_code
     ).catch((error) => {
@@ -119,10 +126,12 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Calculate weights and charges
     let { cbm, ton, kg } = lcl_cbm_ton
     let lbsPerHundred = (ton * 2204.62) / 100
 
-    loadUnLoadFee.usd = Math.max(97, lbsPerHundred * 5.02)
+    loadUnLoadFee.usd = Math.min(Math.max(97, lbsPerHundred * 5.02), 450)
     loadUnLoadFee.inr = loadUnLoadFee.usd * USD_TO_INR
 
     seaLclFreight.usd = seaFreightCostDB * cbm
@@ -132,10 +141,10 @@ export async function POST(request: NextRequest) {
       1250 * Math.max(2, cbm),
       1750 * Math.max(2, ton)
     )
-    terminalCharge.usd = terminalCharge.inr / INR_TO_USD
+    terminalCharge.usd = terminalCharge.inr * INR_TO_USD
 
     docCharge.inr = 4250
-    docCharge.usd = docCharge.inr / INR_TO_USD
+    docCharge.usd = docCharge.inr * INR_TO_USD
 
     vgmCharge.usd = 20 * cbm
     vgmCharge.inr = vgmCharge.usd * USD_TO_INR
@@ -146,12 +155,12 @@ export async function POST(request: NextRequest) {
     chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
     chasisFee.inr = chasisFee.usd * USD_TO_INR
 
-    //pickupLTL and deliveryLTL
+    // Calculate pickup and delivery LTL costs based on origin country
     if (ori_country == 'IN') {
-      //pickup INDIA country trucking
+      // Handle trucking costs for India as origin
 
       if (pickup_check && pickup_location) {
-        // pickup india --> sea port
+        // Calculate pickup cost from India to sea port
         const { lat: pickupLocationLat, lng: pickupLocationLng } =
           await getGoogleLocationByPlaceId(pickup_location.place_id)
         pickupLTL.inr = await inLtlTruckingCost({
@@ -165,7 +174,7 @@ export async function POST(request: NextRequest) {
         pickupLTL.usd = pickupLTL.inr * INR_TO_USD
       }
 
-      //delivery USA or other country trucking
+      // Calculate delivery cost for USA or other countries
       if (delivery_check && delivery_location) {
         const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
           await getGoogleLocationByPlaceId(delivery_location.place_id)
@@ -182,7 +191,7 @@ export async function POST(request: NextRequest) {
         destinationLTL.inr = destinationLTL.usd * USD_TO_INR
       }
     } else {
-      //pickup USA or other country trucking
+      // Handle trucking costs for USA or other countries as origin
       if (pickup_check && pickup_location) {
         const { lat: pickupLocationLat, lng: pickupLocationLng } =
           await getGoogleLocationByPlaceId(pickup_location.place_id)
@@ -198,7 +207,7 @@ export async function POST(request: NextRequest) {
         pickupLTL.inr = pickupLTL.usd * INR_TO_USD
       }
 
-      //destionation  india country trucking
+      // Calculate destination cost for India
       if (delivery_check && delivery_location) {
         const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
           await getGoogleLocationByPlaceId(delivery_location.place_id)
@@ -213,7 +222,8 @@ export async function POST(request: NextRequest) {
         destinationLTL.usd = destinationLTL.inr * INR_TO_USD
       }
     }
-    //quote table data
+
+    // Compile all charges into a quote table
     const quoteTableData = [
       seaLclFreight,
       pickupLTL,
@@ -225,13 +235,16 @@ export async function POST(request: NextRequest) {
       loadUnLoadFee,
       destinationLTL,
     ]
-    //COMMENT: added clearance fee if origin is india
+
+    // Add clearance fee if the origin is India
     if (ori_country == 'IN') {
       quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
     }
-    //COMMENT: append additional fees
+
+    // Append any additional fees to the quote table
     newAppendAdditionalFees(quoteTableData)
 
+    // Calculate total costs in INR and USD
     const { totalInrCost, totalUsdCost } = quoteTableData.reduce(
       (acc, item) => {
         return {
@@ -245,6 +258,7 @@ export async function POST(request: NextRequest) {
       } // Initial values
     )
 
+    // Build a list of locations involved in the shipment
     let locations: Location[] = []
     if (pickup_check && pickup_location)
       locations.push({
@@ -296,7 +310,7 @@ export async function POST(request: NextRequest) {
         type: 'door',
       })
 
-    //quote details
+    // Generate quote details for the shipment
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
         pickup_location: pickup_location ?? { description: '' },
@@ -307,11 +321,10 @@ export async function POST(request: NextRequest) {
         icoterms,
       })
 
-    //send email
-
-    //FormId
+    // Create a form entry for the validated data
     const formId = await createForm(validateData)
 
+    // Generate a unique quote ID and prepare user details
     const blok_quote_id = randomIdGenerator()
     const user = {
       id: 'BLOK_UNKNOW_USER',
@@ -320,6 +333,8 @@ export async function POST(request: NextRequest) {
       company: toTitleCase(company_name) || '',
       phone: phone ? formatPhoneNumber(phone) : '',
     }
+
+    // Create a sea LCL offer with all the gathered information
     const offer_id = await createSeaLclOffer({
       offer_id: blok_quote_id,
       form_id: formId,
@@ -345,8 +360,10 @@ export async function POST(request: NextRequest) {
       offers: quoteTableData,
     })
 
+    // Return the offer ID and quote table data as a JSON response
     return NextResponse.json({ offer_id, quoteTableData }, { status: 200 })
   } catch (error) {
+    // Log and return any errors encountered during processing
     console.log(error)
     return NextResponse.json(
       {
