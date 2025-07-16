@@ -169,9 +169,11 @@ export default function ShippingCard({
               >
                 {getDeliveryTypeLabel(deliveryType)}
               </Badge>
-              <span className="text-sm">
-                Est. {portToDays.toString()} days port-to-port
-              </span>
+              {portToDays != 0 && (
+                <span className="text-sm">
+                  Est. {portToDays.toString()} days port-to-port
+                </span>
+              )}
               <Info className="h-4 w-4 text-gray-400" />
             </div>
 
