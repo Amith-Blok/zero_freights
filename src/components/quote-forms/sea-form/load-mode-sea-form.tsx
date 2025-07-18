@@ -24,7 +24,7 @@ export const LoadFclForm = () => {
           divClass="w-full my-2"
         />
         <InputWrapper
-          inputProps={{ type: 'number', placeholder: 'qty' }}
+          inputProps={{ type: 'number', placeholder: 'Enter quantity' }}
           field="fcl_quantity"
           label="Quantity"
           divClass="w-full my-2"
@@ -32,7 +32,7 @@ export const LoadFclForm = () => {
       </div>
       <InputSelect
         label="Weight"
-        inputProps={{ type: 'number', step: 0.01, placeholder: 'weight' }}
+        inputProps={{ type: 'number', step: 0.01, placeholder: 'Enter weight' }}
         inputField="fcl_weight"
         selectField="fcl_unit"
         data={[...KG_LBS]}
@@ -48,6 +48,7 @@ export const LoadLclForm = () => {
         label="LCL Container Type"
         field="lcl_container_type"
         data={LCL_PACKAGE_TYPE_LIST}
+        divClass="w-full my-2"
       />
       <FieldArrayLoadComp
         fieldArrayName="lcl_load"

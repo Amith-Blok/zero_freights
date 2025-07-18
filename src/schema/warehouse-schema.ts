@@ -1,6 +1,5 @@
 import {
   FCL_CONTAINER_TYPE,
-  ICOTERMS,
   IN_CM,
   KG_LBS,
   LCL_PACKAGE_TYPE,
@@ -35,8 +34,6 @@ export const CommonSchema = z.object({
     .number()
     .min(1, { message: 'min one day is required' }),
   value: z.coerce.number().min(1),
-  date: z.coerce.date(),
-  icoterms: z.enum(ICOTERMS),
   phone: z.string(),
   email: z.string().email(),
   company_name: z.string().min(1, { message: 'Required' }),

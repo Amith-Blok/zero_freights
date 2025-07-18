@@ -37,7 +37,7 @@ export const OriginSeaForm = () => {
         {watchPick && (
           <FilteredCombobox<Prediction>
             label="Pickup Location"
-            placeHolder="pincode or address"
+            placeHolder="Enter pincode or address"
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
             fetchUrl={`/api/autos/google?country=${watchOriCountry}`}
@@ -58,7 +58,7 @@ export const OriginSeaForm = () => {
             ? `${watchPick ? 'Nearest ' : ''}Port`
             : `${watchPick ? 'Nearest ' : ''}Port | Inland Port`
         }
-        placeHolder="Port name or Port code"
+        placeHolder="Enter port name or port code"
         fieldName="ori_port_rail"
         labelClass="required"
         fetchUrl={`/api/autos/sea-ports?country=${watchOriCountry}&place_id=${watchPlaceId ?? ''}`}
@@ -80,7 +80,7 @@ export const OriginSeaForm = () => {
           key={`${watchOriCountry}-${watchCode}`}
           resetString={`${watchOriCountry}-${watchCode}`}
           label="Origin Port"
-          placeHolder="Port name or Port code"
+          placeHolder="Enter port name or port code"
           fieldName="ori_port_if_rail"
           fetchUrl={`/api/autos/sea-ports/near?country=${watchOriCountry}&haulage=EXPORT&port=${watchCode}`}
           getOptionLabel={(option) =>

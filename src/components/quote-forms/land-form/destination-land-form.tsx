@@ -59,7 +59,7 @@ const SeaPortDestinationForm = ({
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
-          placeHolder="pincode or address"
+          placeHolder="Enter pincode or address"
           fieldName="delivery_location"
           getOptionLabel={(option) => option.description}
           fetchUrl={`/api/autos/google?country=${watchCountry}`}
@@ -95,7 +95,7 @@ const DomesticDestinationForm = ({
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
-          placeHolder="pincode or address"
+          placeHolder="Enter pincode or address"
           fieldName="delivery_location"
           getOptionLabel={(option) => option.description}
           fetchUrl={`/api/autos/google?country=${watchCountry}`}
@@ -131,7 +131,7 @@ const AirportDestinationForm = ({
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
-          placeHolder="pincode or address"
+          placeHolder="Enter pincode or address"
           fieldName="delivery_location"
           getOptionLabel={(option) => option.description}
           fetchUrl={`/api/autos/google?country=${watchCountry}`}

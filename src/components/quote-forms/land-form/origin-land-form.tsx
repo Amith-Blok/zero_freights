@@ -65,7 +65,7 @@ const SeaPortOriginForm = ({
           divClass="w-full md:w-3/4 flex-col"
           labelClass="required"
           label={watchMode == 'LCL' ? 'Port' : ' Port | ICD | Rail Ramp'}
-          placeHolder="Port name or Port code"
+          placeHolder="Enter port name or code"
           fieldName="pickup_location"
           fetchUrl={`/api/autos/sea-ports?country=${watchCountry}`}
           getOptionLabel={(option) =>
@@ -110,7 +110,7 @@ const DomesticOriginForm = ({
         />
         <FilteredCombobox<PredictionWithZipcode>
           label="Pickup Location"
-          placeHolder="pincode or address"
+          placeHolder="Enter pincode or address"
           fieldName="pickup_location"
           getOptionLabel={(option) =>
             `${option.description}${option.zipcode ? ' (' + option.zipcode + ')' : ''}`
@@ -152,7 +152,7 @@ const AirportOriginForm = ({
         key={`${watchCountry}`}
         resetString={`${watchMode}-${watchCountry}`}
         label="Airport"
-        placeHolder="Airport name or Airport code"
+        placeHolder="Enter airport name or code"
         divClass="w-full md:w-3/4"
         fieldName="pickup_location"
         fetchUrl={`/api/autos/air-ports/all?country=${watchCountry}`}

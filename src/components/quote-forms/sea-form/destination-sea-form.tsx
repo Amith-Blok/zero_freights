@@ -40,7 +40,7 @@ export const DestinationSeaForm = () => {
             label="Delivery Location"
             getOptionLabel={(option) => option.description}
             fieldName="delivery_location"
-            placeHolder="pincode or address"
+            placeHolder="Enter pincode or address"
             fetchUrl={`/api/autos/google?country=${watchDesCountry}`}
             valueSetterCallback={(location) => {
               setValue('delivery_location', {
@@ -60,7 +60,7 @@ export const DestinationSeaForm = () => {
             ? `${watchPick ? 'Nearest ' : ''}Port`
             : `${watchPick ? 'Nearest ' : ''}Port | Inland Port`
         }
-        placeHolder="Port name or Port code"
+        placeHolder="Enter port name or port code"
         fieldName="des_port_rail"
         labelClass="required"
         fetchUrl={`/api/autos/sea-ports?country=${watchDesCountry}&place_id=${watchPlaceId ?? ''}&mode=${watchMode}`}
@@ -82,7 +82,7 @@ export const DestinationSeaForm = () => {
           key={`${watchMode}-${watchDesCountry}-${watchCode}`}
           resetString={`${watchMode}-${watchDesCountry}-${watchCode}`}
           label="Detination Port"
-          placeHolder="Port name or Port code"
+          placeHolder="Enter port name or port code"
           fieldName="des_port_if_rail"
           fetchUrl={`/api/autos/sea-ports/near?country=${watchDesCountry}&haulage=EXPORT&port=${watchCode}`}
           getOptionLabel={(option) =>

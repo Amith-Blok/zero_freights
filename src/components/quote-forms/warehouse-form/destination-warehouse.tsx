@@ -12,18 +12,18 @@ export const DestinationWarehouseForm = () => {
   // console.log({ watchPlaceId })
   return (
     <>
-      <div className="mt-5 flex flex-col items-start gap-2 md:flex-row">
+      <div className="mt-0 flex flex-col items-start gap-2 md:mt-12">
         <SelectWrapper
           label="Country"
           field="country"
           data={COUNTRIES_LIST_WAREHOUSE}
-          divClass={`w-full md:w-1/3 `}
+          divClass={`w-full`}
         />
 
         <AllDataCombobox<SeaPortsType & { place_id: string }>
           key={`${watchPlaceId}-${watchCountry}`}
           label="Delivery Warehouse"
-          placeHolder="Port name or Port code"
+          placeHolder="Pick a warehouse (14 options)"
           fieldName="delivery_location"
           labelClass="required"
           fetchUrl={`/api/autos/warehouse?country=${watchCountry}&place_id=${watchPlaceId}`}

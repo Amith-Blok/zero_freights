@@ -5,25 +5,23 @@ import { ICOTERMS } from '@/constants'
 import { CalendarWrapper } from './form-wrapper/calendar-wrapper'
 import { FilteredCombobox } from './filtered-combobox'
 import { HsnType } from '@/models/hsn'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import SumbitButton from '@/components/shared/button-loading'
 import { FormMetaProvider } from '@/provider'
 import { useContext } from 'react'
 import { InputWrapper } from './form-wrapper/input-wrapper'
 import PhoneInputWrapper from '@/components/shared/phone-input-wrapper'
 export const CargoAllForm = () => {
-  const {
-    setValue,
-    // formState: { errors },
-  } = useFormContext()
+  const { setValue, control } = useFormContext()
   const { loading } = useContext(FormMetaProvider)
   // console.log({ errors })
-
+  const watchModes = useWatch({ control, name: 'modes' })
+  const isWarehouse = watchModes.includes('WAREHOUSE')
   return (
     <>
       <FilteredCombobox<HsnType>
         label="Commodity Code"
-        placeHolder="hsn code or description"
+        placeHolder="Enter hsn code or description"
         fieldName="hsn"
         getOptionLabel={(option) => `${option.hsn_des}(${option.hsn_code})`}
         fetchUrl="/api/autos/hsn"
@@ -38,25 +36,40 @@ export const CargoAllForm = () => {
         <InputWrapper
           label="Value"
           field="value"
-          inputProps={{ type: 'number', placeholder: 'value in usd' }}
+          inputProps={{ type: 'number', placeholder: 'Enter value in usd' }}
         />
-        <CalendarWrapper label="Ready to Load" field="date" />
+        {!isWarehouse && <CalendarWrapper label="Ready to Load" field="date" />}
+        {isWarehouse && (
+          <InputWrapper
+            label="Your Name"
+            field="user_name"
+            inputProps={{
+              type: 'text',
+              placeholder: 'Enter your name',
+              autoComplete: 'name',
+            }}
+          />
+        )}
       </div>
       <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
-        <SelectWrapper
-          label="Icoterms"
-          field="icoterms"
-          data={arrayToSelectData([...ICOTERMS])}
-        />
-        <InputWrapper
-          label="Your Name"
-          field="user_name"
-          inputProps={{
-            type: 'text',
-            placeholder: 'Amith A G',
-            autoComplete: 'name',
-          }}
-        />
+        {!isWarehouse && (
+          <>
+            <SelectWrapper
+              label="Icoterms"
+              field="icoterms"
+              data={arrayToSelectData([...ICOTERMS])}
+            />
+            <InputWrapper
+              label="Your Name"
+              field="user_name"
+              inputProps={{
+                type: 'text',
+                placeholder: 'Enter your name',
+                autoComplete: 'name',
+              }}
+            />
+          </>
+        )}
       </div>
       <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
         <InputWrapper
@@ -64,7 +77,7 @@ export const CargoAllForm = () => {
           field="email"
           inputProps={{
             type: 'text',
-            placeholder: 'abc@gmail.com',
+            placeholder: 'Enter your email',
             autoComplete: 'email',
           }}
         />
@@ -73,7 +86,7 @@ export const CargoAllForm = () => {
           field="company_name"
           inputProps={{
             type: 'text',
-            placeholder: 'company name',
+            placeholder: 'Enter company name',
             autoComplete: 'organization',
           }}
         />

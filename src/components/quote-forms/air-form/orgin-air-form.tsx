@@ -62,7 +62,7 @@ export const OriginAirForm = () => {
         key={resetString}
         resetString={resetString}
         label="Airport"
-        placeHolder="Airport name or Airport code"
+        placeHolder="Enter airport name or code"
         fieldName="ori_airport"
         fetchUrl={airportApi}
         getOptionLabel={(option) => `${option.port_name}-(${option.port_code})`}

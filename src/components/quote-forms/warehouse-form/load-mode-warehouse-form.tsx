@@ -28,7 +28,7 @@ export const LoadFclWarehouseForm = () => {
       <InputWrapper
         label="Storage days"
         field="storage_days"
-        inputProps={{ type: 'number', placeholder: '45' }}
+        inputProps={{ type: 'number', placeholder: 'Enter storage days' }}
       />
       <div className="sm:flex sm:space-x-4">
         <SelectWrapper
@@ -38,7 +38,7 @@ export const LoadFclWarehouseForm = () => {
           divClass="sm:w-1/2 my-2"
         />
         <InputWrapper
-          inputProps={{ type: 'number', placeholder: 'qty' }}
+          inputProps={{ type: 'number', placeholder: 'Enter quantity' }}
           field="fcl_quantity"
           label="Quantity"
           divClass="sm:w-1/2 my-2"
@@ -46,7 +46,11 @@ export const LoadFclWarehouseForm = () => {
       </div>
       <InputSelect
         label="Weight"
-        inputProps={{ type: 'number', step: 0.01, placeholder: 'weight' }}
+        inputProps={{
+          type: 'number',
+          step: 0.01,
+          placeholder: 'Enter weight',
+        }}
         inputField="fcl_weight"
         selectField="fcl_unit"
         data={[...KG_LBS]}
@@ -93,7 +97,7 @@ export const LoadLclWarehouseForm = () => {
       <InputWrapper
         label="Storage days"
         field="storage_days"
-        inputProps={{ type: 'number', placeholder: '45' }}
+        inputProps={{ type: 'number', placeholder: 'Enter storage days' }}
       />
       <SelectWrapper
         label="LCL Container Type"
@@ -142,7 +146,7 @@ export const LoadLtlWarehouseForm = () => {
       <InputWrapper
         label="Storage days"
         field="storage_days"
-        inputProps={{ type: 'number', placeholder: '45' }}
+        inputProps={{ type: 'number', placeholder: 'Enter storage days' }}
       />
       <SelectWrapper label="Ship type" field="ltl_type" data={BULK_TYPE_LIST} />
       <FieldArrayLoadComp

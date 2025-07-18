@@ -99,6 +99,9 @@ export const FilteredCombobox = <T,>({
                     fontSize: '14px',
                     height: '10px',
                   },
+                  '& .MuiInputBase-input::placeholder': {
+                    fontSize: '13px',
+                  },
                 }}
               />
             )}

@@ -23,18 +23,18 @@ export const OriginWarehouseForm = () => {
         field="is_google_location"
         labelClass="font-normal"
       />
-      <div className="mt-5 flex flex-col items-center gap-2 md:flex-row">
+      <div className="mt-5 flex flex-col items-center gap-2">
         <SelectWrapper
           label="Country"
           field="country"
           data={COUNTRIES_LIST_WAREHOUSE}
-          divClass={`w-full md:w-1/3 `}
+          divClass={`w-full `}
         />
 
         {watchGoogleCheck ? (
           <FilteredCombobox<Prediction>
             label="Pickup Location"
-            placeHolder="pincode or address"
+            placeHolder="Enter pincode or address"
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
             fetchUrl={googleLink}
@@ -54,7 +54,7 @@ export const OriginWarehouseForm = () => {
                 ? 'Airport'
                 : ' Port | ICD | Rail Ramp'
             }
-            placeHolder="Port name or Port code"
+            placeHolder="Enter port name or code"
             fieldName="pickup_location"
             fetchUrl={fetchUrl}
             getOptionLabel={(option) =>
