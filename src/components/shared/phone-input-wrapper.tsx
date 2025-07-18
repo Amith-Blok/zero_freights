@@ -4,6 +4,7 @@ import { Label } from '../ui/label'
 import { Controller, useFormContext } from 'react-hook-form'
 import { ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 interface PhoneInputWrapperProps {
   fieldName: string // Field name for React Hook Form
@@ -13,6 +14,7 @@ interface PhoneInputWrapperProps {
   labelClass?: string
   divProps?: ComponentProps<'div'>
   labelProps?: ComponentProps<'label'>
+  placeHolder?: string
 }
 
 export default function PhoneInputWrapper({
@@ -23,8 +25,17 @@ export default function PhoneInputWrapper({
   labelClass,
   labelProps = {},
   divProps = {},
+  placeHolder = 'Enter phone number',
 }: PhoneInputWrapperProps) {
   const { control } = useFormContext() // Use FormContext to access control
+
+  const CustomPhoneInput = React.forwardRef<
+    HTMLInputElement,
+    ComponentProps<'input'>
+  >((props, ref) => (
+    <PhoneInput {...props} placeholder={placeHolder} ref={ref} />
+  ))
+  CustomPhoneInput.displayName = 'CustomPhoneInput'
 
   return (
     <div className={cn('space-y-2', divClass)} {...divProps}>
@@ -49,9 +60,8 @@ export default function PhoneInputWrapper({
               countrySelectComponent={CountrySelect}
               defaultCountry={defaultCountry}
               countryCallingCodeEditable={false}
-              inputComponent={PhoneInput}
+              inputComponent={CustomPhoneInput}
               id={`input-${fieldName}`}
-              placeholder="Enter phone number"
               value={value}
               onChange={(newValue) => onChange(newValue ?? '')}
               ref={ref}

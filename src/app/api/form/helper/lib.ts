@@ -83,5 +83,5 @@ export function formateRateInfoToConfirmQuoteData(
   return records
 }
 export function randomIdGenerator() {
-  return Math.floor(Math.random() * Date.now()).toString()
+  return 'ZFBSC' + Math.floor(Math.random() * Date.now()).toString()
 }

@@ -33,6 +33,7 @@ type CountrySelectProps = {
   // eslint-disable-next-line no-unused-vars
   onChange: (value: RPNInput.Country) => void
   options: { label: string; value: RPNInput.Country | undefined }[]
+  placeholder?: string
 }
 
 export const CountrySelect = ({

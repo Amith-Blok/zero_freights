@@ -15,7 +15,7 @@ export const CargoAllForm = () => {
   const { setValue, control } = useFormContext()
   const { loading } = useContext(FormMetaProvider)
   // console.log({ errors })
-  const watchModes = useWatch({ control, name: 'modes' })
+  const watchModes = useWatch({ control, name: 'modes' }) ?? ''
   const isWarehouse = watchModes.includes('WAREHOUSE')
   return (
     <>
@@ -91,7 +91,11 @@ export const CargoAllForm = () => {
           }}
         />
       </div>
-      <PhoneInputWrapper fieldName="phone" label="Phone Number" />
+      <PhoneInputWrapper
+        fieldName="phone"
+        label="Phone Number"
+        placeHolder="Enter phone number"
+      />
       <div className="mt-5 flex w-full justify-end">
         <SumbitButton loading={loading} text="Submit" />
       </div>

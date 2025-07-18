@@ -1,21 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  FREIGHT_CLASS_RATES,
-  US_LTL_FLAT_RATES_BY_MILES,
-} from '../form/constant'
+import { randomIdGenerator } from '../form/helper/lib'
 
-export async function GET(request: NextRequest) {
-  const searchParam = request.nextUrl.searchParams
-  const density = Number(searchParam.get('density'))
-  const distance = Number(searchParam.get('miles'))
-  if (!density || !distance) return NextResponse.json({ items: [] })
+export async function GET(_: NextRequest) {
 
-  const fileredHaulageRate = FREIGHT_CLASS_RATES.find(
-    (rate) => rate.minDensity <= density
-  )
-  const baseTrucking = US_LTL_FLAT_RATES_BY_MILES.find(
-    (rate) => rate.min <= distance && rate.max >= distance
-  )
+  const blok_quote_id=randomIdGenerator()
 
-  return NextResponse.json({ fileredHaulageRate, baseTrucking })
+  return NextResponse.json({blok_quote_id})
 }
