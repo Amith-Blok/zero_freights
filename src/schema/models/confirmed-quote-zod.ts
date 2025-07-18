@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ServiceType } from '@/models/offer/shared-types'
 
 const ExchangeZodSchema = z.object({
   usd_to_inr: z.number(),
@@ -34,24 +35,20 @@ export const TotalCostZodSchema = z.object({
 
 export const ConfirmedQuoteZodSchema = z.object({
   form_id: z.string(),
+  blok_id: z.string(),
   offer_id: z.string(),
   offer_date: z.string(),
   user: UserZodSchema,
   subject: z.string(),
   place_of_supply: z.string(),
   bill_to: z.string(),
-  tags: z.array(z.string()),
+  service_type: z.nativeEnum(ServiceType),
   start_code: z.string(),
   end_code: z.string(),
   container_type: z.string(),
   exchanges: ExchangeZodSchema,
   total_cost: TotalCostZodSchema,
-  delivery_type: z.enum([
-    'door_to_door',
-    'door_to_port',
-    'port_to_door',
-    'port_to_port',
-  ]),
+  tags: z.array(z.string()),
   carrier: z.string(),
   transit_time: z.number(),
   locations: z.array(LocationZodSchema),

@@ -1,28 +1,33 @@
 import { OfferDataTable } from '@/components/data-table/offer-data-table'
 import ShippingCard from '@/components/shared/shipping-card'
-import { currencyConverter } from '@/lib/exchange'
+import { getTotalSeaFclCostAndCharges } from '@/lib/sea-fcl-util'
 import {
   ContainerType,
-  LabeledCost,
+  ContainerCost,
   LineChargeData,
   Location,
+  ServiceType,
 } from '@/models/offer/shared-types'
 import { STDContainerType } from '@/types/containers'
 
 interface SeaFclCompProps {
+  id: string
   linesFreightRates: LineChargeData[]
-  localCharges: LabeledCost[]
+  localCharges: ContainerCost[]
   containerType: ContainerType
   containerLabel: STDContainerType
   locations: Location[]
-  tags: string
+  service_type: ServiceType
+  tags: string[]
   offerId: string
 }
 export function SeaFclComp({
+  id,
   linesFreightRates,
   localCharges,
   containerType,
   containerLabel,
+  service_type,
   tags,
   locations,
   offerId,
@@ -30,45 +35,32 @@ export function SeaFclComp({
   return (
     <div className="flex h-full w-full flex-col gap-5">
       {linesFreightRates.map((line, idx) => {
-        const lineCharge = [line.data].map((rate) => ({
-          label: rate.label,
-          inr: currencyConverter({
-            cost: rate[containerType],
-            sourceCurrency: rate.currency as any,
-            targetCurrency: 'INR',
-          }),
-          usd: currencyConverter({
-            cost: rate[containerType],
-            sourceCurrency: rate.currency as any,
-            targetCurrency: 'USD',
-          }),
-        }))
-        const charges = [...lineCharge, ...localCharges]
-        const total = charges.reduce((acc, charge) => {
-          return (acc += charge.inr)
-        }, 0)
-
+        const { totalCost, totalCharges } = getTotalSeaFclCostAndCharges(
+          [line.data],
+          containerType,
+          localCharges
+        )
         return (
           <ShippingCard
             key={idx}
+            id={id}
             lineName={line.line_name?.toUpperCase() ?? ''}
             locations={locations}
-            transportMode={tags.toUpperCase()}
+            transportMode={service_type.toUpperCase()}
             modeType="SEA_FCL"
-            deliveryType="port_to_port"
-            estimatedDays={line.estimated_days ?? 0}
+            serviceType={service_type}
+            tags={tags}
             portToDays={line.port_to_days ?? 0}
             containerLabel={containerLabel}
             containerType={containerType}
             price={line.total_cost.inr[containerType] ?? 0}
-            currency="₹"
             url={`/api/confirmed-quote`}
             offerId={offerId}
           >
             <OfferDataTable
-              data={[...lineCharge, ...localCharges]}
+              data={totalCharges}
               containerType={containerLabel}
-              total={total}
+              total={totalCost}
             />
           </ShippingCard>
         )

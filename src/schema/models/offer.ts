@@ -8,26 +8,22 @@ import {
   UserZodSchema,
 } from './common-zod'
 import { TotalCostZodSchema } from './confirmed-quote-zod'
+import { ServiceType } from '@/models/offer/shared-types'
 
 const OfferBaseSchema = z.object({
   form_id: z.string(),
-  offer_id: z.string(),
+  blok_id: z.string(),
   user: UserZodSchema,
   subject: z.string(),
   place_of_supply: z.string(),
   bill_to: z.string(),
-  tags: z.array(z.string()),
+  service_type: z.nativeEnum(ServiceType),
   start_code: z.string(),
   end_code: z.string(),
   package_type: z.string(),
   exchanges: ExchangeZodSchema,
   locations: z.array(LocationZodSchema),
-  delivery_type: z.enum([
-    'door_to_door',
-    'door_to_port',
-    'port_to_door',
-    'port_to_port',
-  ]),
+  tags: z.array(z.string()),
   created_at: z.date().optional(),
 })
 

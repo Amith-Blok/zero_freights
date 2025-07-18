@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCheapestAirLineRecord } from '../helper/airline'
 import { inLtlTruckingCost, newUsLtlTruckingCost } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
-import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
+import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 import { USD_TO_INR } from '@/constants'
 import { INR_TO_USD } from '@/constants/exchange-value'
 import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { exchangeValues } from '@/lib/exchange'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
-import { Location } from '@/models/offer/shared-types'
+import { Location, ServiceType } from '@/models/offer/shared-types'
 import { createAirOffer } from '@/data/offer/air'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       usd: 0,
       inr: 0,
     }
+    let tags: string[] = []
     //AIR Freight
     const startCode = ori_airport.port_code
     const endCode = des_airport.port_code
@@ -95,7 +96,8 @@ export async function POST(request: NextRequest) {
     airFreight.usd = cheapestAirlineRecord.cost * kg
     airFreight.inr = airFreight.usd * USD_TO_INR
     airFreight.label = `Air Freight:${cheapestAirlineRecord.airline_name}(${cheapestAirlineRecord.cost}$/kg)`
-
+    tags.push(`${cbm.toFixed(2)} CBM `)
+    tags.push(`${ton.toFixed(2)} TON `)
     //pickupLTL and deliveryLTL
     if (ori_country == 'IN') {
       // pickup from india pickup location --> india airport
@@ -237,7 +239,7 @@ export async function POST(request: NextRequest) {
     //FormId
     const formId = await createForm(validateData)
 
-    const blok_quote_id = randomIdGenerator()
+    const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
       name: toTitleCase(user_name) || '',
@@ -246,7 +248,7 @@ export async function POST(request: NextRequest) {
       phone: phone ? formatPhoneNumber(phone) : '',
     }
     const offer_id = await createAirOffer({
-      offer_id: blok_quote_id,
+      blok_id: blok_quote_id,
       form_id: formId,
       user,
       subject,
@@ -255,12 +257,12 @@ export async function POST(request: NextRequest) {
       start_code: ori_airport.port_code || '',
       end_code: des_airport.port_code || '',
       mode: 'AIR',
-      tags: ['AIR'],
+      service_type: ServiceType.AIR,
       package_type: `${cbm.toFixed(2)} CBM `,
       carrier: toTitleCase(cheapestAirlineRecord.airline_name ?? 'Air India'),
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
-      delivery_type: 'door_to_door',
+      tags,
       locations: locations,
       exchanges: exchangeValues(),
       offers: quoteTableData,

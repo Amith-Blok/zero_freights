@@ -66,7 +66,6 @@ export const OfferDataTable = ({
           return usFormater.format(row.original.usd)
         },
       },
-      //TODO: can i reduce the wide
       {
         accessorKey: 'inr',
         header: `${containerType} INR`,

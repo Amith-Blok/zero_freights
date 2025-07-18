@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
 import { formatPhoneNumber, weightTOMetricTon } from '@/lib/utils'
 import { formatLines } from '../helper/lines-rate-formatter'
-import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
+import { generateOfferId, generateQuoteMetaDetails } from '../helper/lib'
 import { inTrucking, usTrucking } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { appendAdditionalFees } from '../helper/table-data-appender'
@@ -12,7 +12,10 @@ import { getLinesChargesByCode } from '@/data/lines-charges'
 import { exchangeValues } from '@/lib/exchange'
 import { calculateTotalOfferCost } from '../helper/total'
 import { createForm } from '@/data/form'
-import { Location as LocationType } from '@/models/offer/shared-types'
+import {
+  Location as LocationType,
+  ServiceType,
+} from '@/models/offer/shared-types'
 import { toTitleCase } from '@/lib/utils'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { convertFclToStdContainer } from '@/lib/container'
@@ -66,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Shipline rates
     let startSeaPort, endSeaPort
+    let tags: string[] = []
     if (ori_country === 'IN') {
       startSeaPort =
         ori_port_rail.type === 'RAIL' ? ori_port_if_rail : ori_port_rail
@@ -75,7 +79,12 @@ export async function POST(request: NextRequest) {
       endSeaPort =
         des_port_rail.type == 'RAIL' ? des_port_if_rail : des_port_rail
     }
-
+    tags.push(
+      `${fcl_quantity} x ${convertFclToStdContainer(fcl_container_type)}`
+    )
+    if (fcl_weight) {
+      tags.push(`${fcl_weight.toFixed(2)} ${fcl_unit}`)
+    }
     const linesRates = await getLinesChargesByCode({
       start_code: startSeaPort?.port_code ?? '',
       end_code: endSeaPort?.port_code ?? '',
@@ -176,7 +185,9 @@ export async function POST(request: NextRequest) {
           end_longitude: ori_port_rail.lng,
         })
       }
-      //Add Origin Trucking Cost
+    }
+    //Add Origin Trucking Cost
+    if (originTrucking.cost > 0) {
       quoteTableData.local_charges.splice(0, 0, {
         label: `Origin Trucking ${ori_country}`,
         currency: `${ori_country == 'IN' ? 'INR' : 'USD'}`,
@@ -187,6 +198,7 @@ export async function POST(request: NextRequest) {
       })
     }
     const origin_trucking_days = originTrucking.estimatedDays
+
     //des trucking
     let destinationTrucking = { cost: 0, estimatedDays: 0 }
     if (delivery_check && delivery_location?.place_id) {
@@ -211,18 +223,20 @@ export async function POST(request: NextRequest) {
       }
     }
     //Add Des Trucking Cost
-    quoteTableData.local_charges.splice(
-      quoteTableData.local_charges.length - 1,
-      0,
-      {
-        label: `Destination Trucking ${des_country}`,
-        currency: `${des_country == 'IN' ? 'INR' : 'USD'}`,
-        additional_notes: '',
-        d2: destinationTrucking.cost,
-        d4: destinationTrucking.cost,
-        d5: destinationTrucking.cost,
-      }
-    )
+    if (destinationTrucking.cost > 0) {
+      quoteTableData.local_charges.splice(
+        quoteTableData.local_charges.length - 1,
+        0,
+        {
+          label: `Destination Trucking ${des_country}`,
+          currency: `${des_country == 'IN' ? 'INR' : 'USD'}`,
+          additional_notes: '',
+          d2: destinationTrucking.cost,
+          d4: destinationTrucking.cost,
+          d5: destinationTrucking.cost,
+        }
+      )
+    }
 
     const destionation_trucking_days = destinationTrucking.estimatedDays
 
@@ -303,8 +317,7 @@ export async function POST(request: NextRequest) {
       })
 
     //TODO: Hubspot deal created
-    //
-    const blok_quote_id = randomIdGenerator()
+    const blok_quote_id = await generateOfferId()
     // console.log({ blok_quote_id });
     const user = {
       id: 'BLOK_UNKNOW_USER',
@@ -314,7 +327,7 @@ export async function POST(request: NextRequest) {
       phone: phone ? formatPhoneNumber(phone) : '',
     }
     const offer_id = await createSeaFclOffer({
-      offer_id: blok_quote_id,
+      blok_id: blok_quote_id,
       form_id: formId,
       user,
       subject,
@@ -323,10 +336,10 @@ export async function POST(request: NextRequest) {
       start_code: startSeaPort?.port_code || '',
       end_code: endSeaPort?.port_code || '',
       mode: 'SEA_FCL',
-      tags: ['FCL'],
+      service_type: ServiceType.SEA_FCL,
       container_type: fcl_container_type,
       package_type: convertFclToStdContainer(fcl_container_type),
-      delivery_type: 'door_to_door',
+      tags,
       locations: locations as any,
       exchanges: exchangeValues(),
       offers: quoteTableData as any,

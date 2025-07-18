@@ -60,25 +60,33 @@ export interface LineChargeData {
 
 export type OfferModeTypes = 'WAR' | 'AIR' | 'LAND' | 'SEA_FCL' | 'SEA_LCL'
 
+export enum ServiceType {
+  SEA_FCL = 'Sea FCL',
+  SEA_LCL = 'Sea LCL',
+  AIR = 'Air',
+  DOMESTIC_TRUCKING = 'Domestic Trucking',
+  SEAPORT_TRUCKING = 'Seaport Trucking',
+  AIRPORT_TRUCKING = 'Airport Trucking',
+  FCL_WAR = 'FCL WH',
+  LCL_WAR = 'LCL WH',
+  LTL_WAR = 'LTL WH',
+}
+
 export interface Offer {
   form_id: string
-  offer_id: string
+  blok_id: string
   user: User
   subject: string
   place_of_supply: string
   bill_to: string
   //TODO: add enum for this
   mode: OfferModeTypes
-  tags: string[]
+  service_type: ServiceType
   start_code: string
   end_code: string
   exchanges: Exchange
   //TODO: add enum for this
-  delivery_type:
-    | 'door_to_door'
-    | 'door_to_port'
-    | 'port_to_door'
-    | 'port_to_port'
+  tags: string[]
   package_type: string
   locations: Location[]
 }

@@ -6,14 +6,14 @@ import {
   newUsLtlTruckingCost,
 } from '@/app/api/form/helper/trucking'
 import { getGoogleLocationByPlaceId } from '@/app/api/form/helper/google-map'
-import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
+import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { exchangeValues } from '@/lib/exchange'
-import { Location } from '@/models/offer/shared-types'
+import { Location, ServiceType } from '@/models/offer/shared-types'
 import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 
@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
       usd: 0,
       inr: 0,
     }
+    let tags: string[] = []
 
     // Fetch sea freight cost from the database
     const seaFreightCostDB = await getLCLSeaFreightCostByCode(
@@ -133,6 +134,8 @@ export async function POST(request: NextRequest) {
 
     loadUnLoadFee.usd = Math.min(Math.max(97, lbsPerHundred * 5.02), 450)
     loadUnLoadFee.inr = loadUnLoadFee.usd * USD_TO_INR
+    tags.push(`${cbm.toFixed(2)} CBM`)
+    tags.push(`${ton.toFixed(2)} TON`)
 
     seaLclFreight.usd = seaFreightCostDB * cbm
     seaLclFreight.inr = seaLclFreight.usd * USD_TO_INR
@@ -325,7 +328,7 @@ export async function POST(request: NextRequest) {
     const formId = await createForm(validateData)
 
     // Generate a unique quote ID and prepare user details
-    const blok_quote_id = randomIdGenerator()
+    const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
       name: toTitleCase(user_name) || '',
@@ -336,7 +339,7 @@ export async function POST(request: NextRequest) {
 
     // Create a sea LCL offer with all the gathered information
     const offer_id = await createSeaLclOffer({
-      offer_id: blok_quote_id,
+      blok_id: blok_quote_id,
       form_id: formId,
       user,
       subject,
@@ -349,12 +352,12 @@ export async function POST(request: NextRequest) {
         ? delivery_location?.place_id || ''
         : des_port_rail.port_name,
       mode: 'SEA_LCL',
-      tags: ['LCL'],
+      service_type: ServiceType.SEA_LCL,
       package_type: `${cbm.toFixed(2)} CBM`,
       carrier: 'Hapag',
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
-      delivery_type: 'door_to_door',
+      tags,
       locations: locations,
       exchanges: exchangeValues(),
       offers: quoteTableData,

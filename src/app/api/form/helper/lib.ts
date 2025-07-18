@@ -1,7 +1,9 @@
 import { FIVE_PERCENTAGE_GST_CODE_LIST } from '@/constants'
 import { USD_TO_INR } from '@/constants/exchange-value'
 import { INR_TO_USD } from '@/constants/exchange-value'
+import { getNextSequence } from '@/data/counter'
 import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
+import { CounterEnum } from '@/models/counter'
 import { RateInfoType } from '@/types/common'
 import { QuoteFormProcessedData } from '@/types/global'
 import { DataType } from '@/types/quotes'
@@ -11,7 +13,7 @@ export function generateQuoteMetaDetails({
   ori_port_rail,
   des_port_rail,
   delivery_location,
-  shipline = 'Hapag',
+  shipline = '',
   firstSlug,
   icoterms,
 }: {
@@ -31,7 +33,7 @@ export function generateQuoteMetaDetails({
     ? delivery_location.description + ` Via ${des_port_rail.port_name}`
     : des_port_rail.port_name
   const placeOfSupply = ori_port_rail.port_name
-  const subject = `${firstSlug} FROM ${pointOrigin}  To ${pointDetination} - ${shipline} (${icoterms})`
+  const subject = `${firstSlug} FROM ${pointOrigin}  To ${pointDetination} ${shipline ? `- ${shipline} (${icoterms})` : ''} `
   return { pointDetination, placeOfSupply, subject }
 }
 export function generateQuoteTableData(
@@ -82,6 +84,15 @@ export function formateRateInfoToConfirmQuoteData(
   }
   return records
 }
-export function randomIdGenerator() {
-  return 'ZFBSC' + Math.floor(Math.random() * Date.now()).toString()
+export async function generateOfferId(
+  sequenceName: CounterEnum = CounterEnum.offer
+) {
+  const count = await getNextSequence(sequenceName)
+  return 'ZFBSCO' + count.padStart(6, '0')
+}
+export async function generateConfirmedQuoteId(
+  sequenceName: CounterEnum = CounterEnum.quote
+) {
+  const count = await getNextSequence(sequenceName)
+  return 'ZFBSCQ' + count.padStart(6, '0')
 }

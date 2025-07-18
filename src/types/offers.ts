@@ -56,11 +56,7 @@ export type OfferType = {
   start_code: string
   end_code: string
   container_type: string
-  delivery_type:
-    | 'door_to_door'
-    | 'door_to_port'
-    | 'port_to_door'
-    | 'port_to_port'
+  tags: 'door_to_door' | 'door_to_port' | 'port_to_door' | 'port_to_port'
   locations: LocationType[]
   exchanges: ExchangeType
   tag: string

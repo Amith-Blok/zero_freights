@@ -1,44 +1,46 @@
 import { OfferDataTable } from '@/components/data-table/offer-data-table'
 import ShippingCard from '@/components/shared/shipping-card'
-import { LabeledCost, Location } from '@/models/offer/shared-types'
+import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 
-interface WarehouseCompProps {
+interface LandCompProps {
+  id: string
   carrier: string
   offers: LabeledCost[]
-  tags: string
+  service_type: ServiceType
+  tags: string[]
   price: number
   locations: Location[]
   containerType: string
   containerLabel: string
-  estimatedDays: number
   offerId: string
   mode: string
 }
-export default function WarehouseComp({
+export default function LandComp({
+  id,
   offers,
   carrier,
+  service_type,
   tags,
   price,
   locations,
   containerType,
   containerLabel,
   offerId,
-  estimatedDays,
   mode: _ = 'WAR',
-}: WarehouseCompProps) {
+}: LandCompProps) {
   return (
     <ShippingCard
+      id={id}
       lineName={carrier}
       locations={locations}
-      transportMode={tags.toUpperCase()}
-      modeType="WAR"
-      deliveryType="port_to_port"
-      estimatedDays={0}
-      portToDays={estimatedDays}
+      transportMode={service_type.toUpperCase()}
+      modeType="LAND"
+      serviceType={service_type}
+      tags={tags}
+      portToDays={0}
       containerLabel={containerLabel}
       containerType={containerType}
       price={price}
-      currency="₹"
       url={`/api/confirmed-quote`}
       offerId={offerId}
     >

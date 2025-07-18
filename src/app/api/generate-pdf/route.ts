@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
 import puppeteerCore from 'puppeteer-core'
 import chromium from '@sparticuz/chromium'
+import { PdfType } from '@/types/common'
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const quoteId = searchParams.get('quote-id')
+    const id = searchParams.get('id')
+    const type = searchParams.get('type')
+    const lineName = searchParams.get('line_name')
     const isDev = process.env.NODE_ENV == 'development'
     console.log({ isDev })
     console.log({ env: process.env.NEXT_PUBLIC_APP_URL })
@@ -14,10 +17,12 @@ export async function GET(request: NextRequest) {
       ? 'http://localhost:3000'
       : process.env.NEXT_PUBLIC_APP_URL
     console.log({ baseUrl })
-    const url = baseUrl + `/quote/${quoteId}`
+    const url =
+      type == PdfType.OFFER
+        ? baseUrl + `/download/offer/${id}?line_name=${lineName}`
+        : baseUrl + `/download/confirmed-quote/${id}`
     console.log({ url })
-    if (!quoteId)
-      return NextResponse.json('quote-id not found', { status: 400 })
+    if (!id) return NextResponse.json('quote-id not found', { status: 400 })
     let browser
     if (isDev) {
       browser = await puppeteer.launch({
@@ -74,7 +79,7 @@ export async function GET(request: NextRequest) {
         executablePath: await chromium.executablePath(),
       })
       const page = await browser.newPage()
-      await page.goto(`${baseUrl}/quote/${quoteId}`, {
+      await page.goto(url, {
         waitUntil: 'networkidle0',
       })
       await page.evaluate(() => {

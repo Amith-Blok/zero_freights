@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTableFromSeaFcl } from './helper'
 import { LabeledCost } from '@/models/offer/shared-types'
 import { getOfferById } from '@/data/offer/offer'
+import { generateConfirmedQuoteId } from '../form/helper/lib'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
       user,
       bill_to,
       form_id,
+      blok_id: offerId,
       locations,
       offers,
       place_of_supply,
@@ -29,8 +31,8 @@ export async function POST(request: NextRequest) {
       start_code,
       end_code,
       exchanges,
+      service_type,
       tags,
-      delivery_type,
       mode,
       created_at,
     } = safeParseOffer.data
@@ -88,15 +90,17 @@ export async function POST(request: NextRequest) {
       },
       { total_inr: 0, total_usd: 0 }
     )
+    const quoteId = await generateConfirmedQuoteId()
 
     const confirmed_quote_id = await createConfirmedQuote({
       form_id,
-      offer_id,
+      blok_id: quoteId,
+      offer_id: offerId,
       offer_date: created_at?.toISOString() ?? '',
       user,
-      delivery_type,
-      locations,
       tags,
+      locations,
+      service_type,
       exchanges,
       carrier: carrierName,
       transit_time: tranist,
@@ -123,7 +127,7 @@ export async function POST(request: NextRequest) {
       userPhone: user.phone,
       userCompany: user.company,
       subject,
-      tag: tags[0],
+      tag: service_type[0],
       containerType: packageLabel,
       total: total_inr,
       detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${confirmed_quote_id}`,

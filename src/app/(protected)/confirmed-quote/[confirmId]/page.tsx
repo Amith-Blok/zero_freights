@@ -13,8 +13,14 @@ export default async function ConfirmedQuotePage(props: {
   const confirmQuote = await getConfirmedQuoteById(params.confirmId)
   if (!confirmQuote) return notFound()
 
-  const { user, locations, carrier, container_type, tags, transit_time } =
-    confirmQuote
+  const {
+    user,
+    locations,
+    carrier,
+    container_type,
+    service_type,
+    transit_time,
+  } = confirmQuote
   const origin = locations?.[0]?.name || 'N/A'
   const destination = locations?.at(-1)?.name || 'N/A'
   const transitTime = confirmQuote.transit_time
@@ -49,7 +55,7 @@ export default async function ConfirmedQuotePage(props: {
         origin={origin}
         destination={destination}
         containerType={container_type}
-        tag={tags[0].toUpperCase()}
+        tag={service_type[0].toUpperCase()}
         carrier={carrier.toUpperCase()}
         total={totalInr}
         tableData={confirmQuote.data}

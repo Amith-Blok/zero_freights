@@ -6,13 +6,13 @@ import {
   usTrucking,
 } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
-import { generateQuoteMetaDetails, randomIdGenerator } from '../helper/lib'
+import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { LandFormSchema } from '@/schema/land-schema'
 import { formatPhoneNumber, toTitleCase, weightTOMetricTon } from '@/lib/utils'
 import { currencyConverter, exchangeValues } from '@/lib/exchange'
 import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
-import { Location } from '@/models/offer/shared-types'
+import { Location, ServiceType } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
 import { convertFclToStdContainer } from '@/lib/container'
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     } = validateData.data
     let firstSlug = ''
     let pickupLocationDescription = ''
+    let serviceType: ServiceType
     const truckingCost = {
       label: '',
       usd: 0,
@@ -49,8 +50,9 @@ export async function POST(request: NextRequest) {
       type: 'door',
     }
     let packageLabel = ''
-
+    let tags: string[] = []
     if (modes === 'SEAPORT_TRUCKING') {
+      serviceType = ServiceType.SEAPORT_TRUCKING
       const { sea_container_type } = validateData.data
       packageLabel = convertFclToStdContainer(sea_container_type)
       //SEAPORT TRUCKING
@@ -60,6 +62,12 @@ export async function POST(request: NextRequest) {
 
       truckingCost.label = 'trucking cost(FTL)'
       const { sea_quantity, sea_unit, sea_weight } = validateData.data
+      tags.push(
+        `${sea_quantity} x ${convertFclToStdContainer(sea_container_type)}`
+      )
+      if (sea_weight) {
+        tags.push(`- ${sea_weight.toFixed(2)} ${sea_unit}`)
+      }
       const totalWeight = sea_quantity * sea_weight
       const totalMetricTon = weightTOMetricTon({
         unit: sea_unit,
@@ -99,8 +107,11 @@ export async function POST(request: NextRequest) {
         })
       }
     } else if (modes == 'DOMESTIC_TRUCKING') {
+      serviceType = ServiceType.DOMESTIC_TRUCKING
       const { domestic_cbm_ton } = validateData.data
       packageLabel = `${domestic_cbm_ton.cbm.toFixed(2)} CBM`
+      tags.push(`${domestic_cbm_ton.cbm.toFixed(2)} CBM `)
+      tags.push(`${domestic_cbm_ton.ton.toFixed(2)} TON `)
       //Pick up location data
       pickupLocationData.type = 'door'
       pickupLocationData.code = country
@@ -151,8 +162,11 @@ export async function POST(request: NextRequest) {
         })
       }
     } else if (modes == 'AIRPORT_TRUCKING') {
+      serviceType = ServiceType.AIRPORT_TRUCKING
       const { airport_cbm_ton } = validateData.data
       packageLabel = `${airport_cbm_ton.cbm.toFixed(2)} CBM`
+      tags.push(`${airport_cbm_ton.cbm.toFixed(2)} CBM `)
+      tags.push(`${airport_cbm_ton.ton.toFixed(2)} TON `)
       //Pickup location data
       pickupLocationData.type = 'air'
       pickupLocationData.code = country
@@ -254,7 +268,7 @@ export async function POST(request: NextRequest) {
     //FormId
     const formId = await createForm(validateData)
 
-    const blok_quote_id = randomIdGenerator()
+    const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
       name: toTitleCase(user_name) || '',
@@ -263,7 +277,7 @@ export async function POST(request: NextRequest) {
       phone: phone ? formatPhoneNumber(phone) : '',
     }
     const offer_id = await createLandOffer({
-      offer_id: blok_quote_id,
+      blok_id: blok_quote_id,
       form_id: formId,
       user,
       subject,
@@ -272,12 +286,12 @@ export async function POST(request: NextRequest) {
       start_code: pickupLocationDescription || '',
       end_code: delivery_location.description || '',
       mode: 'LAND',
-      tags: ['Land'],
+      service_type: serviceType,
       package_type: packageLabel,
       carrier: 'Land Freight',
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
-      delivery_type: 'door_to_door',
+      tags,
       locations: locations,
       exchanges: exchangeValues(),
       offers: quoteTableData,

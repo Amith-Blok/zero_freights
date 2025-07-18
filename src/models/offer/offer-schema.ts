@@ -9,6 +9,7 @@ import {
   SeaFclOffer,
   SeaLclOffer,
   WarehouseOffer,
+  ServiceType,
 } from './shared-types'
 import {
   getOrCreateDiscriminator,
@@ -34,7 +35,7 @@ export interface SeaLclOfferDocument extends SeaLclOffer, Document {}
 export const OfferSchema = new mongoose.Schema<OfferDocument>(
   {
     form_id: { type: String, required: true },
-    offer_id: { type: String, required: true },
+    blok_id: { type: String, required: true },
     user: { type: UserSchema, required: true },
     subject: { type: String, required: true },
     place_of_supply: { type: String, required: true },
@@ -44,14 +45,17 @@ export const OfferSchema = new mongoose.Schema<OfferDocument>(
       enum: ['WAR', 'AIR', 'LAND', 'SEA_LCL', 'SEA_FCL'],
       required: true,
     },
-    tags: { type: [String], required: true },
+    service_type: {
+      type: String,
+      required: true,
+      enum: Object.values(ServiceType),
+    },
     start_code: { type: String, required: true },
     end_code: { type: String, required: true },
     package_type: { type: String, required: true },
     exchanges: { type: ExchangeSchema, required: true },
-    delivery_type: {
-      type: String,
-      enum: ['door_to_door', 'door_to_port', 'port_to_door', 'port_to_port'],
+    tags: {
+      type: [String],
       required: true,
     },
     locations: { type: [LocationSchema], required: true },

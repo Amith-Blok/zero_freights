@@ -1,4 +1,5 @@
 import mongoose, { InferSchemaType } from 'mongoose'
+import { ServiceType } from './offer/shared-types'
 
 const ExchangeSchema = new mongoose.Schema(
   {
@@ -64,13 +65,18 @@ const TotalCostSchema = new mongoose.Schema(
 const ConfimredQuoteSchema = new mongoose.Schema(
   {
     form_id: { type: String, required: true },
+    blok_id: { type: String, required: true },
     offer_id: { type: String, required: true },
     offer_date: { type: String, required: true },
     user: { type: UserSchema, required: true },
     subject: { type: String, required: true },
     place_of_supply: { type: String, required: true },
     bill_to: { type: String, required: true },
-    tags: { type: [String], required: true },
+    service_type: {
+      type: String,
+      required: true,
+      enum: Object.values(ServiceType),
+    },
     start_code: { type: String, required: true },
     end_code: { type: String, required: true },
     container_type: { type: String, required: true },
@@ -78,11 +84,7 @@ const ConfimredQuoteSchema = new mongoose.Schema(
     total_cost: { type: TotalCostSchema, required: true },
     carrier: { type: String, required: true },
     transit_time: { type: Number, required: true },
-    delivery_type: {
-      type: String,
-      enum: ['door_to_door', 'door_to_port', 'port_to_door', 'port_to_port'],
-      required: true,
-    },
+    tags: { type: [String], required: true },
     locations: { type: [LocationSchema], required: true },
     data: { type: [ConfimredQuoteData], required: true },
   },

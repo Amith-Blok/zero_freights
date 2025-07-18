@@ -5,3 +5,8 @@ export type RateInfoType = {
   currency: AllCurrenciesType
   value: number
 }
+
+export enum PdfType {
+  OFFER = 'OFFER',
+  CONFIRMED_QUOTE = 'CONFIRMED_QUOTE',
+}

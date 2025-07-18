@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   formateRateInfoToConfirmQuoteData,
   generateQuoteMetaDetails,
-  randomIdGenerator,
+  generateOfferId,
 } from '../helper/lib'
 
 import { WarehouseFormSchema } from '@/schema/warehouse-schema'
@@ -13,7 +13,11 @@ import { createForm } from '@/data/form'
 import { createWarehouseOffer } from '@/data/offer/warehouse-offer'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { exchangeValues } from '@/lib/exchange'
-import { Location, LocationType } from '@/models/offer/shared-types'
+import {
+  Location,
+  LocationType,
+  ServiceType,
+} from '@/models/offer/shared-types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,7 +39,8 @@ export async function POST(request: NextRequest) {
       email,
       phone,
     } = validateData.data
-
+    let tags: string[] = []
+    let serviceType: ServiceType
     // Narrow the type based on `is_google_location`
     let pickupLocationDescription: string,
       cbmTon: { cbm: number; ton: number },
@@ -82,19 +87,24 @@ export async function POST(request: NextRequest) {
       value: 0,
     }
     if (modes === 'FCL_WAREHOUSE') {
+      serviceType = ServiceType.FCL_WAR
       const { fcl_load, fcl_cbm_ton } = validateData.data
-      const { cbm } = fcl_cbm_ton
+      const { cbm, ton } = fcl_cbm_ton
       cbmTon = fcl_cbm_ton
       totalPallet = fcl_load.reduce(
         (acc, value) => (value.fcl_quantity ? acc + value.fcl_quantity : 0),
         0
       )
+      tags.push(`${cbm.toFixed(2)} CBM `)
+      tags.push(`${ton.toFixed(2)} TON `)
+      tags.push(`${totalPallet.toFixed(0)} PALLET `)
       perPalletIn.value = cbm <= 1.2 ? 12.5 * totalPallet : 15 * totalPallet
       perPalletOut.value = perPalletIn.value
       storageCharge.value = !dg
         ? 1.5 * cbm * storage_days
         : 4.5 * cbm * storage_days
     } else if (modes == 'LCL_WAREHOUSE') {
+      serviceType = ServiceType.LCL_WAR
       const { lcl_load, lcl_cbm_ton } = validateData.data
       const { cbm } = lcl_cbm_ton
       cbmTon = lcl_cbm_ton
@@ -102,12 +112,16 @@ export async function POST(request: NextRequest) {
         (acc, value) => (value.lcl_quantity ? acc + value.lcl_quantity : 0),
         0
       )
+      tags.push(`${cbm.toFixed(2)} CBM `)
+      tags.push(`${cbmTon.ton.toFixed(2)} TON `)
+      tags.push(`${totalPallet.toFixed(0)} PALLET `)
       perPalletIn.value = cbm <= 1.2 ? 12.5 * totalPallet : 15 * totalPallet
       perPalletOut.value = perPalletIn.value
       storageCharge.value = !dg
         ? 1.5 * cbm * storage_days
         : 4.5 * cbm * storage_days
     } else if (modes == 'LTL_WAREHOUSE') {
+      serviceType = ServiceType.LTL_WAR
       if (pickupLocationType !== 'door') {
         pickupLocationType = 'air'
       }
@@ -118,6 +132,9 @@ export async function POST(request: NextRequest) {
         (acc, value) => (value.ltl_quantity ? acc + value.ltl_quantity : 0),
         0
       )
+      tags.push(`${cbm.toFixed(2)} CBM `)
+      tags.push(`${cbmTon.ton.toFixed(2)} TON `)
+      tags.push(`${totalPallet.toFixed(0)} PALLET `)
       perPalletIn.value = cbm <= 1.2 ? 12.5 * totalPallet : 15 * totalPallet
       perPalletOut.value = perPalletIn.value
       storageCharge.value = !dg
@@ -182,7 +199,7 @@ export async function POST(request: NextRequest) {
     //FormId
     const formId = await createForm(validateData)
 
-    const blok_quote_id = randomIdGenerator()
+    const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
       name: toTitleCase(user_name) || '',
@@ -191,7 +208,7 @@ export async function POST(request: NextRequest) {
       phone: phone ? formatPhoneNumber(phone) : '',
     }
     const offer_id = await createWarehouseOffer({
-      offer_id: blok_quote_id,
+      blok_id: blok_quote_id,
       form_id: formId,
       user,
       subject,
@@ -200,22 +217,19 @@ export async function POST(request: NextRequest) {
       start_code: pickup_location.place_id || '',
       end_code: delivery_location?.port_code || '',
       mode: 'WAR',
-      tags: ['WAREHOUSE'],
+      service_type: serviceType,
       package_type: `${cbmTon.cbm.toFixed(2)} CBM`,
       carrier: 'Warehouse',
       estimated_days: storage_days,
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: `${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON`,
-      delivery_type: 'door_to_door',
+      tags,
       locations: locations,
       exchanges: exchangeValues(),
       offers: formatedQuoteTableData,
     })
 
-    return NextResponse.json(
-      { offer_id, formatedQuoteTableData },
-      { status: 200 }
-    )
+    return NextResponse.json({ offer_id }, { status: 200 })
   } catch (error) {
     console.log(error)
     return NextResponse.json(

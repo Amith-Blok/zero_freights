@@ -16,7 +16,6 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { DeliveryType, getDeliveryTypeLabel } from '@/types/shipping'
 import { inFormater } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
@@ -24,20 +23,23 @@ import {
   Location,
   LocationType,
   OfferModeTypes,
+  ServiceType,
 } from '@/models/offer/shared-types'
+import { PdfType } from '@/types/common'
+import { QuotePdfDownloadBtn } from '@/app/download/_component/quote-pdf-download-btn'
 
 interface ShippingCardProps {
   lineName: string
+  id: string
   containerType: string
   containerLabel: string
   transportMode: string
   modeType: OfferModeTypes
-  estimatedDays: number
   portToDays: number
-  deliveryType: DeliveryType
+  serviceType: ServiceType
+  tags: string[]
   locations: Location[]
   price: number
-  currency: string
   children: React.ReactNode
   url: string
   offerId: string
@@ -94,16 +96,14 @@ const RouteDisplay = ({
 
 export default function ShippingCard({
   lineName,
+  id,
   containerType,
-  containerLabel,
   modeType,
-  transportMode,
-  // estimatedDays,
   portToDays,
-  deliveryType,
+  serviceType,
+  tags,
   locations,
   price,
-  // currency,
   url,
   offerId,
   children,
@@ -154,21 +154,29 @@ export default function ShippingCard({
             <div className="mb-3 flex items-center gap-2">
               <ModeIcon mode={modeType} />
               <h3 className="text-lg font-semibold text-gray-900">
-                {lineName} | {containerLabel}
+                {lineName}
               </h3>
+              <QuotePdfDownloadBtn
+                id={id}
+                type={PdfType.OFFER}
+                lineName={lineName}
+              />
             </div>
 
             {/* Transport Info */}
             <div className="mb-4 flex flex-wrap items-center gap-2 text-gray-600">
               <Badge variant="secondary" className="bg-zinc-50 text-zinc-700">
-                {transportMode}
+                {serviceType.toUpperCase()}
               </Badge>
-              <Badge
-                variant="outline"
-                className="border-green-200 text-green-700"
-              >
-                {getDeliveryTypeLabel(deliveryType)}
-              </Badge>
+              {tags.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="border-green-200 text-green-700"
+                >
+                  {tag}
+                </Badge>
+              ))}
               {portToDays != 0 && (
                 <span className="text-sm">
                   Est. {portToDays.toString()} days port-to-port

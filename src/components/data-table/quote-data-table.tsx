@@ -1,5 +1,4 @@
 'use client'
-import { DataType } from '@/types/quotes'
 import { inFormater, usFormater } from '@/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from './data-table'
@@ -7,23 +6,27 @@ import { useMemo, useState } from 'react'
 
 export const QuoteDataTable = ({
   data,
-  totalAmount,
-  subTotal,
-  gstFive,
-  gstFifteen,
+  containerType,
+  total,
 }: {
-  data: DataType[]
-  totalAmount: number
-  subTotal: number
-  gstFive: number
-  gstFifteen: number
+  data: {
+    label: string
+    usd: number
+    inr: number
+  }[]
+  containerType: string
+  total: number
 }) => {
   const [paginationState] = useState({
     pageIndex: 0,
-    pageSize: 20,
+    pageSize: 30,
   })
 
-  const quoteColumn: ColumnDef<DataType>[] = useMemo(
+  const quoteColumn: ColumnDef<{
+    label: string
+    usd: number
+    inr: number
+  }>[] = useMemo(
     () => [
       {
         id: '#',
@@ -35,51 +38,27 @@ export const QuoteDataTable = ({
         header: 'Items & Descriptions',
       },
       {
-        accessorKey: 'cost_usd',
-        header: 'Rate(USD)',
-        cell: ({ row }) => usFormater.format(row.original.cost_usd),
+        accessorKey: 'usd',
+        header: `${containerType} USD`,
+        cell: ({ row }) => {
+          return usFormater.format(row.original.usd)
+        },
       },
       {
-        accessorKey: 'cost_inr',
-        header: 'Rate(INR)',
-        cell: ({ row }) => inFormater.format(row.original.cost_inr),
-      },
-      {
-        accessorKey: 'gst_percentage',
-        header: '%',
-      },
-      {
-        accessorKey: 'gst_amount',
-        header: 'Amount',
-        cell: ({ row }) => inFormater.format(row.original.gst_amount),
-      },
-      {
-        accessorKey: 'total_amount',
-        header: 'Total Amount',
-        cell: ({ row }) => inFormater.format(row.original.total_amount),
+        accessorKey: 'inr',
+        header: `${containerType} INR`,
+        cell: ({ row }) => {
+          return inFormater.format(row.original.inr)
+        },
         footer: () => (
-          <div>
-            <div className="mb-2 flex justify-between">
-              <span className="font-semibold">Subtotal:</span>
-              <span>{inFormater.format(subTotal)}</span>
-            </div>
-            <div className="mb-2 flex justify-between">
-              <span className="font-semibold">GST (5%):</span>
-              <span>{inFormater.format(gstFive)}</span>
-            </div>
-            <div className="mb-2 flex justify-between">
-              <span className="font-semibold">GST (15%):</span>
-              <span>{inFormater.format(gstFifteen)}</span>
-            </div>
-            <div className="mt-4 flex justify-between text-lg font-bold">
-              <span>Total Amount:</span>
-              <span>{inFormater.format(totalAmount)}</span>
-            </div>
+          <div className="mt-4 flex items-end justify-end gap-5 text-lg font-bold">
+            <span>Total Amount:</span>
+            <span>{inFormater.format(total)}</span>
           </div>
         ),
       },
     ],
-    [totalAmount, subTotal, gstFifteen, gstFive]
+    [containerType, total]
   )
 
   return (
