@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       dg,
       delivery_location,
       storage_days,
-      icoterms,
       user_name,
       company_name,
       email,
@@ -155,7 +154,7 @@ export async function POST(request: NextRequest) {
       } // Initial values
     )
 
-    let firstSlug = `Warehouse ${modes} ${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON FROM ${pickupLocationDescription}  To ${delivery_location.port_name} (${icoterms}`
+    let firstSlug = `Warehouse ${modes} ${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON FROM ${pickupLocationDescription}  To ${delivery_location.port_name} `
 
     //quote details
     const { pointDetination, placeOfSupply, subject } =
@@ -165,7 +164,7 @@ export async function POST(request: NextRequest) {
         },
         des_port_rail: { port_name: delivery_location.port_code },
         firstSlug,
-        icoterms,
+        icoterms: '',
       })
 
     let locations: Location[] = []
@@ -203,7 +202,7 @@ export async function POST(request: NextRequest) {
       mode: 'WAR',
       tags: ['WAREHOUSE'],
       package_type: `${cbmTon.cbm.toFixed(2)} CBM`,
-      carrier: 'Forward Air',
+      carrier: 'Warehouse',
       estimated_days: storage_days,
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: `${cbmTon.cbm.toFixed(2)} CBM ${cbmTon.ton.toFixed(2)} TON`,
