@@ -74,7 +74,7 @@ export async function inTrucking({
   const emiCost = 3500
   const overWeightCost = ton >= 19.5 ? Math.min(30 * totalDistance, 12000) : 0
   const sum = desielCost + tollCost + driverCost + emiCost + overWeightCost
-  const profit = sum * 0.12
+  const profit = sum * 0.25
   const grandTotal = sum + profit
   return { cost: grandTotal, estimatedDays }
 }
