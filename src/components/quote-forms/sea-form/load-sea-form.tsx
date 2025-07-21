@@ -37,8 +37,6 @@ export const LoadSeaForm = () => {
         },
       ]
       setValue('lcl_load', defaultLclLoad)
-      setValue('pickup_check', true)
-      setValue('delivery_check', true)
     }
   }, [watchMode, setValue])
   return (

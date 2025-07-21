@@ -229,15 +229,20 @@ export async function POST(request: NextRequest) {
     // Compile all charges into a quote table
     const quoteTableData = [
       seaLclFreight,
-      pickupLTL,
       terminalCharge,
       docCharge,
       vgmCharge,
       ddcCharge,
       chasisFee,
       loadUnLoadFee,
-      destinationLTL,
     ]
+
+    if (pickupLTL.inr > 0) {
+      quoteTableData.splice(1, 0, pickupLTL)
+    }
+    if (destinationLTL.inr > 0) {
+      quoteTableData.splice(quoteTableData.length - 2, 0, destinationLTL)
+    }
 
     // Add clearance fee if the origin is India
     if (ori_country == 'IN') {

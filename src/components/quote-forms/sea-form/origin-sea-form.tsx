@@ -23,7 +23,6 @@ export const OriginSeaForm = () => {
       <CheckBoxWrapper
         label="Do you want pick up trucking service?"
         field="pickup_check"
-        disable={watchMode == 'LCL'}
       />
       <div className="mt-5 flex flex-col items-start justify-center gap-2 md:flex-row">
         <SelectWrapper

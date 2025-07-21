@@ -68,7 +68,7 @@ export async function inTrucking({
   const distance = meterToKilometer(distanceInMeter)
   const totalDistance = times * distance
   const estimatedDays = calcualteEstimatedDay({ country: 'IND', totalDistance })
-  const desielCost = (totalDistance / 2.5) * 100
+  const desielCost = (totalDistance / 2.5) * 110
   const tollCost = 1000
   const driverCost = Math.ceil(totalDistance / 300) * 1000
   const emiCost = 3500
