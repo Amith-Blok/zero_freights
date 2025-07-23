@@ -14,6 +14,7 @@ export default async function ConfirmedQuotePage(props: {
   if (!confirmQuote) return notFound()
 
   const {
+    blok_id,
     user,
     locations,
     carrier,
@@ -37,7 +38,7 @@ export default async function ConfirmedQuotePage(props: {
       {/* Success Message */}
       <section className="mb-8 text-center">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">
-          Offer Selected Successfully!
+          Booked Successfully!
         </h1>
         <p className="text-md text-gray-600">
           Thank you for choosing our services. Our team will contact you soon
@@ -47,6 +48,7 @@ export default async function ConfirmedQuotePage(props: {
 
       {/* Selected Offer Details */}
       <ConfirmedQuoteCard
+        id={blok_id}
         userName={toTitleCase(user.name)}
         userEmail={user.email}
         userPhone={formatPhoneNumber(user.phone)}
@@ -55,7 +57,7 @@ export default async function ConfirmedQuotePage(props: {
         origin={origin}
         destination={destination}
         containerType={container_type}
-        tag={service_type[0].toUpperCase()}
+        tag={service_type.toUpperCase()}
         carrier={carrier.toUpperCase()}
         total={totalInr}
         tableData={confirmQuote.data}
@@ -135,7 +137,7 @@ export default async function ConfirmedQuotePage(props: {
       <div className="mt-8 rounded-lg bg-gray-100 p-4 text-center">
         <p className="text-sm text-gray-600">
           Reference Number:{' '}
-          <span className="font-mono font-medium">{params.confirmId}</span>
+          <span className="font-mono font-medium">{blok_id}</span>
         </p>
         <p className="mt-1 text-xs text-gray-500">
           Please keep this reference number for your records

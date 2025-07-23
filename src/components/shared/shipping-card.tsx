@@ -217,9 +217,14 @@ export default function ShippingCard({
             <Button
               onClick={() => handleSubmit(lineName.toLowerCase())}
               disabled={loading}
-              className="shrink-0"
+              className="h-8 shrink-0 gap-1"
+              size="sm"
             >
-              Select
+              {loading ? (
+                <span className="animate-pulse">Booking...</span>
+              ) : (
+                <span>Book Now</span>
+              )}
             </Button>
           </div>
         </div>

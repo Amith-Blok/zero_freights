@@ -7,6 +7,7 @@ import { OfferDataTable } from '@/components/data-table/offer-data-table'
 import { inFormater } from '@/lib/utils'
 
 interface ConfirmedQuoteCardProps {
+  id: string
   userName: string
   userEmail: string
   userPhone: string
@@ -21,6 +22,7 @@ interface ConfirmedQuoteCardProps {
   tableData: { label: string; inr: number; usd: number }[]
 }
 export function ConfirmedQuoteCard({
+  id,
   userName,
   userEmail,
   userPhone,
@@ -37,17 +39,29 @@ export function ConfirmedQuoteCard({
   const [isExpanded, setIsExpanded] = useState(false)
   return (
     <Card className="mb-8 w-full max-w-4xl">
-      <CardHeader>
+      <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-gray-100">
         <CardTitle className="flex items-center justify-between">
-          <span>Selected Offer Details</span>
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            Selected
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-2 rounded-full bg-green-500"></div>
+            <div>
+              <span className="text-lg font-semibold text-gray-900">{id}</span>
+              <p className="text-sm font-normal text-gray-500">
+                Booking Reference
+              </p>
+            </div>
+          </div>
+          <Badge
+            variant="secondary"
+            className="bg-green-100 px-3 py-1 font-medium text-green-800"
+          >
+            ✓ Booked
           </Badge>
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {/* Customer Information */}
-        <section className="rounded-lg  p-4">
+        <section className="rounded-lg p-4">
           <h3 className="mb-3 font-semibold text-gray-900">
             Customer Information
           </h3>
@@ -100,14 +114,17 @@ export function ConfirmedQuoteCard({
               </div>
             </div>
           </div>
-          <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Pricing</h3>
-            <div className="mb-2 text-2xl font-bold text-blue-600">
-              {inFormater.format(total)}
+          <div className="lg:col-span-1">
+            <h3 className="mb-2 font-semibold text-gray-900">Total Cost</h3>
+            <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6 text-center">
+              <div className="mb-2 text-3xl font-bold text-green-700">
+                {inFormater.format(total)}
+              </div>
+              <p className="text-sm font-medium text-green-600">Final Quote</p>
+              <p className="mt-2 text-xs text-gray-500">
+                *Pricing may vary based on additional requirements
+              </p>
             </div>
-            <p className="text-sm text-gray-600">
-              Final pricing may vary based on additional requirements
-            </p>
           </div>
         </div>
 
@@ -119,11 +136,11 @@ export function ConfirmedQuoteCard({
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex-1">
               <span className="text-gray-600">From:</span>
-              <p className="font-medium">{origin}</p>
+              <p className="font-medium">{origin.toUpperCase()}</p>
             </div>
             <div className="flex-1">
               <span className="text-gray-600">To:</span>
-              <p className="font-medium">{destination}</p>
+              <p className="font-medium">{destination.toUpperCase()}</p>
             </div>
           </div>
 
