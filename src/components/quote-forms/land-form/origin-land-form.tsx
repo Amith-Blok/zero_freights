@@ -94,10 +94,7 @@ const DomesticOriginForm = ({
   watchCountry: string
   setValue: UseFormSetValue<FieldValues>
 }) => {
-  const OriLocationUrl =
-    watchCountry == 'US'
-      ? `/api/autos/us-ltl-cities`
-      : `/api/autos/google?country=${watchCountry}`
+  const OriLocationUrl = `/api/autos/google?country=${watchCountry}`
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">

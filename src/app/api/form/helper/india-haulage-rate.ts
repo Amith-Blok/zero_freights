@@ -67,7 +67,7 @@ export const filterHaulageRateByWeight = ({
     d4: 0,
     d5: 0,
   }
-
+  const BLOK_RAIL_PROFIT = 10000
   const containerTypes: Array<'D2' | 'D4' | 'D5'> = ['D2', 'D4', 'D5']
 
   for (const containerType of containerTypes) {
@@ -114,6 +114,9 @@ export const filterHaulageRateByWeight = ({
   ) {
     throw new Error("Couldn't find rates for rails")
   }
+  filteredHaulageRate.d2 = filteredHaulageRate.d2 + BLOK_RAIL_PROFIT
+  filteredHaulageRate.d4 = filteredHaulageRate.d4 + BLOK_RAIL_PROFIT
+  filteredHaulageRate.d5 = filteredHaulageRate.d5 + BLOK_RAIL_PROFIT
 
   return filteredHaulageRate
 }

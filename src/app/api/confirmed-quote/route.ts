@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       userPhone: user.phone,
       userCompany: user.company,
       subject,
-      tag: service_type[0],
+      tag: service_type,
       containerType: packageLabel,
       total: total_inr,
       detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${confirmed_quote_id}`,

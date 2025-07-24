@@ -188,13 +188,24 @@ export async function POST(request: NextRequest) {
     }
     //Add Origin Trucking Cost
     if (originTrucking.cost > 0) {
-      quoteTableData.local_charges.splice(0, 0, {
+      quoteTableData.local_charges.splice(1, 0, {
         label: `Origin Trucking ${ori_country}`,
         currency: `${ori_country == 'IN' ? 'INR' : 'USD'}`,
         additional_notes: '',
         d2: originTrucking.cost,
         d4: originTrucking.cost,
         d5: originTrucking.cost,
+      })
+    }
+    // check cfs for india
+    if (pickup_check && trucking === 'CFS' && ori_country === 'IN') {
+      quoteTableData.local_charges.splice(1, 0, {
+        label: ' CFS charges',
+        currency: 'INR',
+        additional_notes: '',
+        d2: 28000,
+        d4: 28000,
+        d5: 28000,
       })
     }
     const origin_trucking_days = originTrucking.estimatedDays

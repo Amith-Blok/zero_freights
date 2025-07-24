@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
     const terminalCost = {
       label: 'Terminal Cost',
       currency: 'USD',
-      usd: 375,
-      inr: 375 * USD_TO_INR,
+      usd: 0,
+      inr: 0,
     }
     const ams = {
       label: 'AMS Cost',
@@ -168,6 +168,9 @@ export async function POST(request: NextRequest) {
         destinationLTL.usd = destinationLTL.inr * INR_TO_USD
       }
     }
+
+    terminalCost.usd = Math.max(375, 0.2 * airFreight.usd)
+    terminalCost.inr = terminalCost.usd * USD_TO_INR
     const quoteTableData = [airFreight, terminalCost, ams, awb]
 
     let locations: Location[] = [

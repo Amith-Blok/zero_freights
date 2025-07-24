@@ -274,41 +274,53 @@ export async function POST(request: NextRequest) {
         code: ori_country,
         type: 'door',
       })
-    if (ori_port_rail)
+    if (ori_port_rail.type == 'PORT')
       locations.push({
         name: ori_port_rail.port_name,
         code: ori_port_rail.port_code,
-        type:
-          ori_country === 'IN'
-            ? ori_port_rail.type == 'PORT'
-              ? 'port'
-              : 'rail'
-            : 'port',
+        type: 'port',
       })
-    if (ori_port_if_rail && ori_country === 'IN') {
+    if (ori_port_rail.type == 'RAIL') {
+      locations.push({
+        name: ori_port_rail.port_name,
+        code: ori_port_rail.port_code,
+        type: 'rail',
+      })
+    }
+    if (
+      ori_port_if_rail &&
+      ori_port_rail.type !== 'PORT' &&
+      ori_country === 'IN'
+    ) {
       locations.push({
         name: ori_port_if_rail.port_name,
         code: ori_port_if_rail.port_code,
         type: 'port',
       })
     }
-    if (des_port_if_rail && des_country === 'IN') {
+    if (
+      des_port_if_rail &&
+      des_port_rail.type !== 'PORT' &&
+      des_country === 'IN'
+    ) {
       locations.push({
         name: des_port_if_rail.port_name,
         code: des_port_if_rail.port_code,
         type: 'port',
       })
     }
-    if (des_port_rail) {
+    if (des_port_rail.type == 'PORT') {
       locations.push({
         name: des_port_rail.port_name,
         code: des_port_rail.port_code,
-        type:
-          des_country === 'IN'
-            ? des_port_rail.type == 'PORT'
-              ? 'port'
-              : 'rail'
-            : 'port',
+        type: 'port',
+      })
+    }
+    if (des_port_rail.type == 'RAIL') {
+      locations.push({
+        name: des_port_rail.port_name,
+        code: des_port_rail.port_code,
+        type: 'rail',
       })
     }
     if (delivery_check && delivery_location)
