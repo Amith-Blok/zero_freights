@@ -52,8 +52,10 @@ export const AirFormSchema = z.object({
     })
     .required(),
   hsn: z.object({
-    hsn_code: z.string(),
-    hsn_des: z.string(),
+    code: z.string(),
+    chapter: z.string(),
+    heading: z.string(),
+    subheading: z.string(),
   }),
   value: z.coerce.number().min(1),
   date: z.coerce.date(),

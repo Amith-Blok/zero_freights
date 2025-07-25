@@ -27,8 +27,10 @@ export const CommonSchema = z.object({
     place_id: z.string(),
   }),
   hsn: z.object({
-    hsn_code: z.string(),
-    hsn_des: z.string(),
+    code: z.string(),
+    chapter: z.string(),
+    heading: z.string(),
+    subheading: z.string(),
   }),
   storage_days: z.coerce
     .number()

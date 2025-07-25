@@ -61,8 +61,10 @@ const CommonSchema = z.object({
     .nullish(),
 
   hsn: z.object({
-    hsn_code: z.string(),
-    hsn_des: z.string(),
+    code: z.string(),
+    chapter: z.string(),
+    heading: z.string(),
+    subheading: z.string(),
   }),
   value: z.coerce.number().min(1),
   date: z.coerce.date(),

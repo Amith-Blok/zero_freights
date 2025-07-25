@@ -4,13 +4,14 @@ import { SelectWrapper } from './form-wrapper/select-wrapper'
 import { ICOTERMS } from '@/constants'
 import { CalendarWrapper } from './form-wrapper/calendar-wrapper'
 import { FilteredCombobox } from './filtered-combobox'
-import { HsnType } from '@/models/hsn'
 import { useFormContext, useWatch } from 'react-hook-form'
 import SumbitButton from '@/components/shared/button-loading'
 import { FormMetaProvider } from '@/provider'
 import { useContext } from 'react'
 import { InputWrapper } from './form-wrapper/input-wrapper'
 import PhoneInputWrapper from '@/components/shared/phone-input-wrapper'
+import { HsSixType } from '@/models/hs-six'
+
 export const CargoAllForm = () => {
   const { setValue, control } = useFormContext()
   const { loading } = useContext(FormMetaProvider)
@@ -19,16 +20,20 @@ export const CargoAllForm = () => {
   const isWarehouse = watchModes.includes('WAREHOUSE')
   return (
     <>
-      <FilteredCombobox<HsnType>
+      <FilteredCombobox<HsSixType>
         label="Commodity Code"
-        placeHolder="Enter hsn code or description"
+        placeHolder="Enter six digit hs code or description"
         fieldName="hsn"
-        getOptionLabel={(option) => `${option.hsn_des}(${option.hsn_code})`}
+        getOptionLabel={(option) =>
+          `${option.chapter} - ${option.heading} - ${option.subheading} (${option.code})`
+        }
         fetchUrl="/api/autos/hsn"
         valueSetterCallback={(hsn) => {
           setValue('hsn', {
-            hsn_code: hsn.hsn_code.toString(),
-            hsn_des: hsn.hsn_des,
+            code: hsn.code,
+            chapter: hsn.chapter,
+            heading: hsn.heading,
+            subheading: hsn.subheading,
           })
         }}
       />

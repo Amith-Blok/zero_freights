@@ -1,4 +1,4 @@
-import { hsnAutoCompleteByQuery } from '@/data/hsn'
+import { hsSixAutoCompleteByQuery } from '@/data/hs-six'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     if (!query) {
       return NextResponse.json({ items: [] })
     }
-    const response = await hsnAutoCompleteByQuery(query)
+    const response = await hsSixAutoCompleteByQuery(query)
 
     return NextResponse.json({ items: response }, { status: 200 })
   } catch (error) {
