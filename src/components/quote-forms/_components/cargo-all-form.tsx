@@ -1,7 +1,7 @@
 'use client'
 import { arrayToSelectData } from '@/lib/utils'
 import { SelectWrapper } from './form-wrapper/select-wrapper'
-import { ICOTERMS } from '@/constants'
+import { incoterms } from '@/constants'
 import { CalendarWrapper } from './form-wrapper/calendar-wrapper'
 import { FilteredCombobox } from './filtered-combobox'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -60,9 +60,9 @@ export const CargoAllForm = () => {
         {!isWarehouse && (
           <>
             <SelectWrapper
-              label="Icoterms"
-              field="icoterms"
-              data={arrayToSelectData([...ICOTERMS])}
+              label="incoterms"
+              field="incoterms"
+              data={arrayToSelectData([...incoterms])}
             />
             <InputWrapper
               label="Your Name"

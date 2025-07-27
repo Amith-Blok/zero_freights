@@ -16,6 +16,120 @@ import { exchangeValues } from '@/lib/exchange'
 import { Location, ServiceType } from '@/models/offer/shared-types'
 import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
+import { getDutyByHsCodeCountry } from '@/data/duties'
+import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
+
+const pickupLTLBase = {
+  label: 'Pickup LTL',
+  currency: 'INR', // Will be overwritten in POST
+  usd: 0,
+  inr: 0,
+}
+const destinationLTLBase = {
+  label: 'Destination LTL',
+  currency: 'USD', // Will be overwritten in POST
+  usd: 0,
+  inr: 0,
+}
+// --- Refactored LTL cost calculation helper ---
+type LtlCostParams = {
+  pickup_check: boolean
+  pickup_location: { place_id: string } | null
+  delivery_check: boolean
+  delivery_location: { place_id: string } | null
+  ori_country: string
+  des_country: string
+  ori_port_rail: { lat: number; lng: number }
+  des_port_rail: { lat: number; lng: number }
+  ton: number
+  cbm: number
+  kg: number
+  INR_TO_USD: number
+  USD_TO_INR: number
+}
+
+async function calculateLtlCosts({
+  pickup_check,
+  pickup_location,
+  delivery_check,
+  delivery_location,
+  ori_country,
+  ori_port_rail,
+  des_port_rail,
+  ton,
+  cbm,
+  kg,
+  INR_TO_USD,
+  USD_TO_INR,
+}: LtlCostParams) {
+  let pickupLTL = { ...pickupLTLBase }
+  let destinationLTL = { ...destinationLTLBase }
+
+  if (ori_country === 'IN') {
+    if (pickup_check && pickup_location) {
+      const { lat, lng } = await getGoogleLocationByPlaceId(
+        pickup_location.place_id
+      )
+      pickupLTL.inr = await inLtlTruckingCost({
+        start_latitude: lat,
+        start_longitude: lng,
+        end_latitude: ori_port_rail.lat,
+        end_longitude: ori_port_rail.lng,
+        ton,
+        cbm,
+      })
+      pickupLTL.usd = pickupLTL.inr * INR_TO_USD
+    }
+    if (delivery_check && delivery_location) {
+      const { lat, lng } = await getGoogleLocationByPlaceId(
+        delivery_location.place_id
+      )
+      const usLtl = await newUsLtlTruckingCost({
+        start_latitude: des_port_rail.lat,
+        start_longitude: des_port_rail.lng,
+        end_latitude: lat,
+        end_longitude: lng,
+        weight: kg,
+        unit: 'KG',
+        cbm,
+      })
+      destinationLTL.usd = usLtl ?? 0
+      destinationLTL.inr = destinationLTL.usd * USD_TO_INR
+    }
+  } else {
+    if (pickup_check && pickup_location) {
+      const { lat, lng } = await getGoogleLocationByPlaceId(
+        pickup_location.place_id
+      )
+      pickupLTL.usd = await newUsLtlTruckingCost({
+        start_latitude: lat,
+        start_longitude: lng,
+        end_latitude: ori_port_rail.lat,
+        end_longitude: ori_port_rail.lng,
+        weight: kg,
+        unit: 'KG',
+        cbm,
+      })
+      pickupLTL.inr = pickupLTL.usd * USD_TO_INR
+    }
+    if (delivery_check && delivery_location) {
+      const { lat, lng } = await getGoogleLocationByPlaceId(
+        delivery_location.place_id
+      )
+      destinationLTL.inr = await inLtlTruckingCost({
+        start_latitude: des_port_rail.lat,
+        start_longitude: des_port_rail.lng,
+        end_latitude: lat,
+        end_longitude: lng,
+        ton,
+        cbm,
+      })
+      destinationLTL.usd = destinationLTL.inr * INR_TO_USD
+    }
+  }
+  return { pickupLTL, destinationLTL }
+}
+// --- End helper ---
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,7 +162,9 @@ export async function POST(request: NextRequest) {
       des_port_rail,
       des_port_if_rail,
       lcl_cbm_ton,
-      icoterms,
+      hsn,
+      value,
+      incoterms,
       user_name,
       company_name,
       email,
@@ -98,18 +214,6 @@ export async function POST(request: NextRequest) {
       usd: 0,
       inr: 0,
     }
-    const pickupLTL = {
-      label: 'Pickup LTL',
-      currency: ori_country == 'IN' ? 'INR' : 'USD',
-      usd: 0,
-      inr: 0,
-    }
-    const destinationLTL = {
-      label: 'Destination LTL',
-      currency: ori_country == 'IN' ? 'USD' : 'INR',
-      usd: 0,
-      inr: 0,
-    }
     let tags: string[] = []
 
     // Fetch sea freight cost from the database
@@ -136,122 +240,92 @@ export async function POST(request: NextRequest) {
     loadUnLoadFee.inr = loadUnLoadFee.usd * USD_TO_INR
     tags.push(`${cbm.toFixed(2)} CBM`)
     tags.push(`${ton.toFixed(2)} TON`)
+    tags.push(incoterms)
 
     seaLclFreight.usd = seaFreightCostDB * cbm
     seaLclFreight.inr = seaLclFreight.usd * USD_TO_INR
 
-    terminalCharge.inr = Math.max(
-      1250 * Math.max(2, cbm),
-      1750 * Math.max(2, ton)
-    )
-    terminalCharge.usd = terminalCharge.inr * INR_TO_USD
+    let quoteTableData: ConfimredQuoteDataType[] = []
 
-    docCharge.inr = 4250
-    docCharge.usd = docCharge.inr * INR_TO_USD
+    if (incoterms !== 'CIF' && incoterms !== 'FOB') {
+      terminalCharge.inr = Math.max(
+        1250 * Math.max(2, cbm),
+        1750 * Math.max(2, ton)
+      )
+      terminalCharge.usd = terminalCharge.inr * INR_TO_USD
 
-    vgmCharge.usd = 20 * cbm
-    vgmCharge.inr = vgmCharge.usd * USD_TO_INR
+      docCharge.inr = 4250
+      docCharge.usd = docCharge.inr * INR_TO_USD
 
-    ddcCharge.usd = Math.max(50, 28.1 * cbm)
-    ddcCharge.inr = ddcCharge.usd * USD_TO_INR
+      vgmCharge.usd = 20 * cbm
+      vgmCharge.inr = vgmCharge.usd * USD_TO_INR
 
-    chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
-    chasisFee.inr = chasisFee.usd * USD_TO_INR
+      ddcCharge.usd = Math.max(50, 28.1 * cbm)
+      ddcCharge.inr = ddcCharge.usd * USD_TO_INR
 
-    // Calculate pickup and delivery LTL costs based on origin country
-    if (ori_country == 'IN') {
-      // Handle trucking costs for India as origin
+      chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
+      chasisFee.inr = chasisFee.usd * USD_TO_INR
 
-      if (pickup_check && pickup_location) {
-        // Calculate pickup cost from India to sea port
-        const { lat: pickupLocationLat, lng: pickupLocationLng } =
-          await getGoogleLocationByPlaceId(pickup_location.place_id)
-        pickupLTL.inr = await inLtlTruckingCost({
-          start_latitude: pickupLocationLat,
-          start_longitude: pickupLocationLng,
-          end_latitude: ori_port_rail.lat,
-          end_longitude: ori_port_rail.lng,
-          ton,
-          cbm,
-        })
-        pickupLTL.usd = pickupLTL.inr * INR_TO_USD
+      // Calculate LTL costs
+      const { pickupLTL, destinationLTL } = await calculateLtlCosts({
+        pickup_check,
+        pickup_location: pickup_location ?? null,
+        delivery_check,
+        delivery_location: delivery_location ?? null,
+        ori_country,
+        des_country,
+        ori_port_rail,
+        des_port_rail,
+        ton,
+        cbm,
+        kg,
+        INR_TO_USD,
+        USD_TO_INR,
+      })
+
+      // Build quoteTableData
+      quoteTableData = [
+        seaLclFreight,
+        terminalCharge,
+        docCharge,
+        vgmCharge,
+        ddcCharge,
+        chasisFee,
+        loadUnLoadFee,
+      ]
+
+      if (pickupLTL.inr > 0) quoteTableData.splice(1, 0, pickupLTL)
+      if (destinationLTL.inr > 0)
+        quoteTableData.splice(quoteTableData.length - 2, 0, destinationLTL)
+      if (ori_country === 'IN' && incoterms !== 'DAP')
+        quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
+
+      newAppendAdditionalFees(quoteTableData, incoterms)
+
+      // Duty
+      let duty
+      // No need to check for DAP here, as incoterms is 'CIF' or 'FOB' in this block
+      if (incoterms !== 'DAP') {
+        duty = await getDutyByHsCodeCountry(hsn.code, des_country).catch(
+          (error) => {
+            console.log({ error })
+            return undefined
+          }
+        )
       }
-
-      // Calculate delivery cost for USA or other countries
-      if (delivery_check && delivery_location) {
-        const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
-          await getGoogleLocationByPlaceId(delivery_location.place_id)
-        const usLtl = await newUsLtlTruckingCost({
-          start_latitude: des_port_rail.lat,
-          start_longitude: des_port_rail.lng,
-          end_latitude: deliveryLocationLat,
-          end_longitude: deliveryLocationLng,
-          weight: kg,
-          unit: 'KG',
-          cbm,
+      if (duty && typeof duty === 'number') {
+        tags.push(`HS: ${hsn.code}`)
+        tags.push(`${value} USD`)
+        const dutyCost = (duty * value) / 100
+        quoteTableData.splice(quoteTableData.length - 2, 0, {
+          label: `Duty ${duty.toFixed(2)}%`,
+          usd: dutyCost,
+          inr: dutyCost * USD_TO_INR,
         })
-        destinationLTL.usd = usLtl ?? 0
-        destinationLTL.inr = destinationLTL.usd * USD_TO_INR
       }
     } else {
-      // Handle trucking costs for USA or other countries as origin
-      if (pickup_check && pickup_location) {
-        const { lat: pickupLocationLat, lng: pickupLocationLng } =
-          await getGoogleLocationByPlaceId(pickup_location.place_id)
-        pickupLTL.usd = await newUsLtlTruckingCost({
-          start_latitude: pickupLocationLat,
-          start_longitude: pickupLocationLng,
-          end_latitude: ori_port_rail.lat,
-          end_longitude: ori_port_rail.lng,
-          weight: kg,
-          unit: 'KG',
-          cbm,
-        })
-        pickupLTL.inr = pickupLTL.usd * INR_TO_USD
-      }
-
-      // Calculate destination cost for India
-      if (delivery_check && delivery_location) {
-        const { lat: deliveryLocationLat, lng: deliveryLocationLng } =
-          await getGoogleLocationByPlaceId(delivery_location.place_id)
-        destinationLTL.inr = await inLtlTruckingCost({
-          start_latitude: des_port_rail.lat,
-          start_longitude: des_port_rail.lng,
-          end_latitude: deliveryLocationLat,
-          end_longitude: deliveryLocationLng,
-          ton,
-          cbm,
-        })
-        destinationLTL.usd = destinationLTL.inr * INR_TO_USD
-      }
+      quoteTableData = [seaLclFreight]
     }
-
-    // Compile all charges into a quote table
-    const quoteTableData = [
-      seaLclFreight,
-      terminalCharge,
-      docCharge,
-      vgmCharge,
-      ddcCharge,
-      chasisFee,
-      loadUnLoadFee,
-    ]
-
-    if (pickupLTL.inr > 0) {
-      quoteTableData.splice(1, 0, pickupLTL)
-    }
-    if (destinationLTL.inr > 0) {
-      quoteTableData.splice(quoteTableData.length - 2, 0, destinationLTL)
-    }
-
-    // Add clearance fee if the origin is India
-    if (ori_country == 'IN') {
-      quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
-    }
-
-    // Append any additional fees to the quote table
-    newAppendAdditionalFees(quoteTableData)
-
     // Calculate total costs in INR and USD
     const { totalInrCost, totalUsdCost } = quoteTableData.reduce(
       (acc, item) => {
@@ -338,7 +412,7 @@ export async function POST(request: NextRequest) {
         des_port_rail,
         delivery_location: delivery_location ?? { description: '' },
         firstSlug: `SEA LCL ${cbm.toFixed(2)} CBM ${ton.toFixed(2)} TON`,
-        icoterms,
+        incoterms,
       })
 
     // Create a form entry for the validated data

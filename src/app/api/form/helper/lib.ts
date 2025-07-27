@@ -15,7 +15,7 @@ export function generateQuoteMetaDetails({
   delivery_location,
   shipline = '',
   firstSlug,
-  icoterms,
+  incoterms,
 }: {
   pickup_location?: { description: string }
   ori_port_rail: { port_name: string }
@@ -23,7 +23,7 @@ export function generateQuoteMetaDetails({
   delivery_location?: { description: string }
   shipline?: string
   firstSlug: string
-  icoterms: string
+  incoterms: string
 }) {
   const pointOrigin = pickup_location
     ? pickup_location?.description + ` Via ${ori_port_rail.port_name}`
@@ -33,7 +33,7 @@ export function generateQuoteMetaDetails({
     ? delivery_location.description + ` Via ${des_port_rail.port_name}`
     : des_port_rail.port_name
   const placeOfSupply = ori_port_rail.port_name
-  const subject = `${firstSlug} FROM ${pointOrigin}  To ${pointDetination} ${shipline ? `- ${shipline} (${icoterms})` : ''} `
+  const subject = `${firstSlug} FROM ${pointOrigin}  To ${pointDetination} ${shipline ? `- ${shipline} (${incoterms})` : ''} `
   return { pointDetination, placeOfSupply, subject }
 }
 export function generateQuoteTableData(

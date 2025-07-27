@@ -2,7 +2,7 @@ export const WAREHOUSE_DEFAULT = {
   modes: 'FCL_WAREHOUSE',
   is_google_location: undefined,
   hsn: undefined,
-  icoterms: 'DDP',
+  incoterms: 'DDP',
   country: 'US',
   pickup_location: undefined,
   delivery_location: undefined,

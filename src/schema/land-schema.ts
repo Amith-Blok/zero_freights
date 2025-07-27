@@ -1,7 +1,7 @@
 import {
   COUNTRIES,
   FCL_CONTAINER_TYPE,
-  ICOTERMS,
+  incoterms,
   IN_CM,
   KG_LBS,
   LCL_PACKAGE_TYPE,
@@ -24,7 +24,7 @@ const CommonSchema = z.object({
   }),
   value: z.coerce.number().min(1),
   date: z.coerce.date(),
-  icoterms: z.enum(ICOTERMS),
+  incoterms: z.enum(incoterms),
   phone: z.string(),
   email: z.string().email(),
   company_name: z.string().min(1, { message: 'Required' }),

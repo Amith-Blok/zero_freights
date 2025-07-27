@@ -153,10 +153,10 @@ export async function POST(request: NextRequest) {
       storageCharge,
     ] as RateInfoType[])
 
-    // COMMENT: added clearance fee if country is IN
-    //  if (country == 'IN') {
-    //     formatedQuoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
-    //   }
+    //Clearance fee if country is IN
+    // if (country == 'IN' && incoterms !== "DAP") {
+    //   formatedQuoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
+    // }
 
     const { totalInrCost, totalUsdCost } = formatedQuoteTableData.reduce(
       (acc, item) => {
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
         },
         des_port_rail: { port_name: delivery_location.port_code },
         firstSlug,
-        icoterms: '',
+        incoterms: '',
       })
 
     let locations: Location[] = []

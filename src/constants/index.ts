@@ -95,7 +95,7 @@ export const SEA_DEFAULT_VALUES = {
   pickup_location: undefined,
   delivery_location: undefined,
   hsn: undefined,
-  icoterms: 'DDP',
+  incoterms: 'DDP',
   ori_country: 'IN',
   des_country: 'US',
   pickup_check: false,
@@ -110,7 +110,7 @@ export const IN_CM = ['CM', 'IN'] as const
 export const KG_LBS_DAY = ['kg/day', 'lbs/day'] as const
 export const TRUCKING_TYPE = ['FAC', 'CFS'] as const
 export const FCL_CONTAINER_TYPE = ['20DV', '40DV', '40HC'] as const
-export const ICOTERMS = ['DAP', 'DDP', 'DDU'] as const
+export const incoterms = ['DAP', 'DDP', 'DDU', 'FOB', 'CIF'] as const
 
 //Regex for phone validation
 export const phoneRegex = new RegExp(

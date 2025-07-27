@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateOfferId } from '../form/helper/lib'
+import { getDutyByHsCodeCountry } from '@/data/duties'
 
 export async function GET(_: NextRequest) {
-  const blok_quote_id = await generateOfferId()
+  const duty = await getDutyByHsCodeCountry('180631','CAD')
 
-  return NextResponse.json({ blok_quote_id })
+  return NextResponse.json({ duty })
 }

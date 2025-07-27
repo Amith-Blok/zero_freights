@@ -17,6 +17,8 @@ import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
 import { convertFclToStdContainer } from '@/lib/container'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
+import { getDutyByHsCodeCountry } from '@/data/duties'
+import { USD_TO_INR } from '@/constants'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,7 +32,9 @@ export async function POST(request: NextRequest) {
       country,
       pickup_location,
       delivery_location,
-      icoterms,
+      incoterms,
+      hsn,
+      value,
       user_name,
       company_name,
       email,
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
         `${sea_quantity} x ${convertFclToStdContainer(sea_container_type)}`
       )
       if (sea_weight) {
-        tags.push(`- ${sea_weight.toFixed(2)} ${sea_unit}`)
+        tags.push(`${sea_weight.toFixed(2)} ${sea_unit}`)
       }
       const totalWeight = sea_quantity * sea_weight
       const totalMetricTon = weightTOMetricTon({
@@ -222,15 +226,32 @@ export async function POST(request: NextRequest) {
     } else {
       throw new Error('invalid land mode')
     }
+    tags.push(incoterms)
 
     const quoteTableData = [truckingCost] as ConfimredQuoteDataType[]
     //COMMENT: added clearance fee if origin is india
-    if (country == 'IN') {
+    if (country == 'IN' && incoterms !== 'DAP') {
       quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
     }
     // //COMMENT: appended additional fees
-    newAppendAdditionalFees(quoteTableData)
-
+    newAppendAdditionalFees(quoteTableData, incoterms)
+    let duty
+    if (incoterms !== 'DAP') {
+      duty = await getDutyByHsCodeCountry(hsn.code, country).catch((error) => {
+        console.log({ error })
+        return undefined
+      })
+    }
+    if (duty && typeof duty === 'number') {
+      tags.push(`HS: ${hsn.code}`)
+      tags.push(`${value} USD`)
+      const dutyCost = (duty * value) / 100
+      quoteTableData.splice(quoteTableData.length - 2, 0, {
+        label: `Duty ${duty.toFixed(2)}%`,
+        usd: dutyCost,
+        inr: dutyCost * USD_TO_INR,
+      })
+    }
     //Location generate location details
     let locations: Location[] = []
 
@@ -262,7 +283,7 @@ export async function POST(request: NextRequest) {
         },
         des_port_rail: { port_name: delivery_location.description },
         firstSlug,
-        icoterms,
+        incoterms,
       })
 
     //FormId

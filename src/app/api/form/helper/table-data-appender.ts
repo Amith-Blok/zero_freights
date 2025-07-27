@@ -6,32 +6,22 @@ import {
 } from '@/constants/us-custom'
 import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 import { ContainerCost, OfferModeTypes } from '@/models/offer/shared-types'
+import { IncotermsType } from '@/schema/sea-schema'
 
+const EXCLUDE_FEES_DAP_LIST = ['ISF', 'CUSTOMS_FEE']
 //COMMENT: append additional fees to the data array
-// export const appendAdditionalFees = (data: DataType[]) => {
-//   US_ALL_ADDITIONAL_FEES.forEach((fee) => {
-//     const cost = fee.value
-//     const cost_usd = fee.currency === 'USD' ? cost : cost * INR_TO_USD
-//     const gst_percentage = 18
-//     const cost_inr = fee.currency === 'INR' ? cost : cost * USD_TO_INR
-//     const gst_amount = (cost_inr * gst_percentage) / 100
-//     const total_amount = cost_inr + gst_amount
-//     data.push({
-//       label: fee.name,
-//       code: fee.code,
-//       category: 'additional_fee',
-//       cost_usd: cost_usd,
-//       cost_inr: cost_inr,
-//       gst_percentage: gst_percentage,
-//       gst_amount: gst_amount,
-//       total_amount: total_amount,
-//     })
-//   })
-// }
-
-//COMMENT: append additional fees to the data array
-export const appendAdditionalFees = (data: ContainerCost[]) => {
+export const appendAdditionalFees = (
+  data: ContainerCost[],
+  incoterms: IncotermsType
+) => {
+  if (incoterms === 'FOB' || incoterms === 'CIF') {
+    return
+  }
   US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+    if (incoterms === 'DAP' && EXCLUDE_FEES_DAP_LIST.includes(fee.code)) {
+      console.log('DAP', fee.code)
+      return
+    }
     data.push({
       label: fee.name,
       currency: fee.currency,
@@ -44,11 +34,15 @@ export const appendAdditionalFees = (data: ContainerCost[]) => {
 }
 export const newAppendAdditionalFees = (
   data: ConfimredQuoteDataType[],
+  incoterms: IncotermsType,
   mode?: OfferModeTypes
 ) => {
   const additionalFees =
     mode === 'AIR' ? US_AIR_ADDITIONAL_FEES : US_ALL_ADDITIONAL_FEES
   additionalFees.forEach((fee) => {
+    if (incoterms === 'DAP' && EXCLUDE_FEES_DAP_LIST.includes(fee.code)) {
+      return
+    }
     const cost = fee.value
     const costUsd = fee.currency == 'USD' ? cost : cost * INR_TO_USD
     const costInr = fee.currency == 'USD' ? cost * USD_TO_INR : cost

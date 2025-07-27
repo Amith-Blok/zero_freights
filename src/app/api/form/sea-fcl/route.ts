@@ -20,20 +20,196 @@ import { toTitleCase } from '@/lib/utils'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { convertFclToStdContainer } from '@/lib/container'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
+import { getDutyByHsCodeCountry } from '@/data/duties'
 
+// --- Constants ---
+const CFS_CHARGE = 28000
+const IN_FCL_CLEARANCE_FEE = {
+  label: 'Clearance Fee',
+  currency: 'INR',
+  additional_notes: '',
+  d2: CLEARANCE_FEE_OBJ.inr,
+  d4: CLEARANCE_FEE_OBJ.inr,
+  d5: CLEARANCE_FEE_OBJ.inr,
+}
+
+// --- Helper Functions ---
+function errorResponse(message: string, status = 400, details?: any) {
+  if (details) console.log({ error: message, details })
+  else console.log({ error: message })
+  return NextResponse.json({ error: message, details }, { status })
+}
+
+function selectPorts({
+  ori_country,
+  ori_port_rail,
+  ori_port_if_rail,
+  des_port_rail,
+  des_port_if_rail,
+}: any) {
+  let startSeaPort, endSeaPort
+  if (ori_country === 'IN') {
+    startSeaPort =
+      ori_port_rail.type === 'RAIL' ? ori_port_if_rail : ori_port_rail
+    endSeaPort = des_port_rail
+  } else {
+    startSeaPort = ori_port_rail
+    endSeaPort = des_port_rail.type == 'RAIL' ? des_port_if_rail : des_port_rail
+  }
+  return { startSeaPort, endSeaPort }
+}
+
+async function getRailCost({
+  ori_country,
+  ori_port_rail,
+  des_country,
+  des_port_rail,
+  ori_port_if_rail,
+  des_port_if_rail,
+  fcl_unit,
+  fcl_weight,
+}: any) {
+  const indianRail =
+    ori_country == 'IN' && ori_port_rail.type == 'RAIL'
+      ? ori_port_rail
+      : des_country == 'IN' && des_port_rail.type == 'RAIL'
+        ? des_port_rail
+        : undefined
+  const indianPortForRail =
+    !!indianRail && (ori_country == 'IN' ? ori_port_if_rail : des_port_if_rail)
+  let indianRailRate = undefined
+  const MetricTon = weightTOMetricTon({ unit: fcl_unit, weight: fcl_weight })
+  if (indianRail && indianPortForRail) {
+    const IndiaOutboundHaulageRates =
+      await getAllIndiaOutboundHaulageRatesByCode({
+        start_code: indianRail.port_code,
+        end_code: indianPortForRail.port_code,
+      })
+    indianRailRate = filterHaulageRateByWeight({
+      haulageRates: IndiaOutboundHaulageRates,
+      ton: MetricTon,
+    })
+    if (!indianRailRate)
+      throw Error("Couldn't find rail rate. Please try with other port")
+  }
+  return { indianRail, indianPortForRail, indianRailRate, MetricTon }
+}
+
+async function getTruckingCost({
+  country,
+  start,
+  end,
+  MetricTon,
+  stuffingTimes,
+}: any) {
+  if (country == 'IN') {
+    return await inTrucking({
+      start_latitude: start.lat,
+      start_longitude: start.lng,
+      end_latitude: end.lat,
+      end_longitude: end.lng,
+      ton: MetricTon,
+      times: stuffingTimes,
+    })
+  } else {
+    return await usTrucking({
+      start_latitude: start.lat,
+      start_longitude: start.lng,
+      end_latitude: end.lat,
+      end_longitude: end.lng,
+    })
+  }
+}
+
+function buildLocations({
+  pickup_check,
+  pickup_location,
+  ori_country,
+  ori_port_rail,
+  ori_port_if_rail,
+  des_port_rail,
+  des_port_if_rail,
+  des_country,
+  delivery_check,
+  delivery_location,
+}: any): LocationType[] {
+  let locations: LocationType[] = []
+  if (pickup_check) {
+    locations.push({
+      name: toTitleCase(pickup_location?.description ?? ''),
+      code: ori_country.toUpperCase(),
+      type: 'door',
+    })
+  }
+  locations.push({
+    name: toTitleCase(ori_port_rail.port_name.toUpperCase()),
+    code: ori_port_rail.port_code.toUpperCase(),
+    type: `${ori_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
+  })
+  if (ori_port_rail.type == 'RAIL' && !!ori_port_if_rail?.port_name) {
+    locations.push({
+      name: toTitleCase(ori_port_if_rail?.port_name ?? ''),
+      code: ori_port_if_rail?.port_code.toUpperCase() ?? '',
+      type: 'port',
+    })
+  }
+  if (des_port_rail.type == 'RAIL' && !!des_port_if_rail?.port_name) {
+    locations.push({
+      name: toTitleCase(des_port_if_rail?.port_name.toUpperCase() ?? ''),
+      code: des_port_if_rail?.port_code.toUpperCase() ?? '',
+      type: 'port',
+    })
+  }
+  locations.push({
+    name: toTitleCase(des_port_rail.port_name.toUpperCase()),
+    code: des_port_rail.port_code.toUpperCase(),
+    type: `${des_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
+  })
+  if (delivery_check) {
+    locations.push({
+      name: delivery_location?.description ?? '',
+      code: des_country,
+      type: 'door',
+    })
+  }
+  return locations
+}
+
+async function getDutyIfNeeded({ incoterms, hsn, des_country, value }: any) {
+  if (incoterms !== 'DAP') {
+    const duty = await getDutyByHsCodeCountry(hsn.code, des_country).catch(
+      (error) => {
+        console.log({ error })
+        return undefined
+      }
+    )
+    if (duty && typeof duty === 'number') {
+      return {
+        label: `Duty ${duty.toFixed(2)}%`,
+        currency: 'USD',
+        additional_notes: `Duty ${duty}%`,
+        d2: (duty * value) / 100,
+        d4: (duty * value) / 100,
+        d5: (duty * value) / 100,
+        tag: `HS: ${hsn.code}`,
+        valueTag: `${value} USD`,
+      }
+    }
+  }
+  return null
+}
+
+// --- Main Handler ---
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     const validateData = SeaFormSchema.safeParse(data)
     if (!validateData.success) {
-      return NextResponse.json({ error: 'invalid data' }, { status: 400 })
+      return errorResponse('invalid data')
     }
     const { modes } = validateData.data
     if (modes != 'FCL') {
-      return NextResponse.json(
-        { error: 'this route is for sea fcl' },
-        { status: 400 }
-      )
+      return errorResponse('this route is for sea fcl')
     }
     const {
       pickup_check,
@@ -51,40 +227,30 @@ export async function POST(request: NextRequest) {
       fcl_weight,
       fcl_container_type,
       trucking,
-      icoterms,
+      incoterms,
+      hsn,
+      value,
       email,
       phone,
       company_name,
       user_name,
     } = validateData.data
 
-    const IN_FCL_CLEARANCE_FEE = {
-      label: 'Clearance Fee',
-      currency: 'INR',
-      additional_notes: '',
-      d2: CLEARANCE_FEE_OBJ.inr,
-      d4: CLEARANCE_FEE_OBJ.inr,
-      d5: CLEARANCE_FEE_OBJ.inr,
-    }
+    // --- Port Selection ---
+    const { startSeaPort, endSeaPort } = selectPorts({
+      ori_country,
+      ori_port_rail,
+      ori_port_if_rail,
+      des_port_rail,
+      des_port_if_rail,
+    })
+    let tags: string[] = [
+      `${fcl_quantity} x ${convertFclToStdContainer(fcl_container_type)}`,
+      fcl_weight ? `${fcl_weight.toFixed(2)} ${fcl_unit}` : '',
+      incoterms,
+    ].filter(Boolean)
 
-    // Shipline rates
-    let startSeaPort, endSeaPort
-    let tags: string[] = []
-    if (ori_country === 'IN') {
-      startSeaPort =
-        ori_port_rail.type === 'RAIL' ? ori_port_if_rail : ori_port_rail
-      endSeaPort = des_port_rail
-    } else {
-      startSeaPort = ori_port_rail
-      endSeaPort =
-        des_port_rail.type == 'RAIL' ? des_port_if_rail : des_port_rail
-    }
-    tags.push(
-      `${fcl_quantity} x ${convertFclToStdContainer(fcl_container_type)}`
-    )
-    if (fcl_weight) {
-      tags.push(`${fcl_weight.toFixed(2)} ${fcl_unit}`)
-    }
+    // --- Shipline Rates ---
     const linesRates = await getLinesChargesByCode({
       start_code: startSeaPort?.port_code ?? '',
       end_code: endSeaPort?.port_code ?? '',
@@ -92,215 +258,142 @@ export async function POST(request: NextRequest) {
       console.log({ error })
     })
     if (!linesRates) {
-      return NextResponse.json(
-        {
-          error: `there is no quote available for ${startSeaPort?.port_code}-> ${endSeaPort?.port_code}.Please try again with another ports`,
-        },
-        { status: 400 }
+      return errorResponse(
+        `there is no quote available for ${startSeaPort?.port_code}-> ${endSeaPort?.port_code}.Please try again with another ports`
       )
     }
-
     let quoteTableData = formatLines({ linesCharges: linesRates }) as Record<
       string,
       any
     >
-
     if (!quoteTableData) {
-      return NextResponse.json(
-        {
-          error:
-            'no something went wrong please retry with another form fields',
-        },
-        { status: 400 }
+      return errorResponse(
+        'no something went wrong please retry with another form fields'
       )
     }
 
-    // //find rail cost if ori_port_rail or des_port_rail is RAIL
-    // //TODO:rename it as something rail origin
-    const indianRail =
-      ori_country == 'IN' && ori_port_rail.type == 'RAIL'
-        ? ori_port_rail
-        : des_country == 'IN' && des_port_rail.type == 'RAIL'
-          ? des_port_rail
-          : undefined
-    //TODO:rename it as something rail destination
-    const indianPortForRail =
-      !!indianRail &&
-      (ori_country == 'IN' ? ori_port_if_rail : des_port_if_rail)
+    let origin_trucking_days = 0
+    let destionation_trucking_days = 0
 
-    let indianRailRate = undefined
-    const MetricTon = weightTOMetricTon({ unit: fcl_unit, weight: fcl_weight })
-    if (indianRail && indianPortForRail) {
-      //TODO: this code is only for outbound Future implement Inbound rail
-      const IndiaOutboundHaulageRates =
-        await getAllIndiaOutboundHaulageRatesByCode({
-          start_code: indianRail.port_code,
-          end_code: indianPortForRail.port_code,
+    if (incoterms !== 'CIF' && incoterms !== 'FOB') {
+      // --- Rail Cost ---
+      const { indianRail, indianPortForRail, indianRailRate, MetricTon } =
+        await getRailCost({
+          ori_country,
+          ori_port_rail,
+          des_country,
+          des_port_rail,
+          ori_port_if_rail,
+          des_port_if_rail,
+          fcl_unit,
+          fcl_weight,
         })
-      // console.log({IndiaOutboundHaulageRates})
-      // console.log({MetricTon})
-      indianRailRate = filterHaulageRateByWeight({
-        haulageRates: IndiaOutboundHaulageRates,
-        ton: MetricTon,
-      })
-      if (!indianRailRate) {
-        throw Error("Couldn't find rail rate. Please try with other port")
-      }
-      // console.log({ indianRailRate });
-    }
-
-    if (indianRailRate && indianPortForRail) {
-      //   //TODO: index change accroding to ori or des
-      quoteTableData.local_charges.splice(1, 0, {
-        label: `Rail Cost ${indianRail?.port_code}-${indianPortForRail.port_code}`,
-        currency: 'INR',
-        additional_notes: '',
-        d2: indianRailRate.d2,
-        d4: indianRailRate.d4,
-        d5: indianRailRate.d5,
-      })
-    }
-
-    //origin trucking
-    const stuffingTimes = ori_country === 'IN' && trucking === 'CFS' ? 1 : 2
-    let originTrucking = { cost: 0, estimatedDays: 0 }
-    if (pickup_check && pickup_location?.place_id) {
-      const { lat: oriLat, lng: oriLng } = await getGoogleLocationByPlaceId(
-        pickup_location.place_id
-      )
-      if (ori_country == 'IN') {
-        originTrucking = await inTrucking({
-          start_latitude: oriLat,
-          start_longitude: oriLng,
-          end_latitude: ori_port_rail.lat,
-          end_longitude: ori_port_rail.lng,
-          ton: MetricTon,
-          times: stuffingTimes,
-        })
-      } else {
-        originTrucking = await usTrucking({
-          start_latitude: oriLat,
-          start_longitude: oriLng,
-          end_latitude: ori_port_rail.lat,
-          end_longitude: ori_port_rail.lng,
-        })
-      }
-    }
-    //Add Origin Trucking Cost
-    if (originTrucking.cost > 0) {
-      quoteTableData.local_charges.splice(1, 0, {
-        label: `Origin Trucking ${ori_country}`,
-        currency: `${ori_country == 'IN' ? 'INR' : 'USD'}`,
-        additional_notes: '',
-        d2: originTrucking.cost,
-        d4: originTrucking.cost,
-        d5: originTrucking.cost,
-      })
-    }
-    // check cfs for india
-    if (pickup_check && trucking === 'CFS' && ori_country === 'IN') {
-      quoteTableData.local_charges.splice(1, 0, {
-        label: ' CFS charges',
-        currency: 'INR',
-        additional_notes: '',
-        d2: 28000,
-        d4: 28000,
-        d5: 28000,
-      })
-    }
-    const origin_trucking_days = originTrucking.estimatedDays
-
-    //des trucking
-    let destinationTrucking = { cost: 0, estimatedDays: 0 }
-    if (delivery_check && delivery_location?.place_id) {
-      const { lat: desLat, lng: desLng } = await getGoogleLocationByPlaceId(
-        delivery_location.place_id
-      )
-      if (des_country == 'IN') {
-        destinationTrucking = await inTrucking({
-          start_latitude: desLat,
-          start_longitude: desLng,
-          end_latitude: des_port_rail.lat,
-          end_longitude: des_port_rail.lng,
-          ton: MetricTon,
-        })
-      } else {
-        destinationTrucking = await usTrucking({
-          start_latitude: desLat,
-          start_longitude: desLng,
-          end_latitude: des_port_rail.lat,
-          end_longitude: des_port_rail.lng,
-        })
-      }
-    }
-    //Add Des Trucking Cost
-    if (destinationTrucking.cost > 0) {
-      quoteTableData.local_charges.splice(
-        quoteTableData.local_charges.length - 1,
-        0,
-        {
-          label: `Destination Trucking ${des_country}`,
-          currency: `${des_country == 'IN' ? 'INR' : 'USD'}`,
+      if (indianRailRate && indianPortForRail) {
+        quoteTableData.local_charges.splice(1, 0, {
+          label: `Rail Cost ${indianRail?.port_code}-${indianPortForRail.port_code}`,
+          currency: 'INR',
           additional_notes: '',
-          d2: destinationTrucking.cost,
-          d4: destinationTrucking.cost,
-          d5: destinationTrucking.cost,
-        }
-      )
-    }
+          d2: indianRailRate.d2,
+          d4: indianRailRate.d4,
+          d5: indianRailRate.d5,
+        })
+      }
 
-    const destionation_trucking_days = destinationTrucking.estimatedDays
+      // --- Origin Trucking ---
+      const stuffingTimes = ori_country === 'IN' && trucking === 'CFS' ? 1 : 2
+      let originTrucking = { cost: 0, estimatedDays: 0 }
+      if (pickup_check && pickup_location?.place_id) {
+        const { lat: oriLat, lng: oriLng } = await getGoogleLocationByPlaceId(
+          pickup_location.place_id
+        )
+        originTrucking = await getTruckingCost({
+          country: ori_country,
+          start: { lat: oriLat, lng: oriLng },
+          end: { lat: ori_port_rail.lat, lng: ori_port_rail.lng },
+          MetricTon,
+          stuffingTimes,
+        })
+      }
+      if (originTrucking.cost > 0) {
+        quoteTableData.local_charges.splice(1, 0, {
+          label: `Origin Trucking ${ori_country}`,
+          currency: `${ori_country == 'IN' ? 'INR' : 'USD'}`,
+          additional_notes: '',
+          d2: originTrucking.cost,
+          d4: originTrucking.cost,
+          d5: originTrucking.cost,
+        })
+      }
+      if (pickup_check && trucking === 'CFS' && ori_country === 'IN') {
+        quoteTableData.local_charges.splice(1, 0, {
+          label: ' CFS charges',
+          currency: 'INR',
+          additional_notes: '',
+          d2: CFS_CHARGE,
+          d4: CFS_CHARGE,
+          d5: CFS_CHARGE,
+        })
+      }
+      origin_trucking_days = originTrucking.estimatedDays
 
-    //TODO: generate Location
-    let locations: LocationType[] = []
-    if (pickup_check) {
-      locations.push({
-        name: toTitleCase(pickup_location?.description ?? ''),
-        code: ori_country.toUpperCase(),
-        type: 'door',
+      // --- Destination Trucking ---
+      let destinationTrucking = { cost: 0, estimatedDays: 0 }
+      if (delivery_check && delivery_location?.place_id) {
+        const { lat: desLat, lng: desLng } = await getGoogleLocationByPlaceId(
+          delivery_location.place_id
+        )
+        destinationTrucking = await getTruckingCost({
+          country: des_country,
+          start: { lat: desLat, lng: desLng },
+          end: { lat: des_port_rail.lat, lng: des_port_rail.lng },
+          MetricTon,
+          stuffingTimes: 2,
+        })
+      }
+      if (destinationTrucking.cost > 0) {
+        quoteTableData.local_charges.splice(
+          quoteTableData.local_charges.length - 1,
+          0,
+          {
+            label: `Destination Trucking ${des_country}`,
+            currency: `${des_country == 'IN' ? 'INR' : 'USD'}`,
+            additional_notes: '',
+            d2: destinationTrucking.cost,
+            d4: destinationTrucking.cost,
+            d5: destinationTrucking.cost,
+          }
+        )
+      }
+      destionation_trucking_days = destinationTrucking.estimatedDays
+
+      // --- Clearance Fee ---
+      if (ori_country == 'IN' && incoterms !== 'DAP') {
+        quoteTableData.local_charges.splice(1, 0, IN_FCL_CLEARANCE_FEE)
+      }
+      // --- Additional Fees ---
+      appendAdditionalFees(quoteTableData.local_charges, incoterms)
+
+      // --- Duty ---
+      const dutyObj = await getDutyIfNeeded({
+        incoterms,
+        hsn,
+        des_country,
+        value,
       })
-    }
-    locations.push({
-      name: toTitleCase(ori_port_rail.port_name.toUpperCase()),
-      code: ori_port_rail.port_code.toUpperCase(),
-      type: `${ori_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
-    })
-    if (ori_port_rail.type == 'RAIL' && !!ori_port_if_rail?.port_name) {
-      locations.push({
-        name: toTitleCase(ori_port_if_rail?.port_name ?? ''),
-        code: ori_port_if_rail?.port_code.toUpperCase() ?? '',
-        type: 'port',
-      })
+      if (dutyObj) {
+        tags.push(dutyObj.tag)
+        tags.push(dutyObj.valueTag)
+        quoteTableData.local_charges.splice(
+          quoteTableData.local_charges.length - 4,
+          0,
+          dutyObj
+        )
+      }
+    } else {
+      quoteTableData.local_charges = []
     }
 
-    if (des_port_rail.type == 'RAIL' && !!des_port_if_rail?.port_name) {
-      locations.push({
-        name: toTitleCase(des_port_if_rail?.port_name.toUpperCase() ?? ''),
-        code: des_port_if_rail?.port_code.toUpperCase() ?? '',
-        type: 'port',
-      })
-    }
-    locations.push({
-      name: toTitleCase(des_port_rail.port_name.toUpperCase()),
-      code: des_port_rail.port_code.toUpperCase(),
-      type: `${des_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
-    })
-
-    if (delivery_check) {
-      locations.push({
-        name: delivery_location?.description ?? '',
-        code: des_country,
-        type: 'door',
-      })
-    }
-    //COMMENT: added clearance fee if origin is india
-    if (ori_country == 'IN') {
-      quoteTableData.local_charges.splice(1, 0, IN_FCL_CLEARANCE_FEE)
-    }
-    //COMMENT: append additional fees
-    appendAdditionalFees(quoteTableData.local_charges)
-
-    //Calculate Total Sum for INR and USD for all lines
+    // --- Calculate Totals ---
     for (let line of quoteTableData.line_charges) {
       const cost = calculateTotalOfferCost([
         line.data,
@@ -311,25 +404,35 @@ export async function POST(request: NextRequest) {
         line.port_to_days + origin_trucking_days + destionation_trucking_days
     }
 
-    //create form
+    // --- Locations ---
+    const locations = buildLocations({
+      pickup_check,
+      pickup_location,
+      ori_country,
+      ori_port_rail,
+      ori_port_if_rail,
+      des_port_rail,
+      des_port_if_rail,
+      des_country,
+      delivery_check,
+      delivery_location,
+    })
+
+    // --- Create Form ---
     const formId = await createForm(validateData.data)
 
-    //quote details
+    // --- Quote Details ---
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
         pickup_location: pickup_location ?? { description: '' },
         ori_port_rail,
         des_port_rail,
         delivery_location: pickup_location ?? { description: '' },
-        //TODO: make shipline dynamic
         shipline: '',
         firstSlug: 'SEA FCL ' + fcl_quantity + ' x ' + fcl_container_type,
-        icoterms,
+        incoterms,
       })
-
-    //TODO: Hubspot deal created
     const blok_quote_id = await generateOfferId()
-    // console.log({ blok_quote_id });
     const user = {
       id: 'BLOK_UNKNOW_USER',
       name: toTitleCase(user_name) || '',
@@ -356,22 +459,8 @@ export async function POST(request: NextRequest) {
       offers: quoteTableData as any,
     })
 
-    //TODO: Not require move it to quote api
-    // await sendQuoteInfoToTeam({
-    //   user_name,
-    //   subject,
-    //   total: totalSum.totalInrCost,
-    //   quoteLink: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.quote.bloksupplychain.com'}/quote/${quote_id}`,
-    //   company_name,
-    //   phone_number: phone,
-    //   email,
-    // })
     return NextResponse.json({ offer_id, quoteTableData }, { status: 200 })
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({
-      error: 'exception error sea fcl route:',
-      details: error,
-    })
+    return errorResponse('exception error sea fcl route:', 500, error)
   }
 }
