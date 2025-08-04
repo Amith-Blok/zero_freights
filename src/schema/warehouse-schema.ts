@@ -16,7 +16,7 @@ const portSchema = z.object({
   place_id: z.string(),
 })
 export const CommonSchema = z.object({
-  country: z.enum(['US']),
+  country: z.enum(['US', 'CA', 'EU']),
   is_google_location: z.boolean(),
   dg: z.boolean().optional(),
   floor: z.boolean().optional(),
@@ -24,7 +24,7 @@ export const CommonSchema = z.object({
   delivery_location: z.object({
     port_code: z.string(),
     port_name: z.string(),
-    place_id: z.string(),
+    // place_id: z.string().optional(),
   }),
   hsn: z.object({
     code: z.string(),

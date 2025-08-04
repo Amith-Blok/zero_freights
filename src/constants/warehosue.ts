@@ -18,3 +18,11 @@ export const WAREHOUSE_DEFAULT = {
     },
   ],
 } as const
+
+export const WAREHOUSE_COUNTRIES_OPTION = [
+  { value: 'US', label: 'US' },
+  { value: 'CA', label: 'CA' },
+  { value: 'EU', label: 'EU' },
+]
+
+export const WAREHOUSE_CHARGE_USD = 650

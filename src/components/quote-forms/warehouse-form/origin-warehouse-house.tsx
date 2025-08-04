@@ -2,20 +2,30 @@
 import { useFormContext, useWatch } from 'react-hook-form'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { COUNTRIES_LIST_WAREHOUSE } from '@/constants'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 import { Prediction } from '@/types/google'
+import { WAREHOUSE_COUNTRIES_OPTION } from '@/constants/warehosue'
+import { useEffect } from 'react'
 export const OriginWarehouseForm = () => {
-  const { watch, setValue, control } = useFormContext()
-  const watchMode = watch('modes')
-  const watchGoogleCheck = watch('is_google_location')
+  const { setValue, control } = useFormContext()
+  const watchMode = useWatch({ control, name: 'modes' })
+  const watchGoogleCheck = useWatch({ control, name: 'is_google_location' })
+  const watchPickupLocation = useWatch({ control, name: 'pickup_location' })
   const watchCountry = useWatch({ control: control, name: 'country' })
   const airportLink = `/api/autos/air-ports/all?country=${watchCountry}`
   const seaportLink = `/api/autos/sea-ports?country=${watchCountry}`
   const googleLink = `/api/autos/google?country=${watchCountry}`
   const fetchUrl = watchMode === 'LTL_WAREHOUSE' ? airportLink : seaportLink
+
+  useEffect(() => {
+    if (watchPickupLocation) {
+      setValue('pickup_location', undefined)
+      setValue('delivery_location', undefined)
+    }
+  }, [setValue, watchMode, watchGoogleCheck])
+
   return (
     <>
       <CheckBoxWrapper
@@ -27,7 +37,7 @@ export const OriginWarehouseForm = () => {
         <SelectWrapper
           label="Country"
           field="country"
-          data={COUNTRIES_LIST_WAREHOUSE}
+          data={WAREHOUSE_COUNTRIES_OPTION}
           divClass={`w-full `}
         />
 

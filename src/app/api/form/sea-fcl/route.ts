@@ -183,16 +183,18 @@ async function getDutyIfNeeded({ incoterms, hsn, des_country, value }: any) {
         return undefined
       }
     )
-    if (duty && typeof duty === 'number') {
+    console.log({ duty })
+    if (typeof duty === 'number') {
       return {
         label: `Duty ${duty.toFixed(2)}%`,
         currency: 'USD',
-        additional_notes: `Duty ${duty}%`,
+        additional_notes: `Duty:${duty}%`,
         d2: (duty * value) / 100,
         d4: (duty * value) / 100,
         d5: (duty * value) / 100,
         tag: `HS: ${hsn.code}`,
         valueTag: `${value} USD`,
+        dutyTag: `Duty:${duty}%`,
       }
     }
   }
@@ -384,11 +386,14 @@ export async function POST(request: NextRequest) {
         if (dutyObj) {
           tags.push(dutyObj.tag)
           tags.push(dutyObj.valueTag)
+          tags.push(dutyObj.dutyTag)
           quoteTableData.local_charges.splice(
             quoteTableData.local_charges.length - 4,
             0,
             dutyObj
           )
+        } else {
+          tags.push('Duty: N/A')
         }
       }
     } else {

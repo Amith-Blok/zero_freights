@@ -13,9 +13,13 @@ import PhoneInputWrapper from '@/components/shared/phone-input-wrapper'
 import { HsSixType } from '@/models/hs-six'
 
 export const CargoAllForm = () => {
-  const { setValue, control } = useFormContext()
+  const {
+    setValue,
+    control,
+    formState: { errors },
+  } = useFormContext()
   const { loading } = useContext(FormMetaProvider)
-  // console.log({ errors })
+  console.log({ errors })
   const watchModes = useWatch({ control, name: 'modes' }) ?? ''
   const isWarehouse = watchModes.includes('WAREHOUSE')
   return (

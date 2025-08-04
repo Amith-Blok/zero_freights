@@ -6,7 +6,7 @@ import {
 } from '../helper/lib'
 
 import { WarehouseFormSchema } from '@/schema/warehouse-schema'
-import { getWarehouseByPortCode } from '@/data/warehouses'
+// import { getWarehouseByPortCode } from '@/data/warehouses'
 // import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { RateInfoType } from '@/types/common'
 import { createForm } from '@/data/form'
@@ -18,6 +18,7 @@ import {
   LocationType,
   ServiceType,
 } from '@/models/offer/shared-types'
+import { WAREHOUSE_CHARGE_USD } from '@/constants/warehosue'
 
 export async function POST(request: NextRequest) {
   try {
@@ -143,8 +144,11 @@ export async function POST(request: NextRequest) {
     } else {
       throw new Error('invalid warehouse mode')
     }
-    truckingCost.value =
-      (await getWarehouseByPortCode(delivery_location.port_code)).cost ?? 0
+
+    tags.push(`${storage_days} days`)
+
+    truckingCost.value = WAREHOUSE_CHARGE_USD
+    // (await getWarehouseByPortCode(delivery_location.port_code)).cost ?? 0
 
     const formatedQuoteTableData = formateRateInfoToConfirmQuoteData([
       perPalletIn,

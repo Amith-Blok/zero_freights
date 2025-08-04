@@ -7,6 +7,7 @@ export const getDutyByHsCodeCountry = async (
   country: string
 ): Promise<number | Error> => {
   await mongoosedb()
+  console.log({ hs_code, country })
   const duty = await DutiesModel.findOne({ hs_code, country })
   if (!duty) {
     throw new Error(
