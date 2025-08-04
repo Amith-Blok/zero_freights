@@ -236,7 +236,7 @@ export async function POST(request: NextRequest) {
     // //COMMENT: appended additional fees
     newAppendAdditionalFees(quoteTableData, incoterms)
     let duty
-    if (incoterms !== 'DAP') {
+    if (incoterms === 'DDP') {
       duty = await getDutyByHsCodeCountry(hsn.code, country).catch((error) => {
         console.log({ error })
         return undefined

@@ -1,9 +1,11 @@
 import { COUNTRIES } from '@/constants'
 import mongoose from 'mongoose'
 const AirlineSchema = new mongoose.Schema({
-  airline_code: { type: String, required: true },
-  airline_name: { type: String, required: true },
-  cost: { type: Number, required: true },
+  code: { type: String, required: true },
+  name: { type: String, required: true },
+  currency: { type: String, required: true },
+  transit_time: { type: Number, required: true }, //NOTE: transit time is in days
+  value: { type: Number, required: true },
 })
 const AirFreightSchema = new mongoose.Schema(
   {

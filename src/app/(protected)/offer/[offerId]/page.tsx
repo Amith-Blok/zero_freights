@@ -89,7 +89,7 @@ const OfferComp = async ({ id }: { id: string }) => {
       />
     )
   } else if (offers.mode === 'AIR') {
-    const { package_type, carrier } = offers
+    const { package_type, carrier, estimated_days } = offers
     return (
       <AirComp
         id={id}
@@ -103,6 +103,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offers={offers.offers}
         carrier={carrier}
         price={offers.total_cost.inr}
+        estimatedDays={estimated_days}
       />
     )
   } else if (offers.mode === 'SEA_LCL') {

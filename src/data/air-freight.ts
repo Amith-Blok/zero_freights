@@ -1,3 +1,4 @@
+import mongoosedb from '@/lib/mongoose-db'
 import airFreight, { AirFreightType } from '@/models/air-freight'
 
 export const airFreightByStartEndCode = async ({
@@ -10,6 +11,7 @@ export const airFreightByStartEndCode = async ({
   if (!startCode && !endCode) {
     throw new Error('invalid air freight code')
   }
+  await mongoosedb()
   const response = await airFreight
     .findOne({ start_code: startCode, end_code: endCode })
     .lean<AirFreightType>()

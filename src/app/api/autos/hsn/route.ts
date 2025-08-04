@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ items: [] })
     }
     const response = await hsSixAutoCompleteByQuery(query)
-
+    console.log({ response })
     return NextResponse.json({ items: response }, { status: 200 })
   } catch (error) {
     console.log({ error, location: 'error occur at /api/autos/hsn' })

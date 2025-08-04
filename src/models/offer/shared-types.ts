@@ -99,6 +99,7 @@ export interface WarehouseOffer extends Offer {
 }
 
 export interface AirOffer extends Offer {
+  estimated_days: number
   carrier: string
   total_cost: TotalCost
   offers: LabeledCost[]

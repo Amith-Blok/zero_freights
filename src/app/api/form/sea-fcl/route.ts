@@ -374,20 +374,22 @@ export async function POST(request: NextRequest) {
       appendAdditionalFees(quoteTableData.local_charges, incoterms)
 
       // --- Duty ---
-      const dutyObj = await getDutyIfNeeded({
-        incoterms,
-        hsn,
-        des_country,
-        value,
-      })
-      if (dutyObj) {
-        tags.push(dutyObj.tag)
-        tags.push(dutyObj.valueTag)
-        quoteTableData.local_charges.splice(
-          quoteTableData.local_charges.length - 4,
-          0,
-          dutyObj
-        )
+      if (incoterms == 'DDP') {
+        const dutyObj = await getDutyIfNeeded({
+          incoterms,
+          hsn,
+          des_country,
+          value,
+        })
+        if (dutyObj) {
+          tags.push(dutyObj.tag)
+          tags.push(dutyObj.valueTag)
+          quoteTableData.local_charges.splice(
+            quoteTableData.local_charges.length - 4,
+            0,
+            dutyObj
+          )
+        }
       }
     } else {
       quoteTableData.local_charges = []

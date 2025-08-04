@@ -60,12 +60,12 @@ export const CargoAllForm = () => {
         {!isWarehouse && (
           <>
             <SelectWrapper
-              label="incoterms"
+              label="Incoterms"
               field="incoterms"
               data={arrayToSelectData([...incoterms])}
             />
             <InputWrapper
-              label="Your Name"
+              label="Name"
               field="user_name"
               inputProps={{
                 type: 'text',
@@ -78,7 +78,7 @@ export const CargoAllForm = () => {
       </div>
       <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
         <InputWrapper
-          label="email"
+          label="Email"
           field="email"
           inputProps={{
             type: 'text',

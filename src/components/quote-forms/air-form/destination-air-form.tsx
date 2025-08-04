@@ -7,6 +7,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { AirPortsType } from '@/models/air-ports'
 import { Prediction } from '@/types/google'
+import { AIR_DESTINATION_COUNTRIES_OPTION } from '@/constants/air-form'
 
 export const DestinationAirForm = () => {
   const { watch, setValue, resetField, control } = useFormContext()
@@ -42,7 +43,7 @@ export const DestinationAirForm = () => {
         <SelectWrapper
           label="Country"
           field="des_country"
-          data={[{ value: 'US', label: 'US' }]}
+          data={AIR_DESTINATION_COUNTRIES_OPTION}
           divClass={`w-full ${watchDesPick && 'md:w-1/3'} `}
         />
 

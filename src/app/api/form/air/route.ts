@@ -356,9 +356,9 @@ export async function POST(request: NextRequest) {
       )
     }
     const cheapestAirlineRecord = getCheapestAirLineRecord(airlines.airlines)
-    airFreight.usd = cheapestAirlineRecord.cost * kg
+    airFreight.usd = cheapestAirlineRecord.value * kg
     airFreight.inr = airFreight.usd * USD_TO_INR
-    airFreight.label = `Air Freight:${cheapestAirlineRecord.airline_name}(${cheapestAirlineRecord.cost}$/kg)`
+    airFreight.label = `Air Freight:${cheapestAirlineRecord.name}(${cheapestAirlineRecord.value}$/kg)`
 
     let quoteTableData = []
     let tags = []
@@ -470,7 +470,7 @@ export async function POST(request: NextRequest) {
         delivery_location,
         firstSlug: `AIR ${cbm.toFixed(2)} CBM ${ton.toFixed(2)} TON`,
         incoterms,
-        shipline: cheapestAirlineRecord.airline_code,
+        shipline: cheapestAirlineRecord.name,
       })
 
     // FormId
@@ -495,7 +495,8 @@ export async function POST(request: NextRequest) {
       mode: 'AIR',
       service_type: ServiceType.AIR,
       package_type: `${cbm.toFixed(2)} CBM `,
-      carrier: toTitleCase(cheapestAirlineRecord.airline_name ?? 'Air India'),
+      carrier: toTitleCase(cheapestAirlineRecord.name ?? 'Quater Airways'),
+      estimated_days: cheapestAirlineRecord.transit_time,
       total_cost: { inr: totalInrCost, usd: totalUsdCost },
       pointDetination: pointDetination,
       tags,

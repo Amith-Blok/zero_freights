@@ -105,7 +105,6 @@ export default function ShippingCard({
   locations,
   price,
   url,
-  // offerId,
   children,
 }: ShippingCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)

@@ -41,6 +41,7 @@ const AirOfferSchema = z
   .object({
     mode: z.literal('AIR'),
     carrier: z.string(),
+    estimated_days: z.number(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
   })

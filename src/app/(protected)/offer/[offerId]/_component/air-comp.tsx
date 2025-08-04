@@ -9,6 +9,7 @@ interface AirProps {
   service_type: ServiceType
   tags: string[]
   price: number
+  estimatedDays: number
   locations: Location[]
   containerType: string
   containerLabel: string
@@ -20,6 +21,7 @@ export default function AirComp({
   offers,
   carrier,
   service_type,
+  estimatedDays,
   tags,
   price,
   locations,
@@ -37,7 +39,7 @@ export default function AirComp({
       modeType="AIR"
       serviceType={service_type}
       tags={tags}
-      portToDays={0}
+      portToDays={estimatedDays}
       containerLabel={containerLabel}
       containerType={containerType}
       price={price}

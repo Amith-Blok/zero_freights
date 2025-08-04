@@ -67,11 +67,11 @@ export async function POST(request: NextRequest) {
       carrierName = carrier
       tranist = 0
     } else if (mode == 'AIR') {
-      const { carrier, package_type } = safeParseOffer.data
+      const { carrier, package_type, estimated_days } = safeParseOffer.data
       confirmedQuote = offers
       packageLabel = package_type
       carrierName = carrier
-      tranist = 0
+      tranist = estimated_days
     } else if (mode == 'SEA_LCL') {
       const { carrier, package_type } = safeParseOffer.data
       confirmedQuote = offers

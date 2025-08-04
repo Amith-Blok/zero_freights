@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
       // Duty
       let duty
       // No need to check for DAP here, as incoterms is 'CIF' or 'FOB' in this block
-      if (incoterms !== 'DAP') {
+      if (incoterms == 'DDP') {
         duty = await getDutyByHsCodeCountry(hsn.code, des_country).catch(
           (error) => {
             console.log({ error })

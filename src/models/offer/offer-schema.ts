@@ -89,6 +89,7 @@ export const AirOfferModel = getOrCreateDiscriminator<AirOfferDocument>(
   'AIR',
   new mongoose.Schema<AirOfferDocument>({
     carrier: { type: String, required: true },
+    estimated_days: { type: Number, required: true },
     total_cost: { type: TotalCostSchema, required: true },
     offers: { type: [LabeledCostSchema], required: true },
   })
