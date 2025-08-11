@@ -153,9 +153,12 @@ function buildTags({
   duty,
 }: BuildTagsArgs): string[] {
   const tags = [`${cbm.toFixed(2)} CBM `, `${ton.toFixed(2)} TON `, incoterms]
-  if (duty && typeof duty === 'number') {
-    tags.push(`HS: ${hsn.code}`)
-    tags.push(`${value} USD`)
+  tags.push(`HS: ${hsn.code}`)
+  tags.push(`${value} USD`)
+  if (typeof duty === 'number') {
+    tags.push(`DUTY: ${duty.toFixed(2)}%`)
+  } else {
+    tags.push(`DUTY: N/A`)
   }
   return tags
 }
@@ -229,7 +232,7 @@ async function getDutyCost({
   if (incoterms === 'DAP') return null
   try {
     const duty = await getDutyByHsCodeCountry(hsn.code, des_country)
-    if (duty && typeof duty === 'number') {
+    if (typeof duty === 'number') {
       return {
         label: `Duty ${duty.toFixed(2)}%`,
         usd: (duty * value) / 100,

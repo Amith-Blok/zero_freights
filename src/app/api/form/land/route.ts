@@ -242,15 +242,18 @@ export async function POST(request: NextRequest) {
         return undefined
       })
     }
-    if (duty && typeof duty === 'number') {
+    if (typeof duty === 'number') {
       tags.push(`HS: ${hsn.code}`)
       tags.push(`${value} USD`)
+      tags.push(`DUTY: ${duty.toFixed(2)}%`)
       const dutyCost = (duty * value) / 100
       quoteTableData.splice(quoteTableData.length - 2, 0, {
         label: `Duty ${duty.toFixed(2)}%`,
         usd: dutyCost,
         inr: dutyCost * USD_TO_INR,
       })
+    } else {
+      tags.push(`DUTY: N/A`)
     }
     //Location generate location details
     let locations: Location[] = []

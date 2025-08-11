@@ -194,7 +194,7 @@ async function getDutyIfNeeded({ incoterms, hsn, des_country, value }: any) {
         d5: (duty * value) / 100,
         tag: `HS: ${hsn.code}`,
         valueTag: `${value} USD`,
-        dutyTag: `Duty:${duty}%`,
+        dutyTag: `DUTY: ${duty.toFixed(2)}%`,
       }
     }
   }
@@ -393,7 +393,7 @@ export async function POST(request: NextRequest) {
             dutyObj
           )
         } else {
-          tags.push('Duty: N/A')
+          tags.push('DUTY: N/A')
         }
       }
     } else {
