@@ -234,7 +234,13 @@ export async function POST(request: NextRequest) {
       quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
     }
     // //COMMENT: appended additional fees
-    newAppendAdditionalFees(quoteTableData, incoterms)
+    const removeList =
+      modes === 'DOMESTIC_TRUCKING' ? [] : ['DELIVERY_ORDER_FEE']
+    newAppendAdditionalFees({
+      data: quoteTableData,
+      incoterms,
+      removeList,
+    })
     let duty
     if (incoterms === 'DDP') {
       duty = await getDutyByHsCodeCountry(hsn.code, country).catch((error) => {

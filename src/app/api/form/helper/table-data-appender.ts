@@ -32,15 +32,24 @@ export const appendAdditionalFees = (
     })
   })
 }
-export const newAppendAdditionalFees = (
-  data: ConfimredQuoteDataType[],
-  incoterms: IncotermsType,
+export const newAppendAdditionalFees = ({
+  data,
+  incoterms,
+  mode,
+  removeList,
+}: {
+  data: ConfimredQuoteDataType[]
+  incoterms: IncotermsType
   mode?: OfferModeTypes
-) => {
+  removeList?: string[]
+}) => {
   const additionalFees =
     mode === 'AIR' ? US_AIR_ADDITIONAL_FEES : US_ALL_ADDITIONAL_FEES
   additionalFees.forEach((fee) => {
     if (incoterms === 'DAP' && EXCLUDE_FEES_DAP_LIST.includes(fee.code)) {
+      return
+    }
+    if (removeList?.includes(fee.code)) {
       return
     }
     const cost = fee.value

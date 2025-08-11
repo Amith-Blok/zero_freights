@@ -300,7 +300,10 @@ export async function POST(request: NextRequest) {
       if (ori_country === 'IN' && incoterms !== 'DAP')
         quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
 
-      newAppendAdditionalFees(quoteTableData, incoterms)
+      newAppendAdditionalFees({
+        data: quoteTableData,
+        incoterms,
+      })
 
       // Duty
       let duty

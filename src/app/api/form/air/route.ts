@@ -416,11 +416,11 @@ export async function POST(request: NextRequest) {
         ori_country,
         CLEARANCE_FEE_OBJ,
         newAppendAdditionalFees: (data, incoterms, mode) =>
-          newAppendAdditionalFees(
+          newAppendAdditionalFees({
             data,
-            incoterms as IncotermsType,
-            mode as OfferModeTypes
-          ),
+            incoterms: incoterms as IncotermsType,
+            mode: mode as OfferModeTypes,
+          }),
         dutyCost,
       })
     } else {
