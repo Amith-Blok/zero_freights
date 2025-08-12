@@ -193,9 +193,11 @@ export default function ShippingCard({
             )}
 
             {/* View More Button */}
-            <button
+            <Button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="mt-3 flex items-center gap-1 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-700"
+              variant="outline"
+              size="sm"
+              className="mt-3 flex items-center space-x-2 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
             >
               View {isExpanded ? 'less' : 'more'}
               {isExpanded ? (
@@ -203,7 +205,7 @@ export default function ShippingCard({
               ) : (
                 <ChevronDown className="h-4 w-4" />
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Price and Select Button */}
