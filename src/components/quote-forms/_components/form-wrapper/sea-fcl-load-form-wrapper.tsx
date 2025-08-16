@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { InputSelect } from './input-select'
 
-export default function MultiSelectWrapper() {
+export function SeaFclLoadFormWrapper() {
   const {
     control,
     register,

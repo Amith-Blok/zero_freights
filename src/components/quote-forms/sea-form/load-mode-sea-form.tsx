@@ -10,12 +10,12 @@ import { InputSelect } from '@/components/quote-forms/_components/form-wrapper/i
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { FieldArrayLoadComp } from '../_components/fieldarray-load-comp'
 import { CbmComponent } from '../_components/cbm-comp'
-import MultiSelectWrapper from '../_components/form-wrapper/multi-select-wrapper'
+import { SeaFclLoadFormWrapper } from '../_components/form-wrapper/sea-fcl-load-form-wrapper'
 
 export const LoadFclForm = () => {
   return (
     <>
-      <MultiSelectWrapper />
+      <SeaFclLoadFormWrapper />
     </>
   )
 }
