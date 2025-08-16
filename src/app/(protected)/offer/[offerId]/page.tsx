@@ -1,7 +1,5 @@
 import { CardWrapper } from '@/components/shared/card-wrapper'
-import { fclContainerToDContainer } from '@/lib/utils'
 import React from 'react'
-import { convertDToStdContainer } from '@/lib/container'
 import { getOfferById } from '@/data/offer/offer'
 import { SeaFclComp } from './_component/sea-fcl-comp'
 import WarehouseComp from './_component/warehouse-comp'
@@ -35,18 +33,15 @@ const OfferComp = async ({ id }: { id: string }) => {
   if (offers.mode === 'SEA_FCL') {
     const linesFreightRates = offers.offers.line_charges
     const localsRates = offers.offers.local_charges
-    const containerType = fclContainerToDContainer(
-      offers.container_type
-    ).toLowerCase() as 'd2' | 'd4' | 'd5'
-    const containerLabel = convertDToStdContainer(containerType)
 
     return (
       <SeaFclComp
         id={id}
         locations={offers.locations}
         linesFreightRates={linesFreightRates}
-        containerType={containerType}
-        containerLabel={containerLabel}
+        containerTypes={offers.container_types}
+        containerDetails={offers.container_details}
+        weightUnit={offers.weight_unit}
         service_type={offers.service_type}
         tags={offers.tags}
         offerId={offers.blok_id}

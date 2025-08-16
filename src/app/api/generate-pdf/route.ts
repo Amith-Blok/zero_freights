@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id')
     const type = searchParams.get('type')
     const lineName = searchParams.get('line_name')
+    const containerType = searchParams.get('container_type')
     const isDev = process.env.NODE_ENV == 'development'
     console.log({ isDev })
     console.log({ env: process.env.NEXT_PUBLIC_APP_URL })
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
     console.log({ baseUrl })
     const url =
       type == PdfType.OFFER
-        ? baseUrl + `/download/offer/${id}?line_name=${lineName}`
+        ? baseUrl +
+          `/download/offer/${id}?line_name=${lineName}&container_type=${containerType}`
         : baseUrl + `/download/confirmed-quote/${id}`
     console.log({ url })
     if (!id) return NextResponse.json('quote-id not found', { status: 400 })

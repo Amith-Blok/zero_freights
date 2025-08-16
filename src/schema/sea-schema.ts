@@ -1,7 +1,6 @@
 import {
   BULK_TYPE,
   COUNTRIES,
-  FCL_CONTAINER_TYPE,
   incoterms,
   IN_CM,
   KG_LBS,
@@ -76,13 +75,30 @@ const CommonSchema = z.object({
 })
 
 //FCL SCHEMA
+// TODO: put this different file
+export const FCL_CONTAINER_ENUM = z.enum(['20STD', '40STD', '40HC'])
 export const FclSchema = z
   .object({
     modes: z.literal('FCL'),
-    fcl_container_type: z.enum(FCL_CONTAINER_TYPE),
-    //TODO: look what value is required for here
-    fcl_quantity: z.coerce.number().min(1).max(32767),
-    fcl_weight: z.coerce.number().min(1),
+    fcl_container_type: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    //NOTE: Multiple container type is allowed
+    fcl_quantities: z.object({
+      '20STD': z.coerce.number().min(0, 'Must be 0 or more.'),
+      '40STD': z
+        .number({ invalid_type_error: 'Enter a number.' })
+        .min(0, 'Must be 0 or more.'),
+      '40HC': z.coerce.number().min(0, 'Must be 0 or more.'),
+    }),
+    // Per-container weights (same unit for all)
+    fcl_weights: z.object({
+      '20STD': z.coerce.number().min(0, 'Must be 0 or more.'),
+      '40STD': z
+        .number({ invalid_type_error: 'Enter a number.' })
+        .min(0, 'Must be 0 or more.'),
+      '40HC': z.coerce.number().min(0, 'Must be 0 or more.'),
+    }),
     fcl_unit: z.enum(KG_LBS),
   })
   .merge(CommonSchema)
@@ -144,6 +160,30 @@ export const SeaFormSchema = z
   .discriminatedUnion('modes', [FclSchema, LclSchema, BulkSchema])
   .superRefine((data, ctx) => {
     if (data.modes === 'FCL') {
+      const total = data.fcl_container_type.reduce(
+        (sum, id) => sum + (data.fcl_quantities[id] ?? 0),
+        0
+      )
+      if (total <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Provide a quantity greater than 0 for at least one selected type.',
+          path: ['fcl_quantities'],
+        })
+      }
+      const totalWeight = data.fcl_container_type.reduce(
+        (sum, id) => sum + (data.fcl_weights?.[id] ?? 0),
+        0
+      )
+      if (totalWeight <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Provide a weight greater than 0 for at least one selected type.',
+          path: ['fcl_weights'],
+        })
+      }
       if (data.pickup_check && data.pickup_location === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -203,7 +243,9 @@ export const SeaFormSchema = z
 
 export type SeaFormType = z.infer<typeof SeaFormSchema>
 export type FclContainerType = z.infer<typeof FclSchema>['fcl_container_type']
+export type FclQuantitiesType = z.infer<typeof FclSchema>['fcl_quantities']
 export type FclWeightUnitType = z.infer<typeof FclSchema>['fcl_unit']
+export type FclWeightsType = z.infer<typeof FclSchema>['fcl_weights']
 export type PickupDeliveryLocationType = z.infer<
   typeof SeaFormSchema
 >['pickup_location']

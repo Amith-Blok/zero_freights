@@ -1,9 +1,12 @@
 import { LinesChargesType } from '@/models/lines_charges'
+import { FclQuantitiesType } from '@/schema/sea-schema'
 
 export const formatLines = ({
   linesCharges,
+  fclQuantities,
 }: {
   linesCharges: LinesChargesType
+  fclQuantities: FclQuantitiesType
 }) => {
   let sea_freights_records = []
   let locals = []
@@ -24,9 +27,9 @@ export const formatLines = ({
             label: item.name,
             currency: item.currency,
             additional_notes: item?.additional_notes || '',
-            d2: item.d2,
-            d4: item.d4,
-            d5: item.d5,
+            d2: item.d2 * fclQuantities['20STD'],
+            d4: item.d4 * fclQuantities['40STD'],
+            d5: item.d5 * fclQuantities['40HC'],
           })
           continue
         }

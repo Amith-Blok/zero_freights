@@ -85,31 +85,41 @@ export const LCL_PACKAGE_TYPE_LIST = [
 export const LCL_PACKAGE_TYPE = ['pallete', 'boxes', 'package', 'bag'] as const
 
 export const FCL_CONTAINER_TYPE_LIST = [
-  { value: '20DV', label: "20' Standard" },
-  { value: '40DV', label: "40' Standard" },
-  { value: '40HC', label: "40' High cube" },
+  { value: '20STD', label: '20 STD' },
+  { value: '40STD', label: '40 STD' },
+  { value: '40HC', label: '40 HC' },
 ]
 
 export const SEA_DEFAULT_VALUES = {
-  modes: 'FCL',
+  modes: 'FCL' as const,
+  fcl_container_type: ['20STD', '40STD', '40HC'] as (
+    | '20STD'
+    | '40STD'
+    | '40HC'
+  )[],
+  fcl_quantities: { '20STD': 1, '40STD': 1, '40HC': 1 },
+  fcl_weights: { '20STD': 24000, '40STD': 26700, '40HC': 29500 },
+  fcl_unit: 'KG' as const,
   pickup_location: undefined,
   delivery_location: undefined,
   hsn: undefined,
-  incoterms: 'DDP',
-  ori_country: 'IN',
-  des_country: 'US',
+  incoterms: 'DDP' as const,
+  ori_country: 'IN' as const,
+  des_country: 'US' as const,
   pickup_check: false,
   delivery_check: false,
   origin_port: undefined,
   destination_port: undefined,
-} as const
+}
 
 //SEA FORM
 export const KG_LBS = ['KG', 'LBS'] as const
 export const IN_CM = ['CM', 'IN'] as const
 export const KG_LBS_DAY = ['kg/day', 'lbs/day'] as const
 export const TRUCKING_TYPE = ['FAC', 'CFS'] as const
-export const FCL_CONTAINER_TYPE = ['20DV', '40DV', '40HC'] as const
+
+//NOTE: I change this from DV to STD
+export const FCL_CONTAINER_TYPE = ['20STD', '40STD', '40HC'] as const
 export const incoterms = ['DAP', 'DDP', 'DDU', 'FOB', 'CIF'] as const
 
 //Regex for phone validation

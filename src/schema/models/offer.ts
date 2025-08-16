@@ -9,6 +9,7 @@ import {
 } from './common-zod'
 import { TotalCostZodSchema } from './confirmed-quote-zod'
 import { ServiceType } from '@/models/offer/shared-types'
+import { FCL_CONTAINER_ENUM } from '../sea-schema'
 
 const OfferBaseSchema = z.object({
   form_id: z.string(),
@@ -20,7 +21,6 @@ const OfferBaseSchema = z.object({
   service_type: z.nativeEnum(ServiceType),
   start_code: z.string(),
   end_code: z.string(),
-  package_type: z.string(),
   exchanges: ExchangeZodSchema,
   locations: z.array(LocationZodSchema),
   tags: z.array(z.string()),
@@ -31,6 +31,7 @@ const WarOfferSchema = z
   .object({
     mode: z.literal('WAR'),
     carrier: z.string(),
+    package_type: z.string(),
     estimated_days: z.number(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
@@ -41,6 +42,7 @@ const AirOfferSchema = z
   .object({
     mode: z.literal('AIR'),
     carrier: z.string(),
+    package_type: z.string(),
     estimated_days: z.number(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
@@ -51,6 +53,7 @@ const LandOfferSchema = z
   .object({
     mode: z.literal('LAND'),
     carrier: z.string(),
+    package_type: z.string(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
   })
@@ -59,6 +62,7 @@ const SeaLclOfferSchema = z
   .object({
     mode: z.literal('SEA_LCL'),
     carrier: z.string(),
+    package_type: z.string(),
     total_cost: TotalCostZodSchema,
     offers: z.array(LabeledCostZodSchema),
   })
@@ -67,7 +71,30 @@ const SeaLclOfferSchema = z
 const SeaFclOfferSchema = z
   .object({
     mode: z.literal('SEA_FCL'),
-    container_type: z.string(),
+    container_types: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    container_details: z.object({
+      d2: z
+        .array(z.number())
+        .min(2)
+        .max(2)
+        .optional()
+        .describe('0: container quantity and 1: weight value'),
+      d4: z
+        .array(z.number())
+        .min(2)
+        .max(2)
+        .optional()
+        .describe('0: container quantity and 1: weight value'),
+      d5: z
+        .array(z.number())
+        .min(2)
+        .max(2)
+        .optional()
+        .describe('0: container quantity and 1: weight value'),
+    }),
+    weight_unit: z.enum(['KG', 'LBS']),
     offers: z.object({
       line_charges: z.array(LineContainerCostZodSchema),
       local_charges: z.array(ContainerCostZodSchema),

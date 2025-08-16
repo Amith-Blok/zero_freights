@@ -9,16 +9,18 @@ export const QuotePdfDownloadBtn = ({
   id,
   type,
   lineName,
+  containerType,
 }: {
   id: string
   type: PdfType
   lineName?: string
+  containerType?: string
 }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const downloadPdf = async () => {
     setLoading(true)
     const response = await fetch(
-      `/api/generate-pdf?id=${id}&type=${type}${lineName ? `&line_name=${lineName}` : ''}`,
+      `/api/generate-pdf?id=${id}&type=${type}${lineName ? `&line_name=${lineName}&container_type=${containerType}` : ''}`,
       {
         cache: 'force-cache',
       }

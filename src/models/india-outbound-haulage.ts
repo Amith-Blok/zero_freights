@@ -42,6 +42,7 @@ const IndiaOutboundHaulageSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    //min and max are in ton
     min: {
       type: Number,
       required: true,

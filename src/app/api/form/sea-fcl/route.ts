@@ -18,7 +18,6 @@ import {
 } from '@/models/offer/shared-types'
 import { toTitleCase } from '@/lib/utils'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
-import { convertFclToStdContainer } from '@/lib/container'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 
@@ -67,7 +66,7 @@ async function getRailCost({
   ori_port_if_rail,
   des_port_if_rail,
   fcl_unit,
-  fcl_weight,
+  fcl_weights,
 }: any) {
   const indianRail =
     ori_country == 'IN' && ori_port_rail.type == 'RAIL'
@@ -78,7 +77,6 @@ async function getRailCost({
   const indianPortForRail =
     !!indianRail && (ori_country == 'IN' ? ori_port_if_rail : des_port_if_rail)
   let indianRailRate = undefined
-  const MetricTon = weightTOMetricTon({ unit: fcl_unit, weight: fcl_weight })
   if (indianRail && indianPortForRail) {
     const IndiaOutboundHaulageRates =
       await getAllIndiaOutboundHaulageRatesByCode({
@@ -87,12 +85,13 @@ async function getRailCost({
       })
     indianRailRate = filterHaulageRateByWeight({
       haulageRates: IndiaOutboundHaulageRates,
-      ton: MetricTon,
+      fcl_weights,
+      fcl_unit,
     })
     if (!indianRailRate)
       throw Error("Couldn't find rail rate. Please try with other port")
   }
-  return { indianRail, indianPortForRail, indianRailRate, MetricTon }
+  return { indianRail, indianPortForRail, indianRailRate }
 }
 
 async function getTruckingCost({
@@ -225,8 +224,8 @@ export async function POST(request: NextRequest) {
       des_port_rail,
       des_port_if_rail,
       fcl_unit,
-      fcl_quantity,
-      fcl_weight,
+      fcl_quantities,
+      fcl_weights,
       fcl_container_type,
       trucking,
       incoterms,
@@ -246,11 +245,25 @@ export async function POST(request: NextRequest) {
       des_port_rail,
       des_port_if_rail,
     })
-    let tags: string[] = [
-      `${fcl_quantity} x ${convertFclToStdContainer(fcl_container_type)}`,
-      fcl_weight ? `${fcl_weight.toFixed(2)} ${fcl_unit}` : '',
-      incoterms,
-    ].filter(Boolean)
+
+    // --- Calculate Metric Ton for each container type ---
+    const containerMetricTons = {
+      '20STD': 0,
+      '40STD': 0,
+      '40HC': 0,
+    }
+
+    Object.keys(fcl_quantities).forEach((containerType) => {
+      const quantity =
+        fcl_quantities[containerType as keyof typeof fcl_quantities]
+      const weight = fcl_weights[containerType as keyof typeof fcl_weights]
+      if (quantity > 0 && weight > 0) {
+        containerMetricTons[containerType as keyof typeof containerMetricTons] =
+          weightTOMetricTon({ weight: weight * quantity, unit: fcl_unit })
+      }
+    })
+
+    let tags: string[] = [incoterms].filter(Boolean)
 
     // --- Shipline Rates ---
     const linesRates = await getLinesChargesByCode({
@@ -264,10 +277,10 @@ export async function POST(request: NextRequest) {
         `there is no quote available for ${startSeaPort?.port_code}-> ${endSeaPort?.port_code}.Please try again with another ports`
       )
     }
-    let quoteTableData = formatLines({ linesCharges: linesRates }) as Record<
-      string,
-      any
-    >
+    let quoteTableData = formatLines({
+      linesCharges: linesRates,
+      fclQuantities: fcl_quantities,
+    }) as Record<string, any>
     if (!quoteTableData) {
       return errorResponse(
         'no something went wrong please retry with another form fields'
@@ -279,7 +292,7 @@ export async function POST(request: NextRequest) {
 
     if (incoterms !== 'CIF' && incoterms !== 'FOB') {
       // --- Rail Cost ---
-      const { indianRail, indianPortForRail, indianRailRate, MetricTon } =
+      const { indianRail, indianPortForRail, indianRailRate } =
         await getRailCost({
           ori_country,
           ori_port_rail,
@@ -288,7 +301,7 @@ export async function POST(request: NextRequest) {
           ori_port_if_rail,
           des_port_if_rail,
           fcl_unit,
-          fcl_weight,
+          fcl_weights,
         })
       if (indianRailRate && indianPortForRail) {
         quoteTableData.local_charges.splice(1, 0, {
@@ -303,27 +316,55 @@ export async function POST(request: NextRequest) {
 
       // --- Origin Trucking ---
       const stuffingTimes = ori_country === 'IN' && trucking === 'CFS' ? 1 : 2
-      let originTrucking = { cost: 0, estimatedDays: 0 }
+      let originTrucking = { cost: 0, estimatedDays: 0, d2: 0, d4: 0, d5: 0 }
       if (pickup_check && pickup_location?.place_id) {
         const { lat: oriLat, lng: oriLng } = await getGoogleLocationByPlaceId(
           pickup_location.place_id
         )
-        originTrucking = await getTruckingCost({
-          country: ori_country,
-          start: { lat: oriLat, lng: oriLng },
-          end: { lat: ori_port_rail.lat, lng: ori_port_rail.lng },
-          MetricTon,
-          stuffingTimes,
+        // Calculate trucking cost for each container type
+        const containerTypes = ['20STD', '40STD', '40HC'] as const
+        const truckingPromises = containerTypes.map(async (containerType) => {
+          if (containerMetricTons[containerType] > 0) {
+            const result = await getTruckingCost({
+              country: ori_country,
+              start: { lat: oriLat, lng: oriLng },
+              end: { lat: ori_port_rail.lat, lng: ori_port_rail.lng },
+              MetricTon: containerMetricTons[containerType],
+              stuffingTimes,
+            })
+            return {
+              containerType,
+              cost: result.cost,
+              estimatedDays: result.estimatedDays,
+            }
+          }
+          return { containerType, cost: 0, estimatedDays: 0 }
         })
+
+        const truckingResults = await Promise.all(truckingPromises)
+
+        originTrucking.d2 =
+          truckingResults.find((r) => r.containerType === '20STD')?.cost || 0
+        originTrucking.d4 =
+          truckingResults.find((r) => r.containerType === '40STD')?.cost || 0
+        originTrucking.d5 =
+          truckingResults.find((r) => r.containerType === '40HC')?.cost || 0
+        originTrucking.estimatedDays = Math.max(
+          ...truckingResults.map((r) => r.estimatedDays)
+        )
       }
-      if (originTrucking.cost > 0) {
+      if (
+        originTrucking.d2 > 0 ||
+        originTrucking.d4 > 0 ||
+        originTrucking.d5 > 0
+      ) {
         quoteTableData.local_charges.splice(1, 0, {
           label: `Origin Trucking ${ori_country}`,
           currency: `${ori_country == 'IN' ? 'INR' : 'USD'}`,
           additional_notes: '',
-          d2: originTrucking.cost,
-          d4: originTrucking.cost,
-          d5: originTrucking.cost,
+          d2: originTrucking.d2,
+          d4: originTrucking.d4,
+          d5: originTrucking.d5,
         })
       }
       if (pickup_check && trucking === 'CFS' && ori_country === 'IN') {
@@ -339,20 +380,55 @@ export async function POST(request: NextRequest) {
       origin_trucking_days = originTrucking.estimatedDays
 
       // --- Destination Trucking ---
-      let destinationTrucking = { cost: 0, estimatedDays: 0 }
+      let destinationTrucking = {
+        cost: 0,
+        estimatedDays: 0,
+        d2: 0,
+        d4: 0,
+        d5: 0,
+      }
       if (delivery_check && delivery_location?.place_id) {
         const { lat: desLat, lng: desLng } = await getGoogleLocationByPlaceId(
           delivery_location.place_id
         )
-        destinationTrucking = await getTruckingCost({
-          country: des_country,
-          start: { lat: desLat, lng: desLng },
-          end: { lat: des_port_rail.lat, lng: des_port_rail.lng },
-          MetricTon,
-          stuffingTimes: 2,
+
+        // Calculate trucking cost for each container type
+        const containerTypes = ['20STD', '40STD', '40HC'] as const
+        const truckingPromises = containerTypes.map(async (containerType) => {
+          if (containerMetricTons[containerType] > 0) {
+            const result = await getTruckingCost({
+              country: des_country,
+              start: { lat: desLat, lng: desLng },
+              end: { lat: des_port_rail.lat, lng: des_port_rail.lng },
+              MetricTon: containerMetricTons[containerType],
+              stuffingTimes: 2,
+            })
+            return {
+              containerType,
+              cost: result.cost,
+              estimatedDays: result.estimatedDays,
+            }
+          }
+          return { containerType, cost: 0, estimatedDays: 0 }
         })
+
+        const truckingResults = await Promise.all(truckingPromises)
+
+        destinationTrucking.d2 =
+          truckingResults.find((r) => r.containerType === '20STD')?.cost || 0
+        destinationTrucking.d4 =
+          truckingResults.find((r) => r.containerType === '40STD')?.cost || 0
+        destinationTrucking.d5 =
+          truckingResults.find((r) => r.containerType === '40HC')?.cost || 0
+        destinationTrucking.estimatedDays = Math.max(
+          ...truckingResults.map((r) => r.estimatedDays)
+        )
       }
-      if (destinationTrucking.cost > 0) {
+      if (
+        destinationTrucking.d2 > 0 ||
+        destinationTrucking.d4 > 0 ||
+        destinationTrucking.d5 > 0
+      ) {
         quoteTableData.local_charges.splice(
           quoteTableData.local_charges.length - 1,
           0,
@@ -360,9 +436,9 @@ export async function POST(request: NextRequest) {
             label: `Destination Trucking ${des_country}`,
             currency: `${des_country == 'IN' ? 'INR' : 'USD'}`,
             additional_notes: '',
-            d2: destinationTrucking.cost,
-            d4: destinationTrucking.cost,
-            d5: destinationTrucking.cost,
+            d2: destinationTrucking.d2,
+            d4: destinationTrucking.d4,
+            d5: destinationTrucking.d5,
           }
         )
       }
@@ -436,7 +512,14 @@ export async function POST(request: NextRequest) {
         des_port_rail,
         delivery_location: pickup_location ?? { description: '' },
         shipline: '',
-        firstSlug: 'SEA FCL ' + fcl_quantity + ' x ' + fcl_container_type,
+        firstSlug:
+          'SEA FCL ' +
+          fcl_quantities['20STD'] +
+          ' x 20STD ' +
+          fcl_quantities['40STD'] +
+          ' x 40STD ' +
+          fcl_quantities['40HC'] +
+          ' x 40HC',
         incoterms,
       })
     const blok_quote_id = await generateOfferId()
@@ -458,8 +541,14 @@ export async function POST(request: NextRequest) {
       end_code: endSeaPort?.port_code || '',
       mode: 'SEA_FCL',
       service_type: ServiceType.SEA_FCL,
-      container_type: fcl_container_type,
-      package_type: convertFclToStdContainer(fcl_container_type),
+
+      container_types: fcl_container_type,
+      container_details: {
+        d2: [fcl_quantities['20STD'], fcl_weights['20STD']],
+        d4: [fcl_quantities['40STD'], fcl_weights['40STD']],
+        d5: [fcl_quantities['40HC'], fcl_weights['40HC']],
+      },
+      weight_unit: fcl_unit,
       tags,
       locations: locations as any,
       exchanges: exchangeValues(),

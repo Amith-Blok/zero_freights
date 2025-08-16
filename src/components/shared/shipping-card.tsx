@@ -75,9 +75,13 @@ const RouteDisplay = ({
           <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
             <LocationIcon type={location.type} />
             <div className="text-sm">
-              <div className="font-medium text-gray-700">{location.code}</div>
+              <div className="font-medium text-gray-700">
+                {location.code.toUpperCase()}
+              </div>
               {location.name && (
-                <div className="text-xs text-gray-500">{location.name}</div>
+                <div className="text-xs/4 text-gray-500">
+                  {location.name.toUpperCase()}
+                </div>
               )}
             </div>
           </div>
@@ -159,6 +163,7 @@ export default function ShippingCard({
                 id={id}
                 type={PdfType.OFFER}
                 lineName={lineName}
+                containerType={containerType}
               />
             </div>
 

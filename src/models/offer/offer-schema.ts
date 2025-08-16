@@ -52,7 +52,6 @@ export const OfferSchema = new mongoose.Schema<OfferDocument>(
     },
     start_code: { type: String, required: true },
     end_code: { type: String, required: true },
-    package_type: { type: String, required: true },
     exchanges: { type: ExchangeSchema, required: true },
     tags: {
       type: [String],
@@ -79,6 +78,7 @@ export const WarehouseOfferModel =
     'WAR',
     new mongoose.Schema<WarehouseOfferDocument>({
       carrier: { type: String, required: true },
+      package_type: { type: String, required: true },
       estimated_days: { type: Number, required: true },
       total_cost: { type: TotalCostSchema, required: true },
       offers: { type: [LabeledCostSchema], required: true },
@@ -89,6 +89,7 @@ export const AirOfferModel = getOrCreateDiscriminator<AirOfferDocument>(
   'AIR',
   new mongoose.Schema<AirOfferDocument>({
     carrier: { type: String, required: true },
+    package_type: { type: String, required: true },
     estimated_days: { type: Number, required: true },
     total_cost: { type: TotalCostSchema, required: true },
     offers: { type: [LabeledCostSchema], required: true },
@@ -100,6 +101,7 @@ export const LandOfferModel = getOrCreateDiscriminator<LandOfferDocument>(
   'LAND',
   new mongoose.Schema({
     carrier: { type: String, required: true },
+    package_type: { type: String, required: true },
     total_cost: { type: TotalCostSchema, required: true },
     offers: { type: [LabeledCostSchema], required: true },
   })
@@ -109,6 +111,7 @@ export const SeaLclOfferModel = getOrCreateDiscriminator<SeaLclOfferDocument>(
   'SEA_LCL',
   new mongoose.Schema({
     carrier: { type: String, required: true },
+    package_type: { type: String, required: true },
     total_cost: { type: TotalCostSchema, required: true },
     offers: { type: [LabeledCostSchema], required: true },
   })
@@ -117,7 +120,9 @@ export const SeaFclOfferModel = getOrCreateDiscriminator<SeaFclOfferDocument>(
   OfferModel,
   'SEA_FCL',
   new mongoose.Schema({
-    container_type: { type: String, required: true },
+    container_types: { type: [String], required: true },
+    container_details: { type: Object, required: true },
+    weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
     offers: { type: SeaFclOfferSchema, required: true },
   })
 )
