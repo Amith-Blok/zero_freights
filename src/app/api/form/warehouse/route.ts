@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       country,
       pickup_location,
       dg,
+      floor,
       delivery_location,
       storage_days,
       user_name,
@@ -146,6 +147,8 @@ export async function POST(request: NextRequest) {
     }
 
     tags.push(`${storage_days} days`)
+    dg && tags.push('DG')
+    floor && tags.push('FLOOR')
 
     truckingCost.value = WAREHOUSE_CHARGE_USD
     // (await getWarehouseByPortCode(delivery_location.port_code)).cost ?? 0
