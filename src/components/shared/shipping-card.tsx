@@ -227,7 +227,7 @@ export default function ShippingCard({
               size="sm"
             >
               {loading ? (
-                <span className="animate-pulse">Booking...</span>
+                <span className="animate-pulse">Booking</span>
               ) : (
                 <span>Book Now</span>
               )}
