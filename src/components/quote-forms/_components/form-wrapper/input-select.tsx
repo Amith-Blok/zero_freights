@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { ComponentPropsWithoutRef } from 'react'
 
 type InputSelectComboProps = {
-  label: string
+  label?: string
   inputField: string
   selectField: string
   defaultSelectValue?: string
@@ -50,7 +50,9 @@ export const InputSelect = ({
   const UnitError = errors[selectField]
   return (
     <div className={cn('w-full', divClass)} {...divProps}>
-      <Label className={cn('required mb-2', labelClass)}>{label}</Label>
+      {label && (
+        <Label className={cn('required mb-2', labelClass)}>{label}</Label>
+      )}
       <div className="relative w-full max-w-[400px]">
         <Input
           className={cn(

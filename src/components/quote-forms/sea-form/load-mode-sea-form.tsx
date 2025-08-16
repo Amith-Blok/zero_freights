@@ -1,7 +1,6 @@
 'use client'
 import {
   BULK_TYPE_LIST,
-  FCL_CONTAINER_TYPE_LIST,
   IN_CM,
   KG_LBS,
   KG_LBS_DAY,
@@ -9,34 +8,14 @@ import {
 } from '@/constants'
 import { InputSelect } from '@/components/quote-forms/_components/form-wrapper/input-select'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { InputWrapper } from '../_components/form-wrapper/input-wrapper'
 import { FieldArrayLoadComp } from '../_components/fieldarray-load-comp'
 import { CbmComponent } from '../_components/cbm-comp'
+import { SeaFclLoadFormWrapper } from '../_components/form-wrapper/sea-fcl-load-form-wrapper'
 
 export const LoadFclForm = () => {
   return (
     <>
-      <div className="sm:flex sm:space-x-4">
-        <SelectWrapper
-          label="Container type"
-          field="fcl_container_type"
-          data={FCL_CONTAINER_TYPE_LIST}
-          divClass="w-full my-2"
-        />
-        <InputWrapper
-          inputProps={{ type: 'number', placeholder: 'Enter quantity' }}
-          field="fcl_quantity"
-          label="Quantity"
-          divClass="w-full my-2"
-        />
-      </div>
-      <InputSelect
-        label="Weight"
-        inputProps={{ type: 'number', step: 0.01, placeholder: 'Enter weight' }}
-        inputField="fcl_weight"
-        selectField="fcl_unit"
-        data={[...KG_LBS]}
-      />
+      <SeaFclLoadFormWrapper />
     </>
   )
 }

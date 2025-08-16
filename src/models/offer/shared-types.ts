@@ -53,6 +53,7 @@ export interface LineChargeData {
   line_name: string
   port_to_days: number
   estimated_days: number
+  tags: string[]
   total_cost: TotalCostByContainerType
   valid_to: string
   data: ContainerCost
@@ -87,13 +88,13 @@ export interface Offer {
   exchanges: Exchange
   //TODO: add enum for this
   tags: string[]
-  package_type: string
   locations: Location[]
 }
 
 export interface WarehouseOffer extends Offer {
   estimated_days: number
   carrier: string
+  package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
@@ -101,25 +102,33 @@ export interface WarehouseOffer extends Offer {
 export interface AirOffer extends Offer {
   estimated_days: number
   carrier: string
+  package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
 
 export interface LandOffer extends Offer {
   carrier: string
+  package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
 
 export interface SeaLclOffer extends Offer {
   carrier: string
+  package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
 
 export interface SeaFclOffer extends Offer {
-  //TODO: remove this later and replace it with package_type
-  container_type: string
+  container_types: string[]
+  container_details: {
+    d2?: number[]
+    d4?: number[]
+    d5?: number[]
+  }
+  weight_unit: 'KG' | 'LBS'
   offers: {
     line_charges: LineChargeData[]
     local_charges: ContainerCost[]

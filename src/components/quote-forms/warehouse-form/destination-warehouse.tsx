@@ -66,8 +66,8 @@ export const DestinationWarehouseForm = () => {
         <Label>Warehouse</Label>
         <Input
           value={inputText}
-          placeholder="fill origin section first"
-          className="placeholder:text-xs placeholder:text-red-600"
+          placeholder="Fill origin section first"
+          className="placeholder:text-red-300"
           readOnly
         />
       </div>

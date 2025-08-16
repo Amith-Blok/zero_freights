@@ -15,7 +15,6 @@ import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 import { Location, ServiceType } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
-import { convertFclToStdContainer } from '@/lib/container'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 import { USD_TO_INR } from '@/constants'
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     if (modes === 'SEAPORT_TRUCKING') {
       serviceType = ServiceType.SEAPORT_TRUCKING
       const { sea_container_type } = validateData.data
-      packageLabel = convertFclToStdContainer(sea_container_type)
+      packageLabel = sea_container_type
       //SEAPORT TRUCKING
       pickupLocationData.type = 'port'
       pickupLocationData.code = pickup_location.port_code
@@ -66,9 +65,7 @@ export async function POST(request: NextRequest) {
 
       truckingCost.label = 'trucking cost(FTL)'
       const { sea_quantity, sea_unit, sea_weight } = validateData.data
-      tags.push(
-        `${sea_quantity} x ${convertFclToStdContainer(sea_container_type)}`
-      )
+      tags.push(`${sea_quantity} x ${sea_container_type}`)
       if (sea_weight) {
         tags.push(`${sea_weight.toFixed(2)} ${sea_unit}`)
       }
