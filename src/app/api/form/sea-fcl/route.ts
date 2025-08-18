@@ -481,11 +481,19 @@ export async function POST(request: NextRequest) {
 
     // --- Calculate Totals ---
     for (let line of quoteTableData.line_charges) {
-      const cost = calculateTotalOfferCost([
+      const total_cost = calculateTotalOfferCost([
         line.data,
         ...quoteTableData.local_charges,
       ])
-      line['total_cost'] = cost
+      const freight_cost = calculateTotalOfferCost([line.data])
+      const local_cost = calculateTotalOfferCost([
+        ...quoteTableData.local_charges,
+      ])
+      line['cost_breakdown'] = {
+        total_cost,
+        freight_cost,
+        local_cost,
+      }
       line['estimated_days'] =
         line.port_to_days + origin_trucking_days + destionation_trucking_days
     }

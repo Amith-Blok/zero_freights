@@ -16,6 +16,7 @@ export interface FilterState {
   sort: 'cheapest' | 'fastest' | 'shortest' | 'longest'
   container: 'all' | '20STD' | '40STD' | '40HC'
   carrier: 'all' | string
+  currency: 'USD' | 'INR'
   priceRange: [number, number]
   transitTime: 'all' | 'fastest' | 'standard' | 'economy'
   quickFilters: {
@@ -52,6 +53,7 @@ export function SeaFclFilters({
       sort: 'cheapest',
       container: 'all',
       carrier: 'all',
+      currency: 'USD',
       priceRange: [priceMin, priceMax],
       transitTime: 'all',
       quickFilters: {
@@ -126,6 +128,25 @@ export function SeaFclFilters({
                   {carrier}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Currency */}
+        <div className="flex items-center gap-2">
+          <Label className="text-sm font-medium">Currency:</Label>
+          <Select
+            value={filters.currency}
+            onValueChange={(value: FilterState['currency']) =>
+              updateFilters({ currency: value })
+            }
+          >
+            <SelectTrigger className="w-[80px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="INR">INR</SelectItem>
             </SelectContent>
           </Select>
         </div>
