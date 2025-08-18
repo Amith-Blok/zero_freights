@@ -67,6 +67,7 @@ async function getRailCost({
   des_port_if_rail,
   fcl_unit,
   fcl_weights,
+  fcl_quantities,
 }: any) {
   const indianRail =
     ori_country == 'IN' && ori_port_rail.type == 'RAIL'
@@ -87,6 +88,7 @@ async function getRailCost({
       haulageRates: IndiaOutboundHaulageRates,
       fcl_weights,
       fcl_unit,
+      fcl_quantities,
     })
     if (!indianRailRate)
       throw Error("Couldn't find rail rate. Please try with other port")
@@ -302,6 +304,7 @@ export async function POST(request: NextRequest) {
           des_port_if_rail,
           fcl_unit,
           fcl_weights,
+          fcl_quantities,
         })
       if (indianRailRate && indianPortForRail) {
         quoteTableData.local_charges.splice(1, 0, {

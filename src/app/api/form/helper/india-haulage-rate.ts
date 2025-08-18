@@ -1,15 +1,21 @@
 import { IndiaOutboundHaulageType } from '@/models/india-outbound-haulage'
-import { FclWeightsType, FclWeightUnitType } from '@/schema/sea-schema'
+import {
+  FclQuantitiesType,
+  FclWeightsType,
+  FclWeightUnitType,
+} from '@/schema/sea-schema'
 import { weightTOMetricTon } from '@/lib/utils'
 
 export const filterHaulageRateByWeight = ({
   haulageRates,
   fcl_weights,
   fcl_unit,
+  fcl_quantities,
 }: {
   haulageRates: IndiaOutboundHaulageType[]
   fcl_weights: FclWeightsType
   fcl_unit: FclWeightUnitType
+  fcl_quantities: FclQuantitiesType
 }): { d2: number; d4: number; d5: number } => {
   const filteredHaulageRate = { d2: 0, d4: 0, d5: 0 }
   const BLOK_RAIL_PROFIT = 10000
@@ -73,9 +79,12 @@ export const filterHaulageRateByWeight = ({
   }
 
   // Add profit margin
-  filteredHaulageRate.d2 = filteredHaulageRate.d2 + BLOK_RAIL_PROFIT
-  filteredHaulageRate.d4 = filteredHaulageRate.d4 + BLOK_RAIL_PROFIT
-  filteredHaulageRate.d5 = filteredHaulageRate.d5 + BLOK_RAIL_PROFIT
+  filteredHaulageRate.d2 =
+    filteredHaulageRate.d2 * fcl_quantities['20STD'] + BLOK_RAIL_PROFIT
+  filteredHaulageRate.d4 =
+    filteredHaulageRate.d4 * fcl_quantities['40STD'] + BLOK_RAIL_PROFIT
+  filteredHaulageRate.d5 =
+    filteredHaulageRate.d5 * fcl_quantities['40HC'] + BLOK_RAIL_PROFIT
 
   return filteredHaulageRate
 }
