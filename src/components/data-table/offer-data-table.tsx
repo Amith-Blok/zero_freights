@@ -38,10 +38,12 @@ export const OfferDataTable = ({
   data,
   containerType,
   total,
+  currency = 'INR',
 }: {
   data: DataType[]
   containerType: string
   total: number
+  currency?: 'INR' | 'USD'
 }) => {
   const [paginationState] = useState({
     pageIndex: 0,
@@ -73,14 +75,22 @@ export const OfferDataTable = ({
           return inFormater.format(row.original.inr)
         },
         footer: () => (
-          <div className="mt-4 flex items-end justify-end gap-5 text-lg font-bold">
-            <span>Total Amount:</span>
-            <span>{inFormater.format(total)}</span>
+          <div className="mt-6 border-t-2 border-gray-300 bg-gray-50/50 pt-4">
+            <div className="flex items-baseline justify-end gap-4 px-4 py-2">
+              <span className="text-lg font-semibold text-gray-700">
+                Total Amount
+              </span>
+              <span className="text-2xl font-bold tracking-tight text-green-700">
+                {currency === 'INR'
+                  ? inFormater.format(total)
+                  : usFormater.format(total)}
+              </span>
+            </div>
           </div>
         ),
       },
     ],
-    [containerType, total]
+    [containerType, total, currency]
   )
 
   return (

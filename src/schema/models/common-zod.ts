@@ -27,15 +27,25 @@ export const LabeledCostZodSchema = z.object({
   usd: z.number(),
 })
 
-export const ContainerCostBreakdownZodSchema = z.object({
+export const TotalCostByContainerTypeZodSchema = z.object({
   d2: z.number(),
   d4: z.number(),
   d5: z.number(),
 })
 
 export const MultiCurrencyContainerCostZodSchema = z.object({
-  inr: ContainerCostBreakdownZodSchema,
-  usd: ContainerCostBreakdownZodSchema,
+  total_cost: z.object({
+    inr: TotalCostByContainerTypeZodSchema,
+    usd: TotalCostByContainerTypeZodSchema,
+  }),
+  freight_cost: z.object({
+    inr: TotalCostByContainerTypeZodSchema,
+    usd: TotalCostByContainerTypeZodSchema,
+  }),
+  local_cost: z.object({
+    inr: TotalCostByContainerTypeZodSchema,
+    usd: TotalCostByContainerTypeZodSchema,
+  }),
 })
 
 export const TotalCostZodSchema = z.object({
@@ -56,7 +66,7 @@ export const LineContainerCostZodSchema = z.object({
   port_to_days: z.number(),
   valid_to: z.string(),
   estimated_days: z.number(),
-  total_cost: MultiCurrencyContainerCostZodSchema,
+  cost_breakdown: MultiCurrencyContainerCostZodSchema,
   data: ContainerCostZodSchema,
 })
 

@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose'
 import { Exchange, LabeledCost, TotalCost } from './shared-types'
-export const ContainerCostBreakdownSchema = new mongoose.Schema(
+export const TotalCostByContainerTypeSchema = new mongoose.Schema(
   {
     d2: { type: Number, required: true },
     d4: { type: Number, required: true },
@@ -26,8 +26,18 @@ export const ContainerCostSchema = new mongoose.Schema(
 
 export const MultiCurrencyContainerCostSchema = new mongoose.Schema(
   {
-    inr: { type: ContainerCostBreakdownSchema, required: true },
-    usd: { type: ContainerCostBreakdownSchema, requrired: true },
+    total_cost: {
+      inr: { type: TotalCostByContainerTypeSchema, required: true },
+      usd: { type: TotalCostByContainerTypeSchema, required: true },
+    },
+    freight_cost: {
+      inr: { type: TotalCostByContainerTypeSchema, required: true },
+      usd: { type: TotalCostByContainerTypeSchema, required: true },
+    },
+    local_cost: {
+      inr: { type: TotalCostByContainerTypeSchema, required: true },
+      usd: { type: TotalCostByContainerTypeSchema, required: true },
+    },
   },
   {
     _id: false,
@@ -64,7 +74,7 @@ export const LineChargeSchema = new mongoose.Schema({
   line_name: { type: String, required: true },
   port_to_days: { type: Number, required: true },
   estimated_days: { type: Number, required: true },
-  total_cost: { type: MultiCurrencyContainerCostSchema, required: true },
+  cost_breakdown: { type: MultiCurrencyContainerCostSchema, required: true },
   valid_to: { type: String, required: true },
   data: { type: ContainerCostSchema, required: true },
 })

@@ -1,4 +1,5 @@
 import { FilterState } from '@/components/filters/sea-fcl-filters'
+import { ContainerCost } from '@/models/offer/shared-types'
 
 // Actual line charge data structure from the API
 export interface ActualLineChargeData {
@@ -6,26 +7,45 @@ export interface ActualLineChargeData {
   port_to_days: number
   valid_to: string
   estimated_days?: number
-  total_cost?: {
-    inr: {
-      d2: number
-      d4: number
-      d5: number
+  cost_breakdown: {
+    freight_cost: {
+      inr: {
+        d2: number
+        d4: number
+        d5: number
+      }
+      usd: {
+        d2: number
+        d4: number
+        d5: number
+      }
     }
-    usd: {
-      d2: number
-      d4: number
-      d5: number
+    local_cost: {
+      inr: {
+        d2: number
+        d4: number
+        d5: number
+      }
+      usd: {
+        d2: number
+        d4: number
+        d5: number
+      }
+    }
+    total_cost: {
+      inr: {
+        d2: number
+        d4: number
+        d5: number
+      }
+      usd: {
+        d2: number
+        d4: number
+        d5: number
+      }
     }
   }
-  data: {
-    label: string
-    currency: string
-    additional_notes: string
-    d2: number
-    d4: number
-    d5: number
-  }
+  data: ContainerCost
 }
 
 export interface FilteredOfferData {
@@ -64,7 +84,7 @@ export function filterAndSortOffers(
       const quantity = containerDetails[dType]?.[0] ?? 0
       if (quantity <= 0) return
 
-      const price = line.total_cost?.inr[dType] ?? 0
+      const price = line.cost_breakdown?.total_cost?.inr[dType] ?? 0
       if (price === 0) return
 
       allOffers.push({
@@ -202,7 +222,7 @@ export function getPriceRange(
       const quantity = containerDetails[dType]?.[0] ?? 0
       if (quantity <= 0) return
 
-      const price = line.total_cost?.inr[dType] ?? 0
+      const price = line.cost_breakdown?.total_cost?.inr[dType] ?? 0
       if (price > 0) {
         minPrice = Math.min(minPrice, price)
         maxPrice = Math.max(maxPrice, price)

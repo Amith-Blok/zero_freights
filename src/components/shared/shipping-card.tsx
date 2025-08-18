@@ -16,7 +16,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { inFormater } from '@/lib/utils'
+import { inFormater, usFormater } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import {
@@ -40,6 +40,8 @@ interface ShippingCardProps {
   tags: string[]
   locations: Location[]
   price: number
+  localCost?: number
+  currency?: 'INR' | 'USD'
   children: React.ReactNode
   url: string
   offerId: string
@@ -79,7 +81,7 @@ const RouteDisplay = ({
                 {location.code.toUpperCase()}
               </div>
               {location.name && (
-                <div className="text-xs/4 text-gray-500">
+                <div className="text-[.7rem] font-normal text-gray-500">
                   {location.name.toUpperCase()}
                 </div>
               )}
@@ -108,6 +110,8 @@ export default function ShippingCard({
   tags,
   locations,
   price,
+  localCost,
+  currency = 'INR',
   url,
   children,
 }: ShippingCardProps) {
@@ -202,9 +206,12 @@ export default function ShippingCard({
               onClick={() => setIsExpanded(!isExpanded)}
               variant="outline"
               size="sm"
-              className="mt-3 flex items-center space-x-2 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
+              className="mt-3 flex items-center justify-center gap-2 border-green-200 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
             >
-              View {isExpanded ? 'less' : 'more'}
+              <span className="text-xs font-medium">
+                {' '}
+                View {isExpanded ? 'less' : 'more'}
+              </span>
               {isExpanded ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -217,8 +224,19 @@ export default function ShippingCard({
           <div className="flex flex-row items-center justify-between gap-3 border-t pt-4 lg:ml-6 lg:flex-col lg:items-end lg:border-t-0 lg:pt-0">
             <div className="text-left lg:text-right">
               <div className="text-2xl font-bold text-gray-900">
-                {inFormater.format(price)}
+                {currency === 'INR'
+                  ? inFormater.format(price)
+                  : usFormater.format(price)}
               </div>
+              {localCost && (
+                <div className="mt-0.5 text-[11px] font-medium text-gray-500">
+                  +{' '}
+                  {currency === 'INR'
+                    ? inFormater.format(localCost)
+                    : usFormater.format(localCost)}{' '}
+                  local
+                </div>
+              )}
             </div>
             <Button
               onClick={() => handleSubmit(lineName.toLowerCase())}

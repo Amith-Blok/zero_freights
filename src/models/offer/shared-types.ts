@@ -30,15 +30,41 @@ export interface TotalCost {
   usd: number
 }
 export interface TotalCostByContainerType {
-  inr: {
-    d2: number
-    d4: number
-    d5: number
+  freight_cost: {
+    inr: {
+      d2: number
+      d4: number
+      d5: number
+    }
+    usd: {
+      d2: number
+      d4: number
+      d5: number
+    }
   }
-  usd: {
-    d2: number
-    d4: number
-    d5: number
+  local_cost: {
+    inr: {
+      d2: number
+      d4: number
+      d5: number
+    }
+    usd: {
+      d2: number
+      d4: number
+      d5: number
+    }
+  }
+  total_cost: {
+    inr: {
+      d2: number
+      d4: number
+      d5: number
+    }
+    usd: {
+      d2: number
+      d4: number
+      d5: number
+    }
   }
 }
 export interface ContainerCost {
@@ -54,7 +80,7 @@ export interface LineChargeData {
   port_to_days: number
   estimated_days: number
   tags: string[]
-  total_cost: TotalCostByContainerType
+  cost_breakdown: TotalCostByContainerType
   valid_to: string
   data: ContainerCost
 }
