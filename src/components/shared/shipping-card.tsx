@@ -41,7 +41,7 @@ interface ShippingCardProps {
   locations: Location[]
   price: number
   localCost?: number
-  currency: 'INR' | 'USD'
+  currency?: 'INR' | 'USD'
   children: React.ReactNode
   url: string
   offerId: string
