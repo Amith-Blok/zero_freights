@@ -2,12 +2,12 @@
 import { Label } from '../../ui/label'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { COUNTRIES_LIST } from '@/constants'
+import { SEA_FCL_ORIGIN_COUNTRIES } from '@/constants/sea-fcl-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 import { Prediction } from '@/types/google'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 
 export const OriginSeaForm = () => {
   const { watch, setValue, control } = useFormContext()
@@ -25,12 +25,12 @@ export const OriginSeaForm = () => {
         field="pickup_check"
       />
       <div className="mt-5 flex flex-col items-start justify-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="ori_country"
-          labelClass="required"
-          data={COUNTRIES_LIST}
+          label="Country"
+          countries={SEA_FCL_ORIGIN_COUNTRIES}
           divClass={`w-full ${watchPick && 'md:w-1/3'} `}
+          labelClass="required"
         />
 
         {watchPick && (

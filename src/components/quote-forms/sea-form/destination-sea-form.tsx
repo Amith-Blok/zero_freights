@@ -1,12 +1,12 @@
 import React from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 import { PredictionWithZipcode } from '@/types/google'
-import { COUNTRIES_SEA_FCL_LCL_LIST } from '@/constants'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
+import { SEA_FCL_DESTINATION_COUNTRIES } from '@/constants/sea-fcl-form'
 
 export const DestinationSeaForm = () => {
   const { watch, setValue, control } = useFormContext()
@@ -25,13 +25,12 @@ export const DestinationSeaForm = () => {
         field="delivery_check"
       />
       <div className="mt-5 flex flex-col items-start justify-between gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="des_country"
-          labelClass="required"
-          defaulValue="US"
-          data={COUNTRIES_SEA_FCL_LCL_LIST}
+          label="Country"
+          countries={SEA_FCL_DESTINATION_COUNTRIES}
           divClass={`w-full ${watchPick && 'md:w-1/3'} `}
+          labelClass="required"
         />
 
         {watchPick && (
