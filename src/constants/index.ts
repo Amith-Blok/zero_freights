@@ -127,36 +127,6 @@ export const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
 )
 
-export const EUROPEAN_UNION_COUNTREIS_ISO = [
-  'NL', // Netherlands
-  'BE', // Belgium
-  'DE', // Germany
-  'ES', // Spain
-  'IT', // Italy
-  'GB', // United Kingdom
-  'GR', // Greece
-  'IE', // Ireland
-  'PL', // Poland
-  'RO', // Romania
-  'SE', // Sweden
-  'LV', // Latvia
-  'BG', // Bulgaria
-  'FR', // France
-  'DK', // Denmark
-  'LT', // Lithuania
-  'LU', //Luxemburg
-  'SI', // Slovenia
-  'NO', // Norway
-  'HR', // Croatia
-  'CY', // Cyprus
-  'CZ', // Czech Republic
-  'MT', // Malta
-  'HU', // Hungary
-  'EE', // Estonia
-  'FI', // Finland
-  'PT', // Portugal
-]
-
 export const FIVE_PERCENTAGE_GST_CODE_LIST = [
   'SEA',
   'BLOK_AIR_FREIGHT',
@@ -170,6 +140,7 @@ export const ALL_COUNTRIES = [
   { code: 'BH', name: 'Bahrain' },
   { code: 'CA', name: 'Canada' },
   { code: 'CN', name: 'China' },
+  { code: 'HK', name: 'Hong Kong' },
   { code: 'DE', name: 'Germany' },
   { code: 'DK', name: 'Denmark' },
   { code: 'EE', name: 'Estonia' },
@@ -203,3 +174,45 @@ export const ALL_COUNTRIES = [
   { code: 'TZ', name: 'Tanzania' },
   { code: 'US', name: 'United States' },
 ]
+
+export const ALL_COUNTRY_CODES = [
+  'AE',
+  'AU',
+  'BE',
+  'BH',
+  'CA',
+  'CN',
+  'HK',
+  'DE',
+  'DK',
+  'EE',
+  'ES',
+  'FR',
+  'GB',
+  'GR',
+  'HR',
+  'IE',
+  'IN',
+  'IT',
+  'JP',
+  'KE',
+  'KH',
+  'KW',
+  'LT',
+  'MM',
+  'MY',
+  'MZ',
+  'NL',
+  'NO',
+  'NZ',
+  'OM',
+  'PL',
+  'QA',
+  'RO',
+  'SA',
+  'SE',
+  'SG',
+  'SI',
+  'TZ',
+  'US',
+] as const

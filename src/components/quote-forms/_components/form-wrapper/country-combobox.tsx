@@ -76,7 +76,7 @@ export function CountryCombobox({
                   className={cn('w-full justify-between', className)}
                 >
                   {selectedCountry ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
                       <ReactCountryFlag
                         countryCode={selectedCountry.code}
                         svg
@@ -84,9 +84,9 @@ export function CountryCombobox({
                           width: '24px',
                           height: '18px',
                         }}
-                        className="rounded-sm"
+                        className="flex-shrink-0 rounded-sm"
                       />
-                      <span className="truncate font-normal uppercase">
+                      <span className="min-w-0 truncate font-normal uppercase">
                         {selectedCountry.name}
                       </span>
                     </div>

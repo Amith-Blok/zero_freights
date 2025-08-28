@@ -1,12 +1,13 @@
 import {
+  ALL_COUNTRY_CODES,
   BULK_TYPE,
-  COUNTRIES,
   incoterms,
   IN_CM,
   KG_LBS,
   KG_LBS_DAY,
   LCL_PACKAGE_TYPE,
   TRUCKING_TYPE,
+  COUNTRIES,
 } from '@/constants'
 import { z } from 'zod'
 
@@ -37,7 +38,7 @@ const CommonSchema = z.object({
   //NOTE: Trucking login is only applies for india
   trucking: z.enum(TRUCKING_TYPE).optional(),
 
-  des_country: z.enum(COUNTRIES),
+  des_country: z.enum(ALL_COUNTRY_CODES),
   delivery_check: z.boolean(),
   delivery_location: z
     .object({
