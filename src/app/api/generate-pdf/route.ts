@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
       await browser.close()
 
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer).buffer, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': 'attachment; filename=estimate.pdf',
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
       await browser.close()
 
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer).buffer, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': 'attachment; filename=estimate.pdf',
