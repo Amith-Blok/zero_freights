@@ -1,7 +1,11 @@
 import mongoose, { InferSchemaType } from 'mongoose'
 
-// Define the FCL Ports schema
-const seaPortsSchema = new mongoose.Schema(
+const NearestPortsSchema = new mongoose.Schema({
+  port_code: { type: String, required: false },
+  port_name: { type: String, required: false },
+})
+
+const SeaPortsSchema = new mongoose.Schema(
   {
     port_name: {
       type: String,
@@ -24,19 +28,22 @@ const seaPortsSchema = new mongoose.Schema(
         required: true,
       },
     },
+    port_address: {
+      type: String,
+      required: false,
+    },
+    port_region: {
+      type: String,
+      required: false,
+    },
     haulage_type: { type: String, required: false },
-    ports: [
-      {
-        port_code: { type: String, required: false },
-        port_name: { type: String, required: false },
-      },
-    ],
+    nearest_ports: { type: [NearestPortsSchema], required: false },
   },
   {
-    collection: 'seaports', // Specify the collection name
+    collection: 'seaports',
   }
 )
-export type SeaPortsType = InferSchemaType<typeof seaPortsSchema>
-// Export the model, ensuring to use a valid name for the model
+export type SeaPortsType = InferSchemaType<typeof SeaPortsSchema>
+
 export default mongoose.models.seaports ||
-  mongoose.model('seaports', seaPortsSchema)
+  mongoose.model('seaports', SeaPortsSchema)

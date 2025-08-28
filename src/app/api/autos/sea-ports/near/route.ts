@@ -5,15 +5,15 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const country = searchParams.get('country')
   const haulageType = searchParams.get('haulage')
-  const port = searchParams.get('port')
+  const portCode = searchParams.get('port')
   try {
-    if (!country || !haulageType || !port) {
+    if (!country || !haulageType || !portCode) {
       return NextResponse.json(
         {
           error: 'missing param country',
           country,
           haulage_type: haulageType,
-          port,
+          port: portCode,
         },
         { status: 400 }
       )
@@ -21,11 +21,14 @@ export async function GET(request: NextRequest) {
 
     const response = await neartestSeaPortFromRail({
       country,
-      portCode: port,
+      portCode: portCode,
       haulageType,
     })
     if (response) {
-      return NextResponse.json({ items: response.ports }, { status: 200 })
+      return NextResponse.json(
+        { items: response.nearest_ports },
+        { status: 200 }
+      )
     } else {
       return NextResponse.json(
         { items: [], error: 'No ports found for the given criteria.' },
