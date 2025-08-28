@@ -124,6 +124,7 @@ export function SeaFclLoadFormWrapper() {
                             className="placeholder:text-xs"
                             inputField={`fcl_weights.${id}` as const}
                             selectField="fcl_unit"
+                            isInputValueAsNumber={true}
                             data={[...KG_LBS]}
                           />
                         </div>
