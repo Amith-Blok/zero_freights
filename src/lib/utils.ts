@@ -3,7 +3,6 @@ import { twMerge } from 'tailwind-merge'
 import { SelectDataType } from '@/types/global'
 import { FclWeightUnitType } from '@/schema/sea-schema'
 import { DContainerType } from '@/types/sea'
-import { EUROPEAN_UNION_COUNTREIS_ISO } from '@/constants'
 import { KG_TO_LBS } from '@/constants/weight'
 
 export function cn(...inputs: ClassValue[]) {
@@ -76,11 +75,7 @@ export const inFormater = new Intl.NumberFormat('en-IN', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 })
-export const isoParamConverter = (
-  isoArray: string[] = EUROPEAN_UNION_COUNTREIS_ISO
-) => {
-  return isoArray.map((code) => `country:${code}`).join('|')
-}
+
 export function formatPhoneNumber(raw: string): string {
   if (!raw.startsWith('+')) return raw
 
