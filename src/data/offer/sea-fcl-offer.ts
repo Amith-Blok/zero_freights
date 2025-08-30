@@ -1,5 +1,5 @@
 import mongoosedb from '@/lib/mongoose-db'
-import { SeaFclOfferModel } from '@/models/offer/offer-schema'
+import { SeaFclOfferModel } from '@/models/offer/offer'
 import { OfferZodSchema } from '@/schema/models/offer'
 
 export const createSeaFclOffer = async (data: any) => {

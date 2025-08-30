@@ -16,8 +16,8 @@ export const filterHaulageRateByWeight = ({
   fcl_weights: FclWeightsType
   fcl_unit: FclWeightUnitType
   fcl_quantities: FclQuantitiesType
-}): { d2: number; d4: number; d5: number } => {
-  const filteredHaulageRate = { d2: 0, d4: 0, d5: 0 }
+}): { d2: number; d4: number; d5: number; total: number } => {
+  const filteredHaulageRate = { d2: 0, d4: 0, d5: 0, total: 0 }
   const BLOK_RAIL_PROFIT = 10000
 
   // Container type mapping from FCL schema to haulage schema
@@ -43,6 +43,7 @@ export const filterHaulageRateByWeight = ({
     const ton = weightTOMetricTon({ weight, unit: fcl_unit })
 
     for (const haulage of haulageRates) {
+      //TODO: fix / in container haulage rail database database
       const haulageTypes = haulage.container_type.split('/') as Array<
         'D2' | 'D4' | 'D5'
       >
@@ -56,10 +57,14 @@ export const filterHaulageRateByWeight = ({
 
         if (haulage.min < minTon) {
           minTon = haulage.min
+        }
+        if (haulage.rate < minRate) {
           minRate = haulage.rate
         }
         if (haulage.max > maxTon) {
           maxTon = haulage.max
+        }
+        if (haulage.rate > maxRate) {
           maxRate = haulage.rate
         }
       }
@@ -85,6 +90,8 @@ export const filterHaulageRateByWeight = ({
     filteredHaulageRate.d4 * fcl_quantities['40STD'] + BLOK_RAIL_PROFIT
   filteredHaulageRate.d5 =
     filteredHaulageRate.d5 * fcl_quantities['40HC'] + BLOK_RAIL_PROFIT
+  filteredHaulageRate.total =
+    filteredHaulageRate.d2 + filteredHaulageRate.d4 + filteredHaulageRate.d5
 
   return filteredHaulageRate
 }

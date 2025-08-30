@@ -8,6 +8,7 @@ export const QuoteDataTable = ({
   data,
   containerType,
   total,
+  independentFooter = false,
 }: {
   data: {
     label: string
@@ -16,6 +17,7 @@ export const QuoteDataTable = ({
   }[]
   containerType: string
   total: number
+  independentFooter?: boolean
 }) => {
   const [paginationState] = useState({
     pageIndex: 0,
@@ -66,6 +68,7 @@ export const QuoteDataTable = ({
       columns={quoteColumn}
       data={data}
       paginationState={paginationState}
+      independentFooter={independentFooter}
     />
   )
 }

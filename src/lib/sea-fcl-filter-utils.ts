@@ -1,5 +1,9 @@
 import { FilterState } from '@/components/filters/sea-fcl-filters'
-import { ContainerCost } from '@/models/offer/shared-types'
+import {
+  ContainerCost,
+  ContainerDetailsType,
+  TotalCostByContainerType,
+} from '@/models/offer/shared-types'
 
 // Actual line charge data structure from the API
 export interface ActualLineChargeData {
@@ -7,44 +11,7 @@ export interface ActualLineChargeData {
   port_to_days: number
   valid_to: string
   estimated_days?: number
-  cost_breakdown: {
-    freight_cost: {
-      inr: {
-        d2: number
-        d4: number
-        d5: number
-      }
-      usd: {
-        d2: number
-        d4: number
-        d5: number
-      }
-    }
-    local_cost: {
-      inr: {
-        d2: number
-        d4: number
-        d5: number
-      }
-      usd: {
-        d2: number
-        d4: number
-        d5: number
-      }
-    }
-    total_cost: {
-      inr: {
-        d2: number
-        d4: number
-        d5: number
-      }
-      usd: {
-        d2: number
-        d4: number
-        d5: number
-      }
-    }
-  }
+  cost_breakdown: TotalCostByContainerType
   data: ContainerCost
 }
 
@@ -59,11 +26,7 @@ export interface FilteredOfferData {
 export function filterAndSortOffers(
   linesFreightRates: ActualLineChargeData[],
   containerTypes: string[],
-  containerDetails: {
-    d2?: number[]
-    d4?: number[]
-    d5?: number[]
-  },
+  containerDetails: ContainerDetailsType,
   filters: FilterState
 ): ActualLineChargeData[] {
   // First, create a flat list of all offers
@@ -81,7 +44,7 @@ export function filterAndSortOffers(
       if (!dType) return
 
       // Check if this container has quantity > 0
-      const quantity = containerDetails[dType]?.[0] ?? 0
+      const quantity = containerDetails[dType]?.quantity ?? 0
       if (quantity <= 0) return
 
       const price = line.cost_breakdown?.total_cost?.inr[dType] ?? 0
@@ -199,11 +162,7 @@ export function getAvailableCarriers(
 export function getPriceRange(
   linesFreightRates: ActualLineChargeData[],
   containerTypes: string[],
-  containerDetails: {
-    d2?: number[]
-    d4?: number[]
-    d5?: number[]
-  }
+  containerDetails: ContainerDetailsType
 ): [number, number] {
   let minPrice = Infinity
   let maxPrice = -Infinity
@@ -219,7 +178,7 @@ export function getPriceRange(
       const dType = containerMap[containerType]
       if (!dType) return
 
-      const quantity = containerDetails[dType]?.[0] ?? 0
+      const quantity = containerDetails[dType]?.quantity ?? 0
       if (quantity <= 0) return
 
       const price = line.cost_breakdown?.total_cost?.inr[dType] ?? 0

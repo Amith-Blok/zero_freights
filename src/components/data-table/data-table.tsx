@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   isRowSelection?: boolean
   rowSelection?: RowSelectionState
   setRowSelection?: Dispatch<SetStateAction<RowSelectionState>>
+  independentFooter?: boolean // New prop to control footer behavior
 }
 
 const getCommonPinningStyles = (column: Column<any>): CSSProperties => {
@@ -57,6 +58,7 @@ export function DataTable<TData, TValue>({
   setRowSelection,
   isRowSelection = false,
   rowId,
+  independentFooter = false,
 }: DataTableProps<TData, TValue>) {
   const columnPinningState: any = {
     left: columns
@@ -149,23 +151,52 @@ export function DataTable<TData, TValue>({
             </TableRow>
           )}
         </TableBody>
-        <TableFooter>
-          {table.getFooterGroups().map((footerGroup) => (
-            <TableRow key={footerGroup.id}>
-              {footerGroup.headers.map((footer) => (
-                <TableCell key={footer.id}>
-                  {footer.isPlaceholder
-                    ? null
-                    : flexRender(
-                        footer.column.columnDef.footer,
-                        footer.getContext()
-                      )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableFooter>
+        {/* Column-dependent footer (original behavior) */}
+        {!independentFooter && (
+          <TableFooter>
+            {table.getFooterGroups().map((footerGroup) => (
+              <TableRow key={footerGroup.id}>
+                {footerGroup.headers.map((footer) => (
+                  <TableCell key={footer.id}>
+                    {footer.isPlaceholder
+                      ? null
+                      : flexRender(
+                          footer.column.columnDef.footer,
+                          footer.getContext()
+                        )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableFooter>
+        )}
       </Table>
+
+      {/* Independent footer (new behavior) */}
+      {independentFooter && (
+        <div className="mt-0 w-full">
+          {table.getFooterGroups().map((footerGroup) => {
+            // Find the footer content from columns that have footer defined
+            const footerContent = footerGroup.headers
+              .map((footer) => {
+                if (!footer.isPlaceholder && footer.column.columnDef.footer) {
+                  return flexRender(
+                    footer.column.columnDef.footer,
+                    footer.getContext()
+                  )
+                }
+                return null
+              })
+              .filter(Boolean)
+
+            return footerContent.length > 0 ? (
+              <div key={footerGroup.id} className="w-full">
+                {footerContent}
+              </div>
+            ) : null
+          })}
+        </div>
+      )}
     </div>
   )
 }

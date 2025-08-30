@@ -29,17 +29,24 @@ export interface TotalCost {
   inr: number
   usd: number
 }
+export interface ContainerDetailsType {
+  d2?: { quantity: number; weight: number }
+  d4?: { quantity: number; weight: number }
+  d5?: { quantity: number; weight: number }
+}
 export interface TotalCostByContainerType {
   freight_cost: {
     inr: {
       d2: number
       d4: number
       d5: number
+      total: number
     }
     usd: {
       d2: number
       d4: number
       d5: number
+      total: number
     }
   }
   local_cost: {
@@ -47,23 +54,29 @@ export interface TotalCostByContainerType {
       d2: number
       d4: number
       d5: number
+      total: number
     }
     usd: {
       d2: number
       d4: number
       d5: number
+      total: number
     }
   }
+
+  //NOTE this is gonna be freight cost + local cost
   total_cost: {
     inr: {
       d2: number
       d4: number
       d5: number
+      total: number
     }
     usd: {
       d2: number
       d4: number
       d5: number
+      total: number
     }
   }
 }
@@ -74,6 +87,7 @@ export interface ContainerCost {
   d2: number
   d4: number
   d5: number
+  total: number
 }
 export interface LineChargeData {
   line_name: string
@@ -106,13 +120,11 @@ export interface Offer {
   subject: string
   place_of_supply: string
   bill_to: string
-  //TODO: add enum for this
   mode: OfferModeTypes
   service_type: ServiceType
   start_code: string
   end_code: string
   exchanges: Exchange
-  //TODO: add enum for this
   tags: string[]
   locations: Location[]
 }
@@ -149,11 +161,7 @@ export interface SeaLclOffer extends Offer {
 
 export interface SeaFclOffer extends Offer {
   container_types: string[]
-  container_details: {
-    d2?: number[]
-    d4?: number[]
-    d5?: number[]
-  }
+  container_details: ContainerDetailsType
   weight_unit: 'KG' | 'LBS'
   offers: {
     line_charges: LineChargeData[]

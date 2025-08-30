@@ -3,7 +3,7 @@ import { QuoteDataTable } from '@/components/data-table/quote-data-table'
 import { QuoteTemplate } from '@/components/quote-output-template'
 import React from 'react'
 import { QuotePdfDownloadBtn } from '../../_component/quote-pdf-download-btn'
-import { getConfirmedQuoteById } from '@/data/confirmed-quote'
+import { getConfirmedQuoteById } from '@/data/confirmed-quote/confirmed-quote'
 import { PdfType } from '@/types/common'
 
 export default async function QuotePage(props: {

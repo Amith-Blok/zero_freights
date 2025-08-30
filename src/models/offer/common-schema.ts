@@ -5,6 +5,7 @@ export const TotalCostByContainerTypeSchema = new mongoose.Schema(
     d2: { type: Number, required: true },
     d4: { type: Number, required: true },
     d5: { type: Number, required: true },
+    total: { type: Number, required: true },
   },
   {
     _id: false,
@@ -18,6 +19,7 @@ export const ContainerCostSchema = new mongoose.Schema(
     d2: { type: Number, required: true },
     d4: { type: Number, required: true },
     d5: { type: Number, required: true },
+    total: { type: Number, required: true },
   },
   {
     _id: false,
@@ -82,13 +84,39 @@ export const SeaFclOfferSchema = new mongoose.Schema({
   line_charges: { type: [LineChargeSchema], required: true },
   local_charges: { type: [ContainerCostSchema], required: true },
 })
+
 export function getOrCreateDiscriminator<T extends Document>(
   model: mongoose.Model<any>,
   name: string,
   schema: mongoose.Schema<T>
 ): mongoose.Model<T> {
+  // Check if the discriminator already exists
   if (model.discriminators && model.discriminators[name]) {
     return model.discriminators[name] as mongoose.Model<T>
   }
-  return model.discriminator<T>(name, schema)
+
+  // Check if a model with this name already exists in mongoose.models
+  const modelName = `${model.modelName}__${name}`
+  if (mongoose.models[modelName]) {
+    return mongoose.models[modelName] as mongoose.Model<T>
+  }
+
+  try {
+    return model.discriminator<T>(name, schema)
+  } catch (error) {
+    // If discriminator creation fails due to overwrite error, return existing model
+    if (error instanceof Error && error.message.includes('Cannot overwrite')) {
+      if (model.discriminators && model.discriminators[name]) {
+        return model.discriminators[name] as mongoose.Model<T>
+      }
+      // As last resort, try to find the model in mongoose.models
+      const existingModel = Object.values(mongoose.models).find(
+        (m) => m.modelName === name || m.modelName.includes(name)
+      ) as mongoose.Model<T>
+      if (existingModel) {
+        return existingModel
+      }
+    }
+    throw error
+  }
 }

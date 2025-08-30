@@ -13,11 +13,10 @@ import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { exchangeValues } from '@/lib/exchange'
-import { Location, ServiceType } from '@/models/offer/shared-types'
+import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
-import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 
 const pickupLTLBase = {
   label: 'Pickup LTL',
@@ -245,7 +244,7 @@ export async function POST(request: NextRequest) {
     seaLclFreight.usd = seaFreightCostDB * cbm
     seaLclFreight.inr = seaLclFreight.usd * USD_TO_INR
 
-    let quoteTableData: ConfimredQuoteDataType[] = []
+    let quoteTableData: LabeledCost[] = []
 
     if (incoterms !== 'CIF' && incoterms !== 'FOB') {
       terminalCharge.inr = Math.max(

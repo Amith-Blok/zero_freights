@@ -186,7 +186,7 @@ export default function ShippingCard({
                 </Badge>
               ))}
               {portToDays != 0 && (
-                <span className="text-sm">
+                <span className="text-xs">
                   Est. {portToDays.toString()} days port-to-port
                 </span>
               )}

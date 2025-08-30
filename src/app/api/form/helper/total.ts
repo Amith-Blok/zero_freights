@@ -22,6 +22,11 @@ export const calculateTotalOfferCost = (
         sourceCurrency: rate.currency,
         targetCurrency: 'INR',
       })
+      acc.inr.total += currencyConverter({
+        cost: rate.total,
+        sourceCurrency: rate.currency,
+        targetCurrency: 'INR',
+      })
 
       //USD
       acc.usd.d2 += currencyConverter({
@@ -39,9 +44,17 @@ export const calculateTotalOfferCost = (
         sourceCurrency: rate.currency,
         targetCurrency: 'USD',
       })
+      acc.usd.total += currencyConverter({
+        cost: rate.total,
+        sourceCurrency: rate.currency,
+        targetCurrency: 'USD',
+      })
 
       return acc
     },
-    { inr: { d2: 0, d4: 0, d5: 0 }, usd: { d2: 0, d4: 0, d5: 0 } }
+    {
+      inr: { d2: 0, d4: 0, d5: 0, total: 0 },
+      usd: { d2: 0, d4: 0, d5: 0, total: 0 },
+    }
   )
 }

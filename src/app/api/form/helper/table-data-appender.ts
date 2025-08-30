@@ -4,13 +4,16 @@ import {
   US_AIR_ADDITIONAL_FEES,
   US_ALL_ADDITIONAL_FEES,
 } from '@/constants/us-custom'
-import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
-import { ContainerCost, OfferModeTypes } from '@/models/offer/shared-types'
+import {
+  ContainerCost,
+  LabeledCost,
+  OfferModeTypes,
+} from '@/models/offer/shared-types'
 import { IncotermsType } from '@/schema/sea-schema'
 
 const EXCLUDE_FEES_DAP_LIST = ['ISF', 'CUSTOMS_FEE']
 //COMMENT: append additional fees to the data array
-export const appendAdditionalFees = (
+export const appendSeaFclAdditionalFees = (
   data: ContainerCost[],
   incoterms: IncotermsType
 ) => {
@@ -29,6 +32,7 @@ export const appendAdditionalFees = (
       d2: fee.value,
       d4: fee.value,
       d5: fee.value,
+      total: fee.value,
     })
   })
 }
@@ -38,7 +42,7 @@ export const newAppendAdditionalFees = ({
   mode,
   removeList,
 }: {
-  data: ConfimredQuoteDataType[]
+  data: LabeledCost[]
   incoterms: IncotermsType
   mode?: OfferModeTypes
   removeList?: string[]

@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
-import { OfferDataTable } from '@/components/data-table/offer-data-table'
+import { OfferSeaFclDataTable } from '@/components/data-table/offer-sea-fcl-data-table'
 import ShippingCard from '@/components/shared/shipping-card'
 import { getTotalSeaFclCostAndCharges } from '@/lib/sea-fcl-util'
 import {
@@ -9,6 +9,7 @@ import {
   TotalCostByContainerType,
   Location,
   ServiceType,
+  ContainerDetailsType,
 } from '@/models/offer/shared-types'
 import { STDContainerType } from '@/types/containers'
 import {
@@ -36,11 +37,7 @@ interface SeaFclCompProps {
   linesFreightRates: ActualLineChargeData[]
   localCharges: ContainerCost[]
   containerTypes: string[]
-  containerDetails: {
-    d2?: number[]
-    d4?: number[]
-    d5?: number[]
-  }
+  containerDetails: ContainerDetailsType
   weightUnit: 'KG' | 'LBS'
   locations: Location[]
   service_type: ServiceType
@@ -121,7 +118,7 @@ export function SeaFclComp({
             if (!dType) return null
 
             // Check if this container has quantity > 0
-            const quantity = containerDetails[dType]?.[0] ?? 0
+            const quantity = containerDetails[dType]?.quantity ?? 0
             if (quantity <= 0) return null
 
             // Apply container filter
@@ -138,7 +135,7 @@ export function SeaFclComp({
               containerType: containerType,
               containerTags: [
                 `${quantity} x ${containerType}`,
-                `${containerDetails[dType]?.[1] ?? 0} ${weightUnit}`,
+                `${containerDetails[dType]?.weight ?? 0} ${weightUnit}`,
                 ...tags,
               ],
             }
@@ -183,69 +180,67 @@ export function SeaFclComp({
           </div>
         </div>
       ) : (
-        filteredLinesFreightRates.map((line, lineIdx) => (
-          <div key={lineIdx} className="flex flex-col gap-3">
-            {availableContainers.map((container, containerIdx) => {
-              const { totalCost: _, totalCharges } =
-                getTotalSeaFclCostAndCharges(
-                  [line.data],
-                  container.dType,
-                  localCharges
-                )
-              return (
-                <ShippingCard
-                  key={`${lineIdx}-${containerIdx}`}
-                  id={id}
-                  lineName={line.line_name?.toUpperCase() ?? ''}
-                  locations={locations}
-                  transportMode={service_type.toUpperCase()}
-                  modeType="SEA_FCL"
-                  serviceType={service_type}
-                  tags={container.containerTags}
-                  portToDays={line.port_to_days ?? 0}
-                  containerLabel={container.stdType}
-                  containerType={container.dType}
-                  price={
+        filteredLinesFreightRates.map((line, lineIdx) => {
+          const containerLabels = {
+            d2: containerTypes.includes('20STD')
+              ? `20 STD x ${containerDetails.d2.quantity}`
+              : null,
+            d4: containerTypes.includes('40STD')
+              ? `40 STD x ${containerDetails.d4.quantity}`
+              : null,
+            d5: containerTypes.includes('40HC')
+              ? `40 HC x ${containerDetails.d5.quantity}`
+              : null,
+          }
+
+          const { totalCharges } = getTotalSeaFclCostAndCharges(
+            [line.data],
+            localCharges,
+            filters.currency
+          )
+
+          return (
+            <div key={lineIdx} className="flex flex-col gap-3">
+              <ShippingCard
+                key={`${lineIdx}`}
+                id={id}
+                lineName={line.line_name?.toUpperCase() ?? ''}
+                locations={locations}
+                transportMode={service_type.toUpperCase()}
+                modeType="SEA_FCL"
+                serviceType={service_type}
+                tags={tags}
+                portToDays={line.port_to_days ?? 0}
+                containerLabel={''}
+                containerType={''}
+                price={
+                  filters.currency === 'USD'
+                    ? (line.cost_breakdown?.freight_cost?.usd['total'] ?? 0)
+                    : (line.cost_breakdown?.freight_cost?.inr['total'] ?? 0)
+                }
+                localCost={
+                  filters.currency === 'USD'
+                    ? (line.cost_breakdown?.local_cost?.usd['total'] ?? 0)
+                    : (line.cost_breakdown?.local_cost?.inr['total'] ?? 0)
+                }
+                currency={filters.currency}
+                url={`/api/confirmed-quote`}
+                offerId={offerId}
+              >
+                <OfferSeaFclDataTable
+                  data={totalCharges}
+                  grandTotal={
                     filters.currency === 'USD'
-                      ? (line.cost_breakdown?.freight_cost?.usd[
-                          container.dType
-                        ] ?? 0)
-                      : (line.cost_breakdown?.freight_cost?.inr[
-                          container.dType
-                        ] ?? 0)
-                  }
-                  localCost={
-                    filters.currency === 'USD'
-                      ? (line.cost_breakdown?.local_cost?.usd[
-                          container.dType
-                        ] ?? 0)
-                      : (line.cost_breakdown?.local_cost?.inr[
-                          container.dType
-                        ] ?? 0)
+                      ? (line.cost_breakdown?.total_cost?.usd['total'] ?? 0)
+                      : (line.cost_breakdown?.total_cost?.inr['total'] ?? 0)
                   }
                   currency={filters.currency}
-                  url={`/api/confirmed-quote`}
-                  offerId={offerId}
-                >
-                  <OfferDataTable
-                    data={totalCharges}
-                    containerType={container.stdType}
-                    total={
-                      filters.currency === 'USD'
-                        ? (line.cost_breakdown?.total_cost?.usd[
-                            container.dType
-                          ] ?? 0)
-                        : (line.cost_breakdown?.total_cost?.inr[
-                            container.dType
-                          ] ?? 0)
-                    }
-                    currency={filters.currency}
-                  />
-                </ShippingCard>
-              )
-            })}
-          </div>
-        ))
+                  containerLabels={containerLabels}
+                />
+              </ShippingCard>
+            </div>
+          )
+        })
       )}
     </div>
   )

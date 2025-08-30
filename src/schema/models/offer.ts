@@ -68,32 +68,19 @@ const SeaLclOfferSchema = z
   })
   .merge(OfferBaseSchema)
 
+const SeaFclContainerDetailsSchema = z.object({
+  d2: z.object({ quantity: z.number(), weight: z.number() }),
+  d4: z.object({ quantity: z.number(), weight: z.number() }),
+  d5: z.object({ quantity: z.number(), weight: z.number() }),
+})
+
 const SeaFclOfferSchema = z
   .object({
     mode: z.literal('SEA_FCL'),
     container_types: z
       .array(FCL_CONTAINER_ENUM)
       .nonempty('Select at least one container type.'),
-    container_details: z.object({
-      d2: z
-        .array(z.number())
-        .min(2)
-        .max(2)
-        .optional()
-        .describe('0: container quantity and 1: weight value'),
-      d4: z
-        .array(z.number())
-        .min(2)
-        .max(2)
-        .optional()
-        .describe('0: container quantity and 1: weight value'),
-      d5: z
-        .array(z.number())
-        .min(2)
-        .max(2)
-        .optional()
-        .describe('0: container quantity and 1: weight value'),
-    }),
+    container_details: SeaFclContainerDetailsSchema,
     weight_unit: z.enum(['KG', 'LBS']),
     offers: z.object({
       line_charges: z.array(LineContainerCostZodSchema),

@@ -86,19 +86,41 @@ export const FclSchema = z
       .nonempty('Select at least one container type.'),
     //NOTE: Multiple container type is allowed
     fcl_quantities: z.object({
-      '20STD': z.coerce.number().min(0, 'Must be 0 or more.'),
-      '40STD': z
-        .number({ invalid_type_error: 'Enter a number.' })
-        .min(0, 'Must be 0 or more.'),
-      '40HC': z.coerce.number().min(0, 'Must be 0 or more.'),
+      '20STD': z.coerce
+        .number()
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(50, 'Must be less than 50.')
+        .describe('Number of 20STD containers. Max 50'),
+      '40STD': z.coerce
+        .number()
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(50, 'Must be less than 50.')
+        .describe('Number of 40STD containers. Max 50'),
+      '40HC': z.coerce
+        .number()
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(50, 'Must be less than 50.')
+        .describe('Number of 40HC containers. Max 50'),
     }),
-    // Per-container weights (same unit for all)
     fcl_weights: z.object({
-      '20STD': z.coerce.number().min(0, 'Must be 0 or more.'),
-      '40STD': z
-        .number({ invalid_type_error: 'Enter a number.' })
-        .min(0, 'Must be 0 or more.'),
-      '40HC': z.coerce.number().min(0, 'Must be 0 or more.'),
+      '20STD': z.coerce
+        .number()
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .describe('Weight of 20STD containers. Max 40000'),
+      '40STD': z.coerce
+        .number()
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .describe('Weight of 40STD containers. Max 40000'),
+      '40HC': z.coerce
+        .number()
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .describe('Weight of 40HC containers. Max 40000'),
     }),
     fcl_unit: z.enum(KG_LBS),
   })

@@ -1,5 +1,5 @@
 import mongoosedb from '@/lib/mongoose-db'
-import { SeaLclOfferModel } from '@/models/offer/offer-schema'
+import { SeaLclOfferModel } from '@/models/offer/offer'
 
 import { OfferZodSchema } from '@/schema/models/offer'
 
