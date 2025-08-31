@@ -182,15 +182,18 @@ export function SeaFclComp({
       ) : (
         filteredLinesFreightRates.map((line, lineIdx) => {
           const containerLabels = {
-            d2: containerTypes.includes('20STD')
-              ? `20 STD x ${containerDetails.d2.quantity}`
-              : null,
-            d4: containerTypes.includes('40STD')
-              ? `40 STD x ${containerDetails.d4.quantity}`
-              : null,
-            d5: containerTypes.includes('40HC')
-              ? `40 HC x ${containerDetails.d5.quantity}`
-              : null,
+            d2:
+              containerTypes.includes('20STD') && containerDetails?.d2
+                ? `20 STD x ${containerDetails.d2.quantity}`
+                : null,
+            d4:
+              containerTypes.includes('40STD') && containerDetails?.d4
+                ? `40 STD x ${containerDetails.d4.quantity}`
+                : null,
+            d5:
+              containerTypes.includes('40HC') && containerDetails?.d5
+                ? `40 HC x ${containerDetails.d5.quantity}`
+                : null,
           }
 
           const { totalCharges } = getTotalSeaFclCostAndCharges(

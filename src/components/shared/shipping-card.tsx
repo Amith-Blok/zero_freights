@@ -240,7 +240,7 @@ export default function ShippingCard({
             </div>
             <Button
               onClick={() => handleSubmit(lineName.toLowerCase())}
-              disabled={loading}
+              disabled={loading || serviceType == ServiceType.SEA_FCL}
               className="h-8 shrink-0 gap-1"
               size="sm"
             >
