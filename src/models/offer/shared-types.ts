@@ -83,7 +83,7 @@ export interface TotalCostByContainerType {
 export interface ContainerCost {
   label: string
   currency: string
-  additional_notes: string
+  additional_notes?: string
   d2: number
   d4: number
   d5: number
@@ -127,6 +127,7 @@ export interface Offer {
   exchanges: Exchange
   tags: string[]
   locations: Location[]
+  created_at?: Date
 }
 
 export interface WarehouseOffer extends Offer {

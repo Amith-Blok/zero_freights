@@ -10,6 +10,7 @@ const getSeaFclCharges = (
   charges: ContainerCost[],
   localCharges: {
     label: string
+    currency: 'INR' | 'USD'
     d2: number
     d4: number
     d5: number
@@ -19,6 +20,7 @@ const getSeaFclCharges = (
 ) => {
   const lineCharges = charges.map((rate) => ({
     label: rate.label,
+    currency: rate.currency as 'INR' | 'USD',
     d2: currencyConverter({
       cost: rate.d2,
       sourceCurrency: rate.currency as any,
@@ -50,6 +52,7 @@ const getTotalSeaFclCostAndCharges = (
 ) => {
   const filteredLocalCharges = localCharges.map((charge) => ({
     label: charge.label,
+    currency: charge.currency as 'INR' | 'USD',
     d2: currencyConverter({
       cost: charge.d2,
       sourceCurrency: charge.currency as any,

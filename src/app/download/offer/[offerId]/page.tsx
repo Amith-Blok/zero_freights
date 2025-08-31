@@ -9,19 +9,25 @@ import { getTotalSeaFclCostAndCharges } from '@/lib/sea-fcl-util'
 import { LabeledCost } from '@/models/offer/shared-types'
 import { QuotePdfDownloadBtn } from '../../_component/quote-pdf-download-btn'
 import { DContainerTypeSmallCase } from '@/types/containers'
+import SeaFclComponent from '../_components/sea-fcl-component'
 
 export default async function QuotePage({
   params,
   searchParams,
 }: {
   params: Promise<{ offerId: string }>
-  searchParams: Promise<{ line_name: string; container_type: string }>
+  searchParams: Promise<{
+    line_name: string
+    container_type: string
+    currency: string
+  }>
 }) {
   const param = await params
   const searchParam = await searchParams
   const offerId = param.offerId
   const lineName = (searchParam.line_name ?? '').toLowerCase()
   const fclContainerType = (searchParam.container_type ?? '').toLowerCase()
+  const currency = (searchParam.currency ?? 'INR') as 'INR' | 'USD'
   console.log({ lineName, offerId })
   const offer = await getOfferById(offerId).catch((err: any) => {
     console.log(`couldn't find offer:${offerId}\nerror details:${err}`)
@@ -48,14 +54,27 @@ export default async function QuotePage({
     const localsRates = offer.offers.local_charges
     containerType = fclContainerType as DContainerTypeSmallCase
     containerLabel = convertDToStdContainer(containerType)
-    const { totalCost: totalCostSeaFcl, totalCharges: totalChargesSeaFcl } =
-      getTotalSeaFclCostAndCharges(
-        [linesFreightRates],
-        containerType,
-        localsRates
-      )
-    totalCost = totalCostSeaFcl
-    totalCharges = totalChargesSeaFcl
+    const { totalCharges: totalChargesSeaFcl } = getTotalSeaFclCostAndCharges(
+      [linesFreightRates],
+      localsRates,
+      currency
+    )
+    totalCost = totalChargesSeaFcl.reduce(
+      (acc, charge) => acc + charge.total,
+      0
+    )
+    return (
+      <SeaFclComponent
+        offerId={offerId}
+        lineName={lineName}
+        subject={subject}
+        offer={offer}
+        totalCharges={totalChargesSeaFcl}
+        containerDetails={offer.container_details}
+        totalCost={totalCost}
+        currency={currency}
+      />
+    )
   } else if (offer.mode === 'WAR') {
     subject = offer.subject
     totalCost = offer.total_cost.inr
