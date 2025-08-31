@@ -11,8 +11,7 @@ import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { LandFormSchema } from '@/schema/land-schema'
 import { formatPhoneNumber, toTitleCase, weightTOMetricTon } from '@/lib/utils'
 import { currencyConverter, exchangeValues } from '@/lib/exchange'
-import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
-import { Location, ServiceType } from '@/models/offer/shared-types'
+import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
@@ -225,7 +224,7 @@ export async function POST(request: NextRequest) {
     }
     tags.push(incoterms)
 
-    const quoteTableData = [truckingCost] as ConfimredQuoteDataType[]
+    const quoteTableData = [truckingCost] as LabeledCost[]
     //COMMENT: added clearance fee if origin is india
     if (country == 'IN' && incoterms !== 'DAP') {
       quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)

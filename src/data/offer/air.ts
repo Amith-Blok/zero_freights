@@ -1,5 +1,5 @@
 import mongoosedb from '@/lib/mongoose-db'
-import { AirOfferModel } from '@/models/offer/offer-schema'
+import { AirOfferModel } from '@/models/offer/offer'
 
 import { OfferZodSchema } from '@/schema/models/offer'
 

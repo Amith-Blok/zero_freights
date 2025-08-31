@@ -16,6 +16,7 @@ export type RateByContainerType = {
   d2: number
   d4: number
   d5: number
+  total: number
 }
 
 export type MultiCurrencyCostType = {

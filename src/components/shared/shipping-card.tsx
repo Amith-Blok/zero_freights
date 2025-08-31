@@ -186,7 +186,7 @@ export default function ShippingCard({
                 </Badge>
               ))}
               {portToDays != 0 && (
-                <span className="text-sm">
+                <span className="text-xs">
                   Est. {portToDays.toString()} days port-to-port
                 </span>
               )}
@@ -240,7 +240,7 @@ export default function ShippingCard({
             </div>
             <Button
               onClick={() => handleSubmit(lineName.toLowerCase())}
-              disabled={loading}
+              disabled={loading || serviceType == ServiceType.SEA_FCL}
               className="h-8 shrink-0 gap-1"
               size="sm"
             >

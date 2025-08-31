@@ -37,12 +37,12 @@ const MobileDataCard = ({ item, index }: { item: DataType; index: number }) => {
 export const OfferDataTable = ({
   data,
   containerType,
-  total,
+  grandTotal,
   currency = 'INR',
 }: {
   data: DataType[]
   containerType: string
-  total: number
+  grandTotal: number
   currency?: 'INR' | 'USD'
 }) => {
   const [paginationState] = useState({
@@ -75,22 +75,22 @@ export const OfferDataTable = ({
           return inFormater.format(row.original.inr)
         },
         footer: () => (
-          <div className="mt-6 border-t-2 border-gray-300 bg-gray-50/50 pt-4">
+          <div className="mt-6 pt-4">
             <div className="flex items-baseline justify-end gap-4 px-4 py-2">
               <span className="text-lg font-semibold text-gray-700">
-                Total Amount
+                Grand Total
               </span>
               <span className="text-2xl font-bold tracking-tight text-green-700">
                 {currency === 'INR'
-                  ? inFormater.format(total)
-                  : usFormater.format(total)}
+                  ? inFormater.format(grandTotal)
+                  : usFormater.format(grandTotal)}
               </span>
             </div>
           </div>
         ),
       },
     ],
-    [containerType, total, currency]
+    [containerType, grandTotal, currency]
   )
 
   return (
@@ -114,6 +114,7 @@ export const OfferDataTable = ({
           columns={quoteColumn}
           data={data}
           paginationState={paginationState}
+          independentFooter={true}
         />
       </div>
     </div>

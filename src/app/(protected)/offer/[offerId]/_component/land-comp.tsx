@@ -44,7 +44,7 @@ export default function LandComp({
       url={`/api/confirmed-quote`}
       offerId={offerId}
     >
-      <OfferDataTable data={offers} containerType={''} total={price} />
+      <OfferDataTable data={offers} containerType={''} grandTotal={price} />
     </ShippingCard>
   )
 }

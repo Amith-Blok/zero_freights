@@ -11,11 +11,10 @@ import { newAppendAdditionalFees } from '../helper/table-data-appender'
 import { exchangeValues } from '@/lib/exchange'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
-import { ServiceType } from '@/models/offer/shared-types'
+import { LabeledCost, ServiceType } from '@/models/offer/shared-types'
 import { createAirOffer } from '@/data/offer/air'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
-import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 import { OfferModeTypes, Location } from '@/models/offer/shared-types'
 import { IncotermsType } from '@/schema/sea-schema'
 
@@ -37,7 +36,7 @@ async function calculatePickupLTL({
   ton,
   cbm,
   kg,
-}: PickupLTLArgs): Promise<ConfimredQuoteDataType | null> {
+}: PickupLTLArgs): Promise<LabeledCost | null> {
   if (!pickup_check || !pickup_location) return null
   if (ori_country === 'IN') {
     const { lat, lng } = await getGoogleLocationByPlaceId(
@@ -95,7 +94,7 @@ async function calculateDestinationLTL({
   ton,
   cbm,
   kg,
-}: DestinationLTLArgs): Promise<ConfimredQuoteDataType | null> {
+}: DestinationLTLArgs): Promise<LabeledCost | null> {
   if (!delivery_check || !delivery_location) return null
   if (ori_country === 'IN') {
     const { lat, lng } = await getGoogleLocationByPlaceId(
@@ -220,7 +219,7 @@ interface GetDutyCostArgs {
   des_country: string
   value: number
 }
-interface DutyCostType extends ConfimredQuoteDataType {
+interface DutyCostType extends LabeledCost {
   percent: number
 }
 async function getDutyCost({
@@ -248,17 +247,17 @@ async function getDutyCost({
 
 // Helper to build quote table data
 interface BuildQuoteTableDataArgs {
-  airFreight: ConfimredQuoteDataType
-  terminalCost: ConfimredQuoteDataType
-  ams: ConfimredQuoteDataType
-  awb: ConfimredQuoteDataType
-  pickupLTL: ConfimredQuoteDataType | null
-  destinationLTL: ConfimredQuoteDataType | null
+  airFreight: LabeledCost
+  terminalCost: LabeledCost
+  ams: LabeledCost
+  awb: LabeledCost
+  pickupLTL: LabeledCost | null
+  destinationLTL: LabeledCost | null
   incoterms: string
   ori_country: string
-  CLEARANCE_FEE_OBJ: ConfimredQuoteDataType
+  CLEARANCE_FEE_OBJ: LabeledCost
   newAppendAdditionalFees: (
-    data: ConfimredQuoteDataType[],
+    data: LabeledCost[],
     incoterms: string,
     mode?: string
   ) => void
@@ -276,13 +275,8 @@ function buildQuoteTableData({
   CLEARANCE_FEE_OBJ,
   newAppendAdditionalFees,
   dutyCost,
-}: BuildQuoteTableDataArgs): ConfimredQuoteDataType[] {
-  let quoteTableData: ConfimredQuoteDataType[] = [
-    airFreight,
-    terminalCost,
-    ams,
-    awb,
-  ]
+}: BuildQuoteTableDataArgs): LabeledCost[] {
+  let quoteTableData: LabeledCost[] = [airFreight, terminalCost, ams, awb]
   if (pickupLTL) quoteTableData.splice(1, 0, pickupLTL)
   if (destinationLTL) {
     const insertIndex = pickupLTL ? 2 : 1
@@ -363,7 +357,7 @@ export async function POST(request: NextRequest) {
     airFreight.inr = airFreight.usd * USD_TO_INR
     airFreight.label = `Air Freight:${cheapestAirlineRecord.name}(${cheapestAirlineRecord.value}$/kg)`
 
-    let quoteTableData = []
+    let quoteTableData = [] as LabeledCost[]
     let tags = []
     let locations = []
     let dutyCost = null

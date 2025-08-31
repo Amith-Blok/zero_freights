@@ -31,6 +31,7 @@ export const TotalCostByContainerTypeZodSchema = z.object({
   d2: z.number(),
   d4: z.number(),
   d5: z.number(),
+  total: z.number(),
 })
 
 export const MultiCurrencyContainerCostZodSchema = z.object({
@@ -60,6 +61,7 @@ export const ContainerCostZodSchema = z.object({
   d2: z.number(),
   d4: z.number(),
   d5: z.number(),
+  total: z.number(),
 })
 export const LineContainerCostZodSchema = z.object({
   line_name: z.string(),

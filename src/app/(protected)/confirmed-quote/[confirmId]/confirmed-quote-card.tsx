@@ -150,7 +150,7 @@ export function ConfirmedQuoteCard({
               <OfferDataTable
                 data={tableData}
                 containerType={containerType}
-                total={total}
+                grandTotal={total}
               />
             </div>
           )}

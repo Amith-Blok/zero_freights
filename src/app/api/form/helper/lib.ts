@@ -2,8 +2,8 @@ import { FIVE_PERCENTAGE_GST_CODE_LIST } from '@/constants'
 import { USD_TO_INR } from '@/constants/exchange-value'
 import { INR_TO_USD } from '@/constants/exchange-value'
 import { getNextSequence } from '@/data/counter'
-import { ConfimredQuoteDataType } from '@/models/confirmed-quote'
 import { CounterEnum } from '@/models/counter'
+import { LabeledCost } from '@/models/offer/shared-types'
 import { RateInfoType } from '@/types/common'
 import { QuoteFormProcessedData } from '@/types/global'
 import { DataType } from '@/types/quotes'
@@ -67,7 +67,7 @@ export function generateQuoteTableData(
 }
 export function formateRateInfoToConfirmQuoteData(
   formData: RateInfoType[]
-): ConfimredQuoteDataType[] {
+): LabeledCost[] {
   let records = []
   for (let data of formData) {
     const cost = data.value

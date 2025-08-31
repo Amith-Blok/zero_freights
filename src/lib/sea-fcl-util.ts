@@ -1,8 +1,4 @@
-import {
-  ContainerCost,
-  ContainerType,
-  LabeledCost,
-} from '@/models/offer/shared-types'
+import { ContainerCost, LabeledCost } from '@/models/offer/shared-types'
 import { currencyConverter } from './exchange'
 
 const getTotalCost = (charges: LabeledCost[]) => {
@@ -12,20 +8,38 @@ const getTotalCost = (charges: LabeledCost[]) => {
 }
 const getSeaFclCharges = (
   charges: ContainerCost[],
-  containerType: ContainerType,
-  localCharges: LabeledCost[]
+  localCharges: {
+    label: string
+    currency: 'INR' | 'USD'
+    d2: number
+    d4: number
+    d5: number
+    total: number
+  }[],
+  currency: 'INR' | 'USD'
 ) => {
   const lineCharges = charges.map((rate) => ({
     label: rate.label,
-    inr: currencyConverter({
-      cost: rate[containerType],
+    currency: rate.currency as 'INR' | 'USD',
+    d2: currencyConverter({
+      cost: rate.d2,
       sourceCurrency: rate.currency as any,
-      targetCurrency: 'INR',
+      targetCurrency: currency,
     }),
-    usd: currencyConverter({
-      cost: rate[containerType],
+    d4: currencyConverter({
+      cost: rate.d4,
       sourceCurrency: rate.currency as any,
-      targetCurrency: 'USD',
+      targetCurrency: currency,
+    }),
+    d5: currencyConverter({
+      cost: rate.d5,
+      sourceCurrency: rate.currency as any,
+      targetCurrency: currency,
+    }),
+    total: currencyConverter({
+      cost: rate.total,
+      sourceCurrency: rate.currency as any,
+      targetCurrency: currency,
     }),
   }))
   return [...lineCharges, ...localCharges]
@@ -33,28 +47,35 @@ const getSeaFclCharges = (
 
 const getTotalSeaFclCostAndCharges = (
   charges: ContainerCost[],
-  containerType: ContainerType,
-  localCharges: ContainerCost[]
+  localCharges: ContainerCost[],
+  currency: 'INR' | 'USD'
 ) => {
   const filteredLocalCharges = localCharges.map((charge) => ({
     label: charge.label,
-    inr: currencyConverter({
-      cost: charge[containerType],
+    currency: charge.currency as 'INR' | 'USD',
+    d2: currencyConverter({
+      cost: charge.d2,
       sourceCurrency: charge.currency as any,
-      targetCurrency: 'INR',
+      targetCurrency: currency,
     }),
-    usd: currencyConverter({
-      cost: charge[containerType],
+    d4: currencyConverter({
+      cost: charge.d4,
       sourceCurrency: charge.currency as any,
-      targetCurrency: 'USD',
+      targetCurrency: currency,
+    }),
+    d5: currencyConverter({
+      cost: charge.d5,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    total: currencyConverter({
+      cost: charge.total,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
     }),
   }))
-  const totalCharges = getSeaFclCharges(
-    charges,
-    containerType,
-    filteredLocalCharges
-  )
-  const totalCost = getTotalCost(totalCharges)
-  return { totalCost, totalCharges }
+  const totalCharges = getSeaFclCharges(charges, filteredLocalCharges, currency)
+  // const totalCost = getTotalCost(totalCharges)
+  return { totalCharges }
 }
 export { getTotalCost, getSeaFclCharges, getTotalSeaFclCostAndCharges }

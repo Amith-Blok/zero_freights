@@ -1,5 +1,5 @@
 import { getAllIndiaOutboundHaulageRatesByCode } from '@/data/india-outbound-haulage'
-import { SeaFormSchema } from '@/schema/sea-schema'
+import { IncotermsType, SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
 import { formatPhoneNumber, weightTOMetricTon } from '@/lib/utils'
@@ -7,7 +7,7 @@ import { formatLines } from '../helper/lines-rate-formatter'
 import { generateOfferId, generateQuoteMetaDetails } from '../helper/lib'
 import { inTrucking, usTrucking } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
-import { appendAdditionalFees } from '../helper/table-data-appender'
+import { appendSeaFclAdditionalFees } from '../helper/table-data-appender'
 import { getLinesChargesByCode } from '@/data/lines-charges'
 import { exchangeValues } from '@/lib/exchange'
 import { calculateTotalOfferCost } from '../helper/total'
@@ -20,16 +20,18 @@ import { toTitleCase } from '@/lib/utils'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
+import { HsSixType } from '@/models/hs-six'
 
 // --- Constants ---
 const CFS_CHARGE = 28000
-const IN_FCL_CLEARANCE_FEE = {
+let IN_FCL_CLEARANCE_FEE = {
   label: 'Clearance Fee',
   currency: 'INR',
   additional_notes: '',
   d2: CLEARANCE_FEE_OBJ.inr,
   d4: CLEARANCE_FEE_OBJ.inr,
   d5: CLEARANCE_FEE_OBJ.inr,
+  total: 0,
 }
 
 // --- Helper Functions ---
@@ -176,7 +178,19 @@ function buildLocations({
   return locations
 }
 
-async function getDutyIfNeeded({ incoterms, hsn, des_country, value }: any) {
+async function getDutyIfNeeded({
+  incoterms,
+  hsn,
+  des_country,
+  value,
+  totalQuantity,
+}: {
+  incoterms: IncotermsType
+  hsn: HsSixType
+  des_country: string
+  value: number
+  totalQuantity: number
+}) {
   if (incoterms !== 'DAP') {
     const duty = await getDutyByHsCodeCountry(hsn.code, des_country).catch(
       (error) => {
@@ -193,6 +207,7 @@ async function getDutyIfNeeded({ incoterms, hsn, des_country, value }: any) {
         d2: (duty * value) / 100,
         d4: (duty * value) / 100,
         d5: (duty * value) / 100,
+        total: ((duty * value) / 100) * totalQuantity,
         tag: `HS: ${hsn.code}`,
         valueTag: `${value} USD`,
         dutyTag: `DUTY: ${duty.toFixed(2)}%`,
@@ -238,6 +253,9 @@ export async function POST(request: NextRequest) {
       company_name,
       user_name,
     } = validateData.data
+    //--- Calculate total quantity of containers ---
+    const totalQuantity =
+      fcl_quantities['20STD'] + fcl_quantities['40STD'] + fcl_quantities['40HC']
 
     // --- Port Selection ---
     const { startSeaPort, endSeaPort } = selectPorts({
@@ -265,7 +283,12 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    let tags: string[] = [incoterms].filter(Boolean)
+    let tags: string[] = [
+      `${fcl_quantities['20STD']} x 20STD (${fcl_weights['20STD']}${fcl_unit})`,
+      `${fcl_quantities['40STD']} x 40STD (${fcl_weights['40STD']}${fcl_unit})`,
+      `${fcl_quantities['40HC']} x 40HC (${fcl_weights['40HC']}${fcl_unit})`,
+      incoterms,
+    ].filter(Boolean)
 
     // --- Shipline Rates ---
     const linesRates = await getLinesChargesByCode({
@@ -314,12 +337,13 @@ export async function POST(request: NextRequest) {
           d2: indianRailRate.d2,
           d4: indianRailRate.d4,
           d5: indianRailRate.d5,
+          total: indianRailRate.total,
         })
       }
 
       // --- Origin Trucking ---
       const stuffingTimes = ori_country === 'IN' && trucking === 'CFS' ? 1 : 2
-      let originTrucking = { cost: 0, estimatedDays: 0, d2: 0, d4: 0, d5: 0 }
+      let originTrucking = { d2: 0, d4: 0, d5: 0, total: 0, estimatedDays: 0 }
       if (pickup_check && pickup_location?.place_id) {
         const { lat: oriLat, lng: oriLng } = await getGoogleLocationByPlaceId(
           pickup_location.place_id
@@ -368,6 +392,7 @@ export async function POST(request: NextRequest) {
           d2: originTrucking.d2,
           d4: originTrucking.d4,
           d5: originTrucking.d5,
+          total: originTrucking.d2 + originTrucking.d4 + originTrucking.d5,
         })
       }
       if (pickup_check && trucking === 'CFS' && ori_country === 'IN') {
@@ -378,17 +403,18 @@ export async function POST(request: NextRequest) {
           d2: CFS_CHARGE,
           d4: CFS_CHARGE,
           d5: CFS_CHARGE,
+          total: CFS_CHARGE * 3,
         })
       }
       origin_trucking_days = originTrucking.estimatedDays
 
       // --- Destination Trucking ---
       let destinationTrucking = {
-        cost: 0,
-        estimatedDays: 0,
         d2: 0,
         d4: 0,
         d5: 0,
+        total: 0,
+        estimatedDays: 0,
       }
       if (delivery_check && delivery_location?.place_id) {
         const { lat: desLat, lng: desLng } = await getGoogleLocationByPlaceId(
@@ -442,6 +468,10 @@ export async function POST(request: NextRequest) {
             d2: destinationTrucking.d2,
             d4: destinationTrucking.d4,
             d5: destinationTrucking.d5,
+            total:
+              destinationTrucking.d2 +
+              destinationTrucking.d4 +
+              destinationTrucking.d5,
           }
         )
       }
@@ -449,10 +479,11 @@ export async function POST(request: NextRequest) {
 
       // --- Clearance Fee ---
       if (ori_country == 'IN' && incoterms !== 'DAP') {
+        IN_FCL_CLEARANCE_FEE.total = CLEARANCE_FEE_OBJ.inr * totalQuantity
         quoteTableData.local_charges.splice(1, 0, IN_FCL_CLEARANCE_FEE)
       }
       // --- Additional Fees ---
-      appendAdditionalFees(quoteTableData.local_charges, incoterms)
+      appendSeaFclAdditionalFees(quoteTableData.local_charges, incoterms)
 
       // --- Duty ---
       if (incoterms == 'DDP') {
@@ -461,6 +492,7 @@ export async function POST(request: NextRequest) {
           hsn,
           des_country,
           value,
+          totalQuantity,
         })
         if (dutyObj) {
           tags.push(dutyObj.tag)
@@ -469,7 +501,15 @@ export async function POST(request: NextRequest) {
           quoteTableData.local_charges.splice(
             quoteTableData.local_charges.length - 4,
             0,
-            dutyObj
+            {
+              label: dutyObj.label,
+              currency: dutyObj.currency,
+              additional_notes: dutyObj.additional_notes,
+              d2: dutyObj.d2,
+              d4: dutyObj.d4,
+              d5: dutyObj.d5,
+              total: dutyObj.total,
+            }
           )
         } else {
           tags.push('DUTY: N/A')
@@ -512,6 +552,30 @@ export async function POST(request: NextRequest) {
       delivery_location,
     })
 
+    // --- Generate container details ---
+    let containerDetails: Record<string, { quantity: number; weight: number }> =
+      {}
+    fcl_container_type.forEach((containerType) => {
+      if (containerType === '20STD') {
+        containerDetails['d2'] = {
+          quantity: fcl_quantities['20STD'],
+          weight: fcl_weights['20STD'],
+        }
+      }
+      if (containerType === '40STD') {
+        containerDetails['d4'] = {
+          quantity: fcl_quantities['40STD'],
+          weight: fcl_weights['40STD'],
+        }
+      }
+      if (containerType === '40HC') {
+        containerDetails['d5'] = {
+          quantity: fcl_quantities['40HC'],
+          weight: fcl_weights['40HC'],
+        }
+      }
+    })
+
     // --- Create Form ---
     const formId = await createForm(validateData.data)
 
@@ -552,13 +616,8 @@ export async function POST(request: NextRequest) {
       end_code: endSeaPort?.port_code || '',
       mode: 'SEA_FCL',
       service_type: ServiceType.SEA_FCL,
-
       container_types: fcl_container_type,
-      container_details: {
-        d2: [fcl_quantities['20STD'], fcl_weights['20STD']],
-        d4: [fcl_quantities['40STD'], fcl_weights['40STD']],
-        d5: [fcl_quantities['40HC'], fcl_weights['40HC']],
-      },
+      container_details: containerDetails,
       weight_unit: fcl_unit,
       tags,
       locations: locations as any,
