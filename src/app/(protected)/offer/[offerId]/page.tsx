@@ -33,7 +33,6 @@ const OfferComp = async ({ id }: { id: string }) => {
   if (offers.mode === 'SEA_FCL') {
     const linesFreightRates = offers.offers.line_charges
     const localsRates = offers.offers.local_charges
-    console.log({ offers: JSON.stringify(offers, null, 2) })
     return (
       <SeaFclComp
         id={id}

@@ -45,12 +45,13 @@ export const formatLines = ({
         if (idx == 0 && item.is_considered_for_total) {
           const multipleByTotalQuantityCode = ['MDF', 'ESF', 'BLF']
           const multipleBySpecificQuantityCode = ['THO']
-          let d2 = item.d2
-          let d4 = item.d4
-          let d5 = item.d5
+          let d2 = fclQuantities['20STD'] > 0 ? item.d2 : 0
+          let d4 = fclQuantities['40STD'] > 0 ? item.d4 : 0
+          let d5 = fclQuantities['40HC'] > 0 ? item.d5 : 0
           let total = 0
+
           if (multipleByTotalQuantityCode.includes(item.code)) {
-            total = (d2 + d4 + d5) * totalQuantity
+            total = item.d2 * totalQuantity
           } else if (multipleBySpecificQuantityCode.includes(item.code)) {
             d2 = d2 * fclQuantities['20STD']
             d4 = d4 * fclQuantities['40STD']

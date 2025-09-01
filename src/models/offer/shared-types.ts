@@ -1,4 +1,5 @@
 export type ContainerType = 'd2' | 'd4' | 'd5'
+export type STDContainerType = '20STD' | '40STD' | '40HC'
 interface User {
   id: string
   name: string
@@ -30,9 +31,9 @@ export interface TotalCost {
   usd: number
 }
 export interface ContainerDetailsType {
-  d2?: { quantity: number; weight: number }
-  d4?: { quantity: number; weight: number }
-  d5?: { quantity: number; weight: number }
+  d2?: { quantity: number; weight: number } | null
+  d4?: { quantity: number; weight: number } | null
+  d5?: { quantity: number; weight: number } | null
 }
 export interface TotalCostByContainerType {
   freight_cost: {

@@ -2,7 +2,7 @@
 import { Label } from '@/components/ui/label'
 import MultiSelect from '@/components/ui/multi-select'
 import { FCL_CONTAINER_TYPE_LIST, KG_LBS } from '@/constants'
-import { ContainerType } from '@/models/offer/shared-types'
+import { STDContainerType } from '@/models/offer/shared-types'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Separator } from '@/components/ui/separator'
@@ -40,9 +40,6 @@ export function SeaFclLoadFormWrapper() {
       return acc + validWt
     }, 0) ?? 0
 
-  // function labelFor(id: ContainerType) {
-  //   return FCL_CONTAINER_TYPE_LIST.find((o) => o.value === id)?.label ?? id
-  // }
   return (
     <>
       <div className="mt-2 flex flex-col gap-2">
@@ -56,14 +53,27 @@ export function SeaFclLoadFormWrapper() {
               options={FCL_CONTAINER_TYPE_LIST}
               value={field.value ?? []}
               onChange={(next) => {
-                field.onChange(next as ContainerType[])
-                // Set newly selected quantities to 1 if currently 0 for convenience
-                const nextIds = next as ContainerType[]
+                const previousIds = field.value ?? []
+                const nextIds = next as STDContainerType[]
+                field.onChange(nextIds)
+
                 const currentQuantities = getValues('fcl_quantities')
+                // const currentWeights = getValues('fcl_weights')
+
+                // Set newly selected quantities to 1 if currently 0 for convenience
                 nextIds.forEach((id) => {
                   if ((currentQuantities?.[id] ?? 0) === 0) {
                     setValue(`fcl_quantities.${id}`, 1, { shouldDirty: true })
                   }
+                })
+
+                // Set quantities and weights to 0 for removed containers
+                const removedIds = previousIds.filter(
+                  (id: STDContainerType) => !nextIds.includes(id)
+                )
+                removedIds.forEach((id: string) => {
+                  setValue(`fcl_quantities.${id}`, 0, { shouldDirty: true })
+                  setValue(`fcl_weights.${id}`, 0, { shouldDirty: true })
                 })
               }}
               placeholder="Select container types"

@@ -69,9 +69,9 @@ const SeaLclOfferSchema = z
   .merge(OfferBaseSchema)
 
 const SeaFclContainerDetailsSchema = z.object({
-  d2: z.object({ quantity: z.number(), weight: z.number() }),
-  d4: z.object({ quantity: z.number(), weight: z.number() }),
-  d5: z.object({ quantity: z.number(), weight: z.number() }),
+  d2: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  d4: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  d5: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
 })
 
 const SeaFclOfferSchema = z
