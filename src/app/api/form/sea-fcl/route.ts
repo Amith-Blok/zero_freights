@@ -283,12 +283,13 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    let tags: string[] = [
-      `${fcl_quantities['20STD']} x 20STD (${fcl_weights['20STD']}${fcl_unit})`,
-      `${fcl_quantities['40STD']} x 40STD (${fcl_weights['40STD']}${fcl_unit})`,
-      `${fcl_quantities['40HC']} x 40HC (${fcl_weights['40HC']}${fcl_unit})`,
-      incoterms,
-    ].filter(Boolean)
+    let tags: string[] = []
+    fcl_container_type.forEach((containerType) => {
+      tags.push(
+        `${fcl_quantities[containerType]} x ${containerType} (${fcl_weights[containerType]}${fcl_unit})`
+      )
+    })
+    tags.push(incoterms)
 
     // --- Shipline Rates ---
     const linesRates = await getLinesChargesByCode({
@@ -580,6 +581,10 @@ export async function POST(request: NextRequest) {
     const formId = await createForm(validateData.data)
 
     // --- Quote Details ---
+    let firstSlug = `SEA FCL `
+    fcl_container_type.forEach((containerType) => {
+      firstSlug += `${fcl_quantities[containerType]} x ${containerType} (${fcl_weights[containerType]}${fcl_unit}) `
+    })
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
         pickup_location: pickup_location ?? { description: '' },
@@ -587,14 +592,7 @@ export async function POST(request: NextRequest) {
         des_port_rail,
         delivery_location: pickup_location ?? { description: '' },
         shipline: '',
-        firstSlug:
-          'SEA FCL ' +
-          fcl_quantities['20STD'] +
-          ' x 20STD ' +
-          fcl_quantities['40STD'] +
-          ' x 40STD ' +
-          fcl_quantities['40HC'] +
-          ' x 40HC',
+        firstSlug: firstSlug,
         incoterms,
       })
     const blok_quote_id = await generateOfferId()
