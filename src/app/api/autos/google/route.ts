@@ -1,4 +1,4 @@
-import { COUNTRIES } from '@/constants'
+import { ALL_COUNTRIES } from '@/constants'
 import { GoogleLocationResponse } from '@/types/google'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const country = searchParam.get('country')
 
   try {
-    if (!query && !COUNTRIES.includes(country as any)) {
+    if (!query && !ALL_COUNTRIES.includes(country as any)) {
       return NextResponse.json({ items: [] })
     }
     const countryParam =

@@ -1,12 +1,9 @@
-import { FIVE_PERCENTAGE_GST_CODE_LIST } from '@/constants'
 import { USD_TO_INR } from '@/constants/exchange-value'
 import { INR_TO_USD } from '@/constants/exchange-value'
 import { getNextSequence } from '@/data/counter'
 import { CounterEnum } from '@/models/counter'
 import { LabeledCost } from '@/models/offer/shared-types'
 import { RateInfoType } from '@/types/common'
-import { QuoteFormProcessedData } from '@/types/global'
-import { DataType } from '@/types/quotes'
 
 export function generateQuoteMetaDetails({
   pickup_location,
@@ -36,35 +33,7 @@ export function generateQuoteMetaDetails({
   const subject = `${firstSlug} FROM ${pointOrigin}  To ${pointDetination} ${shipline ? `- ${shipline} (${incoterms})` : ''} `
   return { pointDetination, placeOfSupply, subject }
 }
-export function generateQuoteTableData(
-  formData: QuoteFormProcessedData[]
-): DataType[] {
-  let data = []
-  for (let fdata of formData) {
-    const cost = fdata.value
-    if (cost == 0) {
-      continue
-    }
-    const costUsd = fdata.currency == 'USD' ? cost : cost * INR_TO_USD
-    const costInr = fdata.currency == 'USD' ? cost * USD_TO_INR : cost
-    const gstPercentage = FIVE_PERCENTAGE_GST_CODE_LIST.includes(fdata.code)
-      ? 5
-      : 18
-    const gstAmount = (costInr * gstPercentage) / 100
-    const totalAmount = costInr + gstAmount
-    data.push({
-      label: fdata.name,
-      code: fdata.code,
-      category: fdata.name.toUpperCase().replaceAll(' ', '_'),
-      cost_usd: costUsd,
-      cost_inr: costInr,
-      gst_percentage: gstPercentage,
-      gst_amount: gstAmount,
-      total_amount: totalAmount,
-    })
-  }
-  return data
-}
+
 export function formateRateInfoToConfirmQuoteData(
   formData: RateInfoType[]
 ): LabeledCost[] {

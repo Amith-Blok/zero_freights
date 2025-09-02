@@ -12,6 +12,7 @@ export enum PdfType {
 }
 
 export type Country = {
-  code: string
-  name: string
+  value: string
+  label: string
+  disable?: boolean
 }

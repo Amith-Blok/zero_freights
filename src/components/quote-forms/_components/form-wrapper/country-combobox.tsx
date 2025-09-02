@@ -63,7 +63,7 @@ export function CountryCombobox({
         defaultValue={defaultValue}
         render={({ field: { onChange, value } }) => {
           const selectedCountry = countries.find(
-            (country) => country.code === value
+            (country) => country.value === value
           )
 
           return (
@@ -78,7 +78,7 @@ export function CountryCombobox({
                   {selectedCountry ? (
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                       <ReactCountryFlag
-                        countryCode={selectedCountry.code}
+                        countryCode={selectedCountry.value}
                         svg
                         style={{
                           width: '24px',
@@ -87,7 +87,7 @@ export function CountryCombobox({
                         className="flex-shrink-0 rounded-sm"
                       />
                       <span className="min-w-0 truncate font-normal uppercase">
-                        {selectedCountry.name}
+                        {selectedCountry.label}
                       </span>
                     </div>
                   ) : (
@@ -104,16 +104,18 @@ export function CountryCombobox({
                     <CommandGroup>
                       {countries.map((country) => (
                         <CommandItem
-                          key={country.code}
-                          value={`${country.name} ${country.code}`}
+                          key={country.value}
+                          value={`${country.label} ${country.value}`}
                           onSelect={() => {
-                            onChange(country.code === value ? '' : country.code)
+                            onChange(
+                              country.value === value ? '' : country.value
+                            )
                             setOpen(false)
                           }}
                         >
                           <div className="flex items-center gap-2">
                             <ReactCountryFlag
-                              countryCode={country.code}
+                              countryCode={country.value}
                               svg
                               style={{
                                 width: '24px',
@@ -122,13 +124,13 @@ export function CountryCombobox({
                               className="rounded-sm"
                             />
                             <span className="font-normal uppercase">
-                              {country.name}
+                              {country.label}
                             </span>
                           </div>
                           <Check
                             className={cn(
                               'ml-auto h-4 w-4',
-                              value === country.code
+                              value === country.value
                                 ? 'opacity-100'
                                 : 'opacity-0'
                             )}

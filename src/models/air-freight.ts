@@ -1,4 +1,4 @@
-import { COUNTRIES } from '@/constants'
+import { ALL_COUNTRIES } from '@/constants'
 import mongoose from 'mongoose'
 const AirlineSchema = new mongoose.Schema({
   code: { type: String, required: true },
@@ -20,7 +20,7 @@ const AirFreightSchema = new mongoose.Schema(
     port_country: {
       type: String,
       required: true,
-      enum: COUNTRIES,
+      enum: ALL_COUNTRIES,
     },
     airlines: {
       type: [AirlineSchema],

@@ -1,8 +1,8 @@
-import { COUNTRIES } from '@/constants'
+import { ALL_COUNTRIES } from '@/constants'
 import { getNearByAirPorts } from '@/data/air-port'
 import { NextRequest, NextResponse } from 'next/server'
 import { getGoogleLocationByPlaceId } from '../../form/helper/google-map'
-//BUG: searchParams undefined string error
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const country = searchParams.get('country')
@@ -10,12 +10,12 @@ export async function GET(request: NextRequest) {
   const lat = searchParams.get('lat')
   const lng = searchParams.get('lng')
   try {
-    if (country && COUNTRIES.includes(country as any) && lat && lng) {
+    if (country && ALL_COUNTRIES.includes(country as any) && lat && lng) {
       const response = await getNearByAirPorts(country, +lat, +lng)
       return NextResponse.json({ items: response }, { status: 200 })
     }
 
-    if (!country || !placeId || !COUNTRIES.includes(country as any)) {
+    if (!country || !placeId || !ALL_COUNTRIES.includes(country as any)) {
       return NextResponse.json(
         { error: 'country, place_id are required' },
         { status: 400 }

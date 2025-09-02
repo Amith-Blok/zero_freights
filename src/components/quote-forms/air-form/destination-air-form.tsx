@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
-// import { COUNTRIES_LIST } from '@/constants'
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { AirPortsType } from '@/models/air-ports'
 import { Prediction } from '@/types/google'
-import { AIR_DESTINATION_COUNTRIES_OPTION } from '@/constants/air-form'
+import { AIR_DESTINATION_COUNTRIES_OPTIONS } from '@/constants/air-form'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 
 export const DestinationAirForm = () => {
   const { watch, setValue, resetField, control } = useFormContext()
@@ -40,13 +39,13 @@ export const DestinationAirForm = () => {
         field="delivery_check"
       />
       <div className="mt-5 flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="des_country"
-          data={AIR_DESTINATION_COUNTRIES_OPTION}
-          divClass={`w-full ${watchDesPick && 'md:w-1/3'} `}
+          label="Country"
+          countries={AIR_DESTINATION_COUNTRIES_OPTIONS}
+          divClass={`w-full ${watchDesPick && 'md:w-1/4'} `}
+          labelClass="required"
         />
-
         {watchDesPick && (
           <FilteredCombobox<Prediction>
             label=" Location"

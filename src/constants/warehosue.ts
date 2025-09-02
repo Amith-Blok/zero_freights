@@ -1,3 +1,8 @@
+import {
+  EUROPE_COUNTRIES_OPTIONS,
+  NORTH_AMERICA_COUNTRIES_OPTIONS,
+} from './coutries'
+
 export const WAREHOUSE_DEFAULT = {
   modes: 'FCL_WAREHOUSE',
   is_google_location: undefined,
@@ -20,9 +25,8 @@ export const WAREHOUSE_DEFAULT = {
 } as const
 
 export const WAREHOUSE_COUNTRIES_OPTION = [
-  { value: 'US', label: 'US' },
-  { value: 'CA', label: 'CA' },
-  { value: 'EU', label: 'EU' },
+  ...NORTH_AMERICA_COUNTRIES_OPTIONS,
+  ...EUROPE_COUNTRIES_OPTIONS,
 ]
 
 export const WAREHOUSE_CHARGE_USD = 650

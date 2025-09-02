@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useFormContext, useWatch } from 'react-hook-form'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 import { Prediction } from '@/types/google'
 import { WAREHOUSE_COUNTRIES_OPTION } from '@/constants/warehosue'
 import { useEffect } from 'react'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 export const OriginWarehouseForm = () => {
   const { setValue, control } = useFormContext()
   const watchMode = useWatch({ control, name: 'modes' })
@@ -34,11 +34,12 @@ export const OriginWarehouseForm = () => {
         labelClass="font-normal"
       />
       <div className="mt-5 flex flex-col items-center gap-2">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={WAREHOUSE_COUNTRIES_OPTION}
-          divClass={`w-full `}
+          label="Country"
+          countries={WAREHOUSE_COUNTRIES_OPTION}
+          divClass="w-full"
+          labelClass="required"
         />
 
         {watchGoogleCheck ? (

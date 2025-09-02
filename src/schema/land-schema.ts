@@ -1,5 +1,5 @@
 import {
-  COUNTRIES,
+  ALL_COUNTRIES,
   FCL_CONTAINER_TYPE,
   incoterms,
   IN_CM,
@@ -10,7 +10,7 @@ import { z } from 'zod'
 
 // COMMON SCHEMA
 const CommonSchema = z.object({
-  country: z.enum(COUNTRIES),
+  country: z.enum(ALL_COUNTRIES),
 
   delivery_location: z.object({
     description: z.string().min(1, { message: 'required' }),

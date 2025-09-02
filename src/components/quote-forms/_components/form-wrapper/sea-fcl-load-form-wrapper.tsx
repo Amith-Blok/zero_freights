@@ -182,7 +182,7 @@ export function SeaFclLoadFormWrapper() {
                 resetField('fcl_container_type', { defaultValue: [] })
               }}
             >
-              Reset
+              Clear
             </Button>
           </div>
 

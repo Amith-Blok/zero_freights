@@ -1,5 +1,4 @@
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { COUNTRIES_LAND_LIST } from '@/constants'
+import { COUNTRIES_LAND_OPTIONS } from '@/constants'
 import {
   useFormContext,
   FieldValues,
@@ -8,6 +7,8 @@ import {
 } from 'react-hook-form'
 import { Prediction } from '@/types/google'
 import { FilteredCombobox } from '../_components/filtered-combobox'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
+import { LAND_AIRPORT_MODE_COUNTRIES_OPTIONS } from '@/constants/land-constant'
 export const DestinationLandForm = () => {
   const { setValue, control } = useFormContext()
 
@@ -50,12 +51,12 @@ const SeaPortDestinationForm = ({
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={COUNTRIES_LAND_LIST}
+          label="Country"
+          countries={COUNTRIES_LAND_OPTIONS}
           divClass={`w-full md:w-1/4 `}
-          labelClass="required block"
+          labelClass="required"
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
@@ -86,12 +87,12 @@ const DomesticDestinationForm = ({
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={COUNTRIES_LAND_LIST}
+          label="Country"
+          countries={COUNTRIES_LAND_OPTIONS}
           divClass={`w-full md:w-1/4 `}
-          labelClass="required block"
+          labelClass="required"
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
@@ -122,12 +123,12 @@ const AirportDestinationForm = ({
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={[{ label: 'US', value: 'US' }]}
+          label="Country"
+          countries={LAND_AIRPORT_MODE_COUNTRIES_OPTIONS}
           divClass={`w-full md:w-1/4 `}
-          labelClass="required block"
+          labelClass="required"
         />
         <FilteredCombobox<Prediction>
           label="Destination Location"
