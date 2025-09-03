@@ -6,19 +6,10 @@ import {
   CardHeader,
   CardContent,
 } from '@/components/ui/card'
+import { SHIPPING_LINES } from '@/constants/dashbord'
 import React from 'react'
 
 export default function LinesSection() {
-  const shippingLines = [
-    { name: 'Hapag-Lloyd', src: '/lines/hapag-line.png' },
-    { name: 'MSC', src: '/lines/msc-line.png' },
-    { name: 'COSCO', src: '/lines/cosco-line.png' },
-    { name: 'Maersk', src: '/lines/maersk-line.png' },
-    { name: 'ONE', src: '/lines/one-line.png' },
-    { name: 'HMM', src: '/lines/hmm-line.png' },
-    { name: 'Evergreen', src: '/lines/evergreen-line.png' },
-    { name: 'CMA CGM', src: '/lines/cma-line.png' },
-  ]
   return (
     <section className="mt-8 space-y-6">
       <Card>
@@ -31,7 +22,7 @@ export default function LinesSection() {
         <CardContent>
           <LogoTicker
             ariaLabel="Shipping line collaborators"
-            items={shippingLines}
+            items={SHIPPING_LINES}
             speed={35}
           />
         </CardContent>

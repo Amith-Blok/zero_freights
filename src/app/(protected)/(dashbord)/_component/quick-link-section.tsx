@@ -8,18 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-
-const QUICK_LINKS = [
-  { href: '/get-rates?mode=SEA', label: 'FCL' },
-  { href: '/get-rates?mode=SEA', label: 'LCL' },
-  { href: '/get-rates?mode=AIR', label: 'Air Freight' },
-  { href: '/get-rates?mode=LAND', label: 'Seaport Trucking' },
-  { href: '/get-rates?mode=LAND', label: 'Domestic Trucking' },
-  { href: '/get-rates?mode=LAND', label: 'Airport Trucking' },
-  { href: '/get-rates?mode=WAR', label: 'FCL Warehouse' },
-  { href: '/get-rates?mode=WAR', label: 'LTL Warehouse' },
-  { href: '/get-rates?mode=WAR', label: 'Airport Warehouse Costing' },
-]
+import { QUICK_LINKS } from '@/constants/dashbord'
 
 export default function QuickLinkSection() {
   return (

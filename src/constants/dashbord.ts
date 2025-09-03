@@ -48,3 +48,24 @@ export const ALL_SERVICES = [
     ],
   },
 ]
+export const QUICK_LINKS = [
+  { href: '/get-rates?mode=SEA', label: 'FCL' },
+  { href: '/get-rates?mode=SEA', label: 'LCL' },
+  { href: '/get-rates?mode=AIR', label: 'Air Freight' },
+  { href: '/get-rates?mode=LAND', label: 'Seaport Trucking' },
+  { href: '/get-rates?mode=LAND', label: 'Domestic Trucking' },
+  { href: '/get-rates?mode=LAND', label: 'Airport Trucking' },
+  { href: '/get-rates?mode=WAR', label: 'FCL Warehouse' },
+  { href: '/get-rates?mode=WAR', label: 'LTL Warehouse' },
+  { href: '/get-rates?mode=WAR', label: 'Airport Warehouse Costing' },
+]
+export const SHIPPING_LINES = [
+  { name: 'Hapag-Lloyd', src: '/lines/hapag-line.png' },
+  { name: 'MSC', src: '/lines/msc-line.png' },
+  { name: 'COSCO', src: '/lines/cosco-line.png' },
+  { name: 'Maersk', src: '/lines/maersk-line.png' },
+  { name: 'ONE', src: '/lines/one-line.png' },
+  { name: 'HMM', src: '/lines/hmm-line.png' },
+  { name: 'Evergreen', src: '/lines/evergreen-line.png' },
+  { name: 'CMA CGM', src: '/lines/cma-line.png' },
+]

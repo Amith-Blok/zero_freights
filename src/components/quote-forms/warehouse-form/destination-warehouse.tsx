@@ -8,9 +8,7 @@ import { useEffect, useState } from 'react'
 export const DestinationWarehouseForm = () => {
   const { control, setValue } = useFormContext()
   const [inputText, setInputText] = useState<string>('')
-  // const watchMode = watch('modes');
   const watchPickupLocation = useWatch({ control, name: 'pickup_location' })
-  // const watchPlaceId = useWatch({ control, name: 'pickup_location.place_id' })
   const text = watchPickupLocation?.port_name
     ? `Bloksupplychain Warehouse (${watchPickupLocation.port_code})`
     : watchPickupLocation?.description
