@@ -22,7 +22,6 @@ export default async function HomePage(props: {
         titleClass="text-2xl"
         cardClass="my-5  md:m-5 w-full min-h-screen bg-white bg-opacity-95"
       >
-        {/* TODO: wrap it in suspense with skeleton ui */}
         <TabComponent key={defaultMode} defaultTab={defaultMode} />
       </CardWrapper>
     </div>

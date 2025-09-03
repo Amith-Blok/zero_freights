@@ -43,31 +43,12 @@ export const DestinationWarehouseForm = () => {
           data={WAREHOUSE_COUNTRIES_OPTION}
           divClass={`w-full`}
         />
-        {/* 
-        <AllDataCombobox<SeaPortsType & { place_id: string }>
-          key={`${watchPlaceId}-${watchCountry}`}
-          label="Delivery Warehouse"
-          placeHolder="Pick a warehouse (14 options)"
-          fieldName="delivery_location"
-          labelClass="required"
-          fetchUrl={`/api/autos/warehouse?country=${watchCountry}&place_id=${watchPlaceId}`}
-          getOptionLabel={(option) =>
-            `${option.port_name}-(${option.port_code})`
-          }
-          valueSetterCallback={(port) => {
-            const { port_name, port_code, place_id } = port
-            setValue('delivery_location', {
-              port_name,
-              port_code,
-              place_id,
-            })
-          }}
-        /> */}
+
         <Label>Warehouse</Label>
         <Input
           value={inputText}
           placeholder="Fill origin section first"
-          className="placeholder:text-red-300"
+          className="cursor-pointer placeholder:text-xs placeholder:text-muted-foreground"
           readOnly
         />
       </div>
