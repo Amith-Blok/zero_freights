@@ -26,6 +26,7 @@ export default async function QuotePage(props: {
           id={quoteId}
           type={PdfType.OFFER}
           lineName={quote.subject}
+          currency="USD"
         />
         <div className="m-0 flex w-screen flex-col items-center border-2 border-slate-200 lg:m-5">
           <QuoteTemplate

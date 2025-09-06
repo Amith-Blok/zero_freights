@@ -10,17 +10,19 @@ export const QuotePdfDownloadBtn = ({
   type,
   lineName,
   containerType,
+  currency,
 }: {
   id: string
   type: PdfType
   lineName?: string
   containerType?: string
+  currency: 'INR' | 'USD'
 }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const downloadPdf = async () => {
     setLoading(true)
     const response = await fetch(
-      `/api/generate-pdf?id=${id}&type=${type}${lineName ? `&line_name=${lineName}&container_type=${containerType}` : ''}`,
+      `/api/generate-pdf?id=${id}&type=${type}&currency=${currency}${lineName ? `&line_name=${lineName}&container_type=${containerType}` : ''}`,
       {
         cache: 'force-cache',
       }
