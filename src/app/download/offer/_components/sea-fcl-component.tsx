@@ -50,6 +50,7 @@ export default function SeaFclComponent({
           id={offerId}
           type={PdfType.CONFIRMED_QUOTE}
           lineName={lineName}
+          currency={currency}
         />
         <div className="m-0 flex w-screen flex-col items-center border-2 border-slate-200 lg:m-5">
           <QuoteTemplate
