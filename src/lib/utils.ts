@@ -76,6 +76,22 @@ export const inFormater = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 2,
 })
 
+// Backup formatter that uses 'Rs.' if rupee symbol fails to render
+export const inFormaterBackup = (amount: number): string => {
+  try {
+    const formatted = inFormater.format(amount)
+    // Check if the rupee symbol is properly included
+    if (formatted.includes('₹')) {
+      return formatted
+    }
+    // Fallback to 'Rs.' prefix if rupee symbol is not present
+    return `Rs. ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  } catch {
+    // Ultimate fallback
+    return `Rs. ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+}
+
 export function formatPhoneNumber(raw: string): string {
   if (!raw.startsWith('+')) return raw
 

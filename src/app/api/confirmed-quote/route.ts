@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     let tranist = 40
 
     if (mode == 'SEA_FCL') {
-      console.log({ line_name, container_type, offer_id })
+      // console.log({ line_name, container_type, offer_id })
       if (!line_name || !container_type || !offer_id) {
         console.log('invalid request')
         return NextResponse.json({ error: 'invalid request' }, { status: 400 })

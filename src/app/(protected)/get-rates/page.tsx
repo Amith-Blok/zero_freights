@@ -13,7 +13,7 @@ export default async function HomePage(props: {
   if (!['SEA', 'LAND', 'AIR', 'WAR'].includes(defaultMode)) {
     defaultMode = 'SEA'
   }
-  console.log({ defaultMode })
+  // console.log({ defaultMode })
   return (
     <div className="flex w-full items-center justify-center bg-transparent">
       <CardWrapper
