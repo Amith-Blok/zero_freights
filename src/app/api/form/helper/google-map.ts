@@ -41,7 +41,8 @@ export async function calculateDistance(
       //   text: data.rows[0].elements[0].duration.text,
       //   value: data.rows[0].elements[0].duration.value,
       // };
-      if (!distance.value) throw new Error('Distance value is null')
+      //NOTE: this could mean distance very close so set minimun 5000 m distance
+      if (!distance.value) return 5000
 
       return distance.value as number
     } else {
