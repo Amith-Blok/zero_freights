@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type')
     const lineName = searchParams.get('line_name')
     const containerType = searchParams.get('container_type')
+    const currency = searchParams.get('currency')
+
     const isDev = process.env.NODE_ENV == 'development'
     console.log({ isDev })
     console.log({ env: process.env.NEXT_PUBLIC_APP_URL })
@@ -21,8 +23,8 @@ export async function GET(request: NextRequest) {
     const url =
       type == PdfType.OFFER
         ? baseUrl +
-          `/download/offer/${id}?line_name=${lineName}&container_type=${containerType}`
-        : baseUrl + `/download/confirmed-quote/${id}`
+          `/download/offer/${id}?line_name=${lineName}&container_type=${containerType}&currency=${currency}`
+        : baseUrl + `/download/confirmed-quote/${id}?currency=${currency}`
     console.log({ url })
     if (!id) return NextResponse.json('quote-id not found', { status: 400 })
     let browser
@@ -35,6 +37,13 @@ export async function GET(request: NextRequest) {
       await page.goto(url, {
         waitUntil: 'networkidle0',
       })
+
+      // Wait for fonts to load
+      await page.evaluateOnNewDocument(() => {
+        document.fonts.ready.then(() => {
+          console.log('All fonts loaded')
+        })
+      })
       await page.evaluate(() => {
         const bodyChildren = Array.from(document.body.children)
         bodyChildren.forEach((child) => {
@@ -45,6 +54,8 @@ export async function GET(request: NextRequest) {
 
       await page.addStyleTag({
         content: `
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap');
+        
         html, body {
         margin: 0;
         padding: 0;
@@ -53,12 +64,23 @@ export async function GET(request: NextRequest) {
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
       main {
         transform: scale(0.90);
         transform-origin: center center;
       }
+      * {
+        font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      }
     `,
+      })
+
+      // Wait for fonts to be fully loaded before generating PDF
+      await page.evaluate(async () => {
+        await document.fonts.ready
+        // Additional wait to ensure currency symbols are rendered
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       })
 
       const pdfBuffer = await page.pdf({
@@ -77,12 +99,24 @@ export async function GET(request: NextRequest) {
     } else {
       browser = await puppeteerCore.launch({
         headless: true,
-        args: chromium.args,
+        args: [
+          ...chromium.args,
+          '--font-render-hinting=none',
+          '--disable-font-subpixel-positioning',
+          '--disable-features=VizDisplayCompositor',
+        ],
         executablePath: await chromium.executablePath(),
       })
       const page = await browser.newPage()
       await page.goto(url, {
         waitUntil: 'networkidle0',
+      })
+
+      // Wait for fonts to load
+      await page.evaluateOnNewDocument(() => {
+        document.fonts.ready.then(() => {
+          console.log('All fonts loaded')
+        })
       })
       await page.evaluate(() => {
         const bodyChildren = Array.from(document.body.children)
@@ -94,6 +128,8 @@ export async function GET(request: NextRequest) {
 
       await page.addStyleTag({
         content: `
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap');
+        
         html, body {
         margin: 0;
         padding: 0;
@@ -102,12 +138,23 @@ export async function GET(request: NextRequest) {
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
       main {
         transform: scale(0.90);
         transform-origin: center center;
       }
+      * {
+        font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      }
     `,
+      })
+
+      // Wait for fonts to be fully loaded before generating PDF
+      await page.evaluate(async () => {
+        await document.fonts.ready
+        // Additional wait to ensure currency symbols are rendered
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       })
 
       const pdfBuffer = await page.pdf({

@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useFormContext, useWatch } from 'react-hook-form'
+import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { WAREHOUSE_COUNTRIES_OPTION } from '@/constants/warehosue'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { useEffect, useState } from 'react'
-import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 export const DestinationWarehouseForm = () => {
   const { control, setValue } = useFormContext()
   const [inputText, setInputText] = useState<string>('')
@@ -35,19 +35,18 @@ export const DestinationWarehouseForm = () => {
   return (
     <>
       <div className="mt-0 flex flex-col items-start gap-2 md:mt-12">
-        <CountryCombobox
-          field="country"
+        <SelectWrapper
           label="Country"
-          countries={WAREHOUSE_COUNTRIES_OPTION}
+          field="country"
+          data={WAREHOUSE_COUNTRIES_OPTION}
           divClass={`w-full`}
-          labelClass="required"
         />
 
         <Label>Warehouse</Label>
         <Input
           value={inputText}
-          placeholder="fill origin section first !"
-          className={`placeholder:text-xm placeholder:text-muted-foreground ${inputText.length < 1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          placeholder="Fill origin section first"
+          className="cursor-pointer placeholder:text-xs placeholder:text-muted-foreground"
           readOnly
         />
       </div>

@@ -148,7 +148,6 @@ export default function ShippingCard({
       if (result.confirmed_quote_id) {
         router.push(`/confirmed-quote/${result.confirmed_quote_id}`)
       }
-      // console.log({ result });
     })
   }
 
@@ -168,6 +167,7 @@ export default function ShippingCard({
                 type={PdfType.OFFER}
                 lineName={lineName}
                 containerType={containerType}
+                currency={currency}
               />
             </div>
 

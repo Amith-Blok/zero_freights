@@ -39,11 +39,11 @@ export default async function QuotePage({
   let containerType
   let subject: string = ''
   if (offer.mode === 'SEA_FCL') {
-    console.log({ lines: offer.offers.line_charges })
+    // console.log({ lines: offer.offers.line_charges })
     const linesFreightRates = offer.offers.line_charges.find(
       (line) => line.line_name === lineName
     )?.data
-    console.log({ linesFreightRates: linesFreightRates })
+    // console.log({ linesFreightRates: linesFreightRates })
     if (!linesFreightRates)
       return (
         <NotFound
@@ -108,6 +108,7 @@ export default async function QuotePage({
           id={offerId}
           type={PdfType.CONFIRMED_QUOTE}
           lineName={lineName}
+          currency={currency}
         />
         <div className="m-0 flex w-screen flex-col items-center border-2 border-slate-200 lg:m-5">
           <QuoteTemplate
