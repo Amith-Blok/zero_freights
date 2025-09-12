@@ -1,4 +1,4 @@
-import { COUNTRIES } from '@/constants'
+import { ALL_COUNTRIES } from '@/constants'
 import mongoose from 'mongoose'
 
 const LCLSeaFreightSchema = new mongoose.Schema(
@@ -14,7 +14,7 @@ const LCLSeaFreightSchema = new mongoose.Schema(
     port_country: {
       type: String,
       required: true,
-      enum: COUNTRIES,
+      enum: ALL_COUNTRIES,
     },
     lcl_cost: {
       type: Number,

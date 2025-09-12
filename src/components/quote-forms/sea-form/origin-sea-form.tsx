@@ -29,7 +29,7 @@ export const OriginSeaForm = () => {
           field="ori_country"
           label="Country"
           countries={SEA_FCL_ORIGIN_COUNTRIES}
-          divClass={`w-full ${watchPick && 'md:w-1/3'} `}
+          divClass={`w-full ${watchPick && 'md:w-1/4'} `}
           labelClass="required"
         />
 

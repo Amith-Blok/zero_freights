@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { COUNTRIES_LAND_LIST } from '@/constants'
+import { COUNTRIES_LAND_OPTIONS } from '@/constants'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { SeaPortsType } from '@/models/sea-ports'
 import {
@@ -12,6 +11,7 @@ import {
 import { PredictionWithZipcode } from '@/types/google'
 import { FilteredCombobox } from '../_components/filtered-combobox'
 import { AirPortsType } from '@/models/air-ports'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 export const OriginLandForm = () => {
   const { control, setValue } = useFormContext()
   const watchMode = useWatch({ control, name: 'modes' })
@@ -52,12 +52,12 @@ const SeaPortOriginForm = ({
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={COUNTRIES_LAND_LIST}
+          label="Country"
+          countries={COUNTRIES_LAND_OPTIONS}
           divClass={`w-full md:w-1/4 `}
-          labelClass="required block"
+          labelClass="required"
         />
         <AllDataCombobox<SeaPortsType>
           key={`${watchCountry}`}
@@ -98,12 +98,12 @@ const DomesticOriginForm = ({
   return (
     <>
       <div className="flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="country"
-          data={COUNTRIES_LAND_LIST}
+          label="Country"
+          countries={COUNTRIES_LAND_OPTIONS}
           divClass={`w-full md:w-1/4 `}
-          labelClass="required block"
+          labelClass="required"
         />
         <FilteredCombobox<PredictionWithZipcode>
           label="Pickup Location"
@@ -138,13 +138,14 @@ const AirportOriginForm = ({
 }) => {
   return (
     <div className="flex flex-col items-center gap-2 md:flex-row">
-      <SelectWrapper
-        label="Country"
+      <CountryCombobox
         field="country"
-        data={[{ label: 'US', value: 'US' }]}
+        label="Country"
+        countries={COUNTRIES_LAND_OPTIONS}
         divClass={`w-full md:w-1/4 `}
-        labelClass="required block"
+        labelClass="required"
       />
+
       <AllDataCombobox<AirPortsType>
         key={`${watchCountry}`}
         resetString={`${watchMode}-${watchCountry}`}

@@ -1,8 +1,8 @@
-import { incoterms, KG_LBS, IN_CM, COUNTRIES } from '@/constants'
+import { incoterms, KG_LBS, IN_CM, ALL_COUNTRIES } from '@/constants'
 import * as z from 'zod'
 
 export const AirFormSchema = z.object({
-  ori_country: z.enum(COUNTRIES),
+  ori_country: z.enum(ALL_COUNTRIES),
   ori_airport: z.object({
     port_name: z.string(),
     port_code: z.string(),
@@ -18,7 +18,7 @@ export const AirFormSchema = z.object({
       place_id: z.string(),
     })
     .optional(),
-  des_country: z.enum(COUNTRIES),
+  des_country: z.enum(ALL_COUNTRIES),
   des_airport: z.object({
     port_name: z.string(),
     port_code: z.string(),

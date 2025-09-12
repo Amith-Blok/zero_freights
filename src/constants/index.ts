@@ -1,3 +1,7 @@
+import {
+  EUROPE_COUNTRIES_OPTIONS,
+  NORTH_AMERICA_COUNTRIES_OPTIONS,
+} from './coutries'
 import { INR_TO_USD, USD_TO_INR } from './exchange-value'
 import { HEADER_ROUTES } from './site-map'
 export { USD_TO_INR, INR_TO_USD, HEADER_ROUTES }
@@ -16,30 +20,6 @@ export const WAREHOUSE_MODES = [
   { label: 'Less Container Load(LCL)', value: 'LCL_WAREHOUSE' },
   { label: 'Less than Truckload(LTL)', value: 'LTL_WAREHOUSE' },
 ]
-export const COUNTRIES_LIST = [
-  { value: 'IN', label: 'IND' },
-  { value: 'US', label: 'US' },
-  { value: 'EU', label: 'EU', disable: true },
-  { value: 'CA', label: 'CA', disable: true },
-]
-export const COUNTRIES_LAND_LIST = [
-  { value: 'US', label: 'US' },
-  { value: 'EU', label: 'EU' },
-  { value: 'CA', label: 'CA' },
-]
-export const COUNTRIES_SEA_FCL_LCL_LIST = [
-  { value: 'IN', label: 'IND' },
-  { value: 'US', label: 'US' },
-  { value: 'CA', label: 'CA' },
-  { value: 'EU', label: 'EU' },
-  { value: 'TR', label: 'TR' },
-]
-
-export const COUNTRIES_LIST_WAREHOUSE = [
-  { value: 'IN', label: 'IND', disable: true },
-  { value: 'US', label: 'US' },
-]
-export const COUNTRIES = ['IN', 'US', 'CA', 'EU', 'TR'] as const
 
 export const BULK_TYPE_LIST = [
   { value: 'GC', label: 'General Cargo(GC)' },
@@ -127,55 +107,12 @@ export const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
 )
 
-export const FIVE_PERCENTAGE_GST_CODE_LIST = [
-  'SEA',
-  'BLOK_AIR_FREIGHT',
-  'BLOK_SEA_LCL_FREIGHT',
+export const COUNTRIES_LAND_OPTIONS = [
+  ...NORTH_AMERICA_COUNTRIES_OPTIONS,
+  ...EUROPE_COUNTRIES_OPTIONS,
 ]
 
 export const ALL_COUNTRIES = [
-  { code: 'AE', name: 'United Arab Emirates' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'BE', name: 'Belgium' },
-  { code: 'BH', name: 'Bahrain' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'CN', name: 'China' },
-  { code: 'HK', name: 'Hong Kong' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'DK', name: 'Denmark' },
-  { code: 'EE', name: 'Estonia' },
-  { code: 'ES', name: 'Spain' },
-  { code: 'FR', name: 'France' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'GR', name: 'Greece' },
-  { code: 'HR', name: 'Croatia' },
-  { code: 'IE', name: 'Ireland' },
-  { code: 'IN', name: 'India' },
-  { code: 'IT', name: 'Italy' },
-  { code: 'JP', name: 'Japan' },
-  { code: 'KE', name: 'Kenya' },
-  { code: 'KH', name: 'Cambodia' },
-  { code: 'KW', name: 'Kuwait' },
-  { code: 'LT', name: 'Lithuania' },
-  { code: 'MM', name: 'Myanmar' },
-  { code: 'MY', name: 'Malaysia' },
-  { code: 'MZ', name: 'Mozambique' },
-  { code: 'NL', name: 'Netherlands' },
-  { code: 'NO', name: 'Norway' },
-  { code: 'NZ', name: 'New Zealand' },
-  { code: 'OM', name: 'Oman' },
-  { code: 'PL', name: 'Poland' },
-  { code: 'QA', name: 'Qatar' },
-  { code: 'RO', name: 'Romania' },
-  { code: 'SA', name: 'Saudi Arabia' },
-  { code: 'SE', name: 'Sweden' },
-  { code: 'SG', name: 'Singapore' },
-  { code: 'SI', name: 'Slovenia' },
-  { code: 'TZ', name: 'Tanzania' },
-  { code: 'US', name: 'United States' },
-]
-
-export const ALL_COUNTRY_CODES = [
   'AE',
   'AU',
   'BE',

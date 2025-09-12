@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react'
 import { CheckBoxWrapper } from '../_components/form-wrapper/check-box-wrapper'
 import { FilteredCombobox } from '../_components/filtered-combobox'
-// import { COUNTRIES_LIST } from '@/constants'
 import { Prediction } from '@/types/google'
-import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { AllDataCombobox } from '../_components/all-data-combobox'
 import { AirPortsType } from '@/models/air-ports'
+import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
+import { AIR_ORIGIN_COUNTRIES_OPTIONS } from '@/constants/air-form'
 export const OriginAirForm = () => {
   const { watch, setValue, control, resetField } = useFormContext()
   const watchPick = watch('pickup_check') as boolean
@@ -35,11 +35,12 @@ export const OriginAirForm = () => {
         field="pickup_check"
       />
       <div className="mt-5 flex flex-col items-center gap-2 md:flex-row">
-        <SelectWrapper
-          label="Country"
+        <CountryCombobox
           field="ori_country"
-          data={[{ label: 'IND', value: 'IN' }]}
-          divClass={`w-full ${watchPick && 'md:w-1/3'} `}
+          label="Country"
+          countries={AIR_ORIGIN_COUNTRIES_OPTIONS}
+          divClass={`w-full ${watchPick && 'md:w-1/4'} `}
+          labelClass="required"
         />
 
         {watchPick && (
