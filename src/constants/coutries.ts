@@ -52,9 +52,28 @@ export const JAPAN_OPTION = { value: 'JP', label: 'Japan' }
 export const KENYA_OPTION = { value: 'KE', label: 'Kenya' }
 export const MOZAMBIQUE_OPTION = { value: 'MZ', label: 'Mozambique' }
 export const TANZANIA_OPTION = { value: 'TZ', label: 'Tanzania' }
+export const SOUTH_AFRICA_OPTION = { value: 'ZA', label: 'South Africa' }
+export const NIGERIA_OPTION = { value: 'NG', label: 'Nigeria' }
+export const ETHIOPIA_OPTION = { value: 'ET', label: 'Ethiopia' }
+export const EGYPT_OPTION = { value: 'EG', label: 'Egypt' }
+export const MOROCCO_OPTION = { value: 'MA', label: 'Morocco' }
+
+// SOUTH AMERICA
+export const BRAZIL_OPTION = { value: 'BR', label: 'Brazil' }
+export const ARGENTINA_OPTION = { value: 'AR', label: 'Argentina' }
+export const CHILE_OPTION = { value: 'CL', label: 'Chile' }
+export const COLOMBIA_OPTION = { value: 'CO', label: 'Colombia' }
+export const PERU_OPTION = { value: 'PE', label: 'Peru' }
 
 export const INDIAN_SUBCONTINENT_COUNTRIES_OPTIONS = [INDIA_OPTION]
 export const NORTH_AMERICA_COUNTRIES_OPTIONS = [AMERICA_OPTION, CANADA_OPTION]
+export const SOUTH_AMERICA_COUNTRIES_OPTIONS = [
+  BRAZIL_OPTION,
+  ARGENTINA_OPTION,
+  CHILE_OPTION,
+  COLOMBIA_OPTION,
+  PERU_OPTION,
+]
 export const EUROPE_COUNTRIES_OPTIONS = [
   BELGIUM_OPTION,
   GERMANY_OPTION,
@@ -99,6 +118,11 @@ export const AFRICA_COUNTRIES_OPTIONS = [
   KENYA_OPTION,
   MOZAMBIQUE_OPTION,
   TANZANIA_OPTION,
+  SOUTH_AFRICA_OPTION,
+  NIGERIA_OPTION,
+  ETHIOPIA_OPTION,
+  EGYPT_OPTION,
+  MOROCCO_OPTION,
 ]
 
 export const ALL_COUNTRIES_OPTIONS = [
