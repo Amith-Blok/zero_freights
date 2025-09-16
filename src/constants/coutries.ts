@@ -47,6 +47,8 @@ export const SINGAPORE_OPTION = { value: 'SG', label: 'Singapore' }
 export const CHINA_OPTION = { value: 'CN', label: 'China' }
 export const HONG_KONG_OPTION = { value: 'HK', label: 'Hong Kong' }
 export const JAPAN_OPTION = { value: 'JP', label: 'Japan' }
+export const TAIWAN_OPTION = { value: 'TW', label: 'Taiwan' }
+export const SOUTH_KOREA_OPTION = { value: 'KR', label: 'South Korea' }
 
 // AFRICA
 export const KENYA_OPTION = { value: 'KE', label: 'Kenya' }
@@ -113,6 +115,8 @@ export const FAR_EAST_COUNTRIES_OPTIONS = [
   CHINA_OPTION,
   HONG_KONG_OPTION,
   JAPAN_OPTION,
+  TAIWAN_OPTION,
+  SOUTH_KOREA_OPTION,
 ]
 export const AFRICA_COUNTRIES_OPTIONS = [
   KENYA_OPTION,
