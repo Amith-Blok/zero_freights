@@ -113,6 +113,5 @@ export const COUNTRIES_LAND_OPTIONS = [
   ...EUROPE_COUNTRIES_OPTIONS,
 ]
 
-export const ALL_COUNTRIES = ALL_COUNTRIES_OPTIONS.map(
-  (country) => country.value
-) as (typeof ALL_COUNTRIES_OPTIONS)[number]['value'][]
+const allCountriesArray = ALL_COUNTRIES_OPTIONS.map((country) => country.value)
+export const ALL_COUNTRIES = allCountriesArray as [string, ...string[]]
