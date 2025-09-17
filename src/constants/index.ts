@@ -1,4 +1,5 @@
 import {
+  ALL_COUNTRIES_OPTIONS,
   EUROPE_COUNTRIES_OPTIONS,
   NORTH_AMERICA_COUNTRIES_OPTIONS,
 } from './coutries'
@@ -112,44 +113,6 @@ export const COUNTRIES_LAND_OPTIONS = [
   ...EUROPE_COUNTRIES_OPTIONS,
 ]
 
-export const ALL_COUNTRIES = [
-  'AE',
-  'AU',
-  'BE',
-  'BH',
-  'CA',
-  'CN',
-  'HK',
-  'DE',
-  'DK',
-  'EE',
-  'ES',
-  'FR',
-  'GB',
-  'GR',
-  'HR',
-  'IE',
-  'IN',
-  'IT',
-  'JP',
-  'KE',
-  'KH',
-  'KW',
-  'LT',
-  'MM',
-  'MY',
-  'MZ',
-  'NL',
-  'NO',
-  'NZ',
-  'OM',
-  'PL',
-  'QA',
-  'RO',
-  'SA',
-  'SE',
-  'SG',
-  'SI',
-  'TZ',
-  'US',
-] as const
+export const ALL_COUNTRIES = ALL_COUNTRIES_OPTIONS.map(
+  (country) => country.value
+) as (typeof ALL_COUNTRIES_OPTIONS)[number]['value'][]
