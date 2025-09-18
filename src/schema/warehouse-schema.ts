@@ -1,4 +1,5 @@
 import {
+  ALL_COUNTRIES,
   FCL_CONTAINER_TYPE,
   IN_CM,
   KG_LBS,
@@ -16,7 +17,7 @@ const portSchema = z.object({
   place_id: z.string(),
 })
 export const CommonSchema = z.object({
-  country: z.enum(['US', 'CA', 'EU']),
+  country: z.enum(ALL_COUNTRIES),
   is_google_location: z.boolean(),
   dg: z.boolean().optional(),
   floor: z.boolean().optional(),
