@@ -91,7 +91,9 @@ export default function MultiSelect({
                   </Badge>
                 ))
               ) : (
-                <span>{placeholder}</span>
+                <span className="text-sm font-normal text-zinc-400">
+                  {placeholder}
+                </span>
               )}
             </div>
             <ChevronsUpDown

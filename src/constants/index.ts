@@ -73,13 +73,9 @@ export const FCL_CONTAINER_TYPE_LIST = [
 
 export const SEA_DEFAULT_VALUES = {
   modes: 'FCL' as const,
-  fcl_container_type: ['20STD', '40STD', '40HC'] as (
-    | '20STD'
-    | '40STD'
-    | '40HC'
-  )[],
-  fcl_quantities: { '20STD': 1, '40STD': 1, '40HC': 1 },
-  fcl_weights: { '20STD': 24000, '40STD': 26700, '40HC': 29500 },
+  fcl_container_type: [] as ('20STD' | '40STD' | '40HC')[],
+  // fcl_quantities: { '20STD': 1, '40STD': 1, '40HC': 1 },
+  // fcl_weights: { '20STD': 24000, '40STD': 26700, '40HC': 29500 },
   fcl_unit: 'KG' as const,
   pickup_location: undefined,
   delivery_location: undefined,

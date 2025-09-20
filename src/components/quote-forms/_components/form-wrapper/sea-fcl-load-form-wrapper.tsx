@@ -49,7 +49,7 @@ export function SeaFclLoadFormWrapper() {
           name="fcl_container_type"
           render={({ field }) => (
             <MultiSelect
-              aria-label="Container types"
+              placeholder="Select container types"
               options={FCL_CONTAINER_TYPE_LIST}
               value={field.value ?? []}
               onChange={(next) => {
@@ -76,7 +76,6 @@ export function SeaFclLoadFormWrapper() {
                   setValue(`fcl_weights.${id}`, 0, { shouldDirty: true })
                 })
               }}
-              placeholder="Select container types"
             />
           )}
         />
