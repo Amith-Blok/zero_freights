@@ -40,7 +40,7 @@ export const filterHaulageRateByWeight = ({
     const stdContainerType =
       targetType === 'd2' ? '20STD' : targetType === 'd4' ? '40STD' : '40HC'
     const weight = fcl_weights[stdContainerType]
-    const ton = weightTOMetricTon({ weight, unit: fcl_unit })
+    const ton = weightTOMetricTon({ weight: weight || 0, unit: fcl_unit })
 
     for (const haulage of haulageRates) {
       //TODO: fix / in container haulage rail database database
@@ -85,11 +85,11 @@ export const filterHaulageRateByWeight = ({
 
   // Add profit margin
   filteredHaulageRate.d2 =
-    filteredHaulageRate.d2 * fcl_quantities['20STD'] + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d2 * (fcl_quantities['20STD'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.d4 =
-    filteredHaulageRate.d4 * fcl_quantities['40STD'] + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d4 * (fcl_quantities['40STD'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.d5 =
-    filteredHaulageRate.d5 * fcl_quantities['40HC'] + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d5 * (fcl_quantities['40HC'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.total =
     filteredHaulageRate.d2 + filteredHaulageRate.d4 + filteredHaulageRate.d5
 
