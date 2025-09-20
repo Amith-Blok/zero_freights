@@ -19,7 +19,6 @@ import {
 import {
   filterAndSortOffers,
   getAvailableCarriers,
-  getPriceRange,
 } from '@/lib/sea-fcl-filter-utils'
 
 // Actual line charge data structure from the API
@@ -56,12 +55,6 @@ export function SeaFclComp({
   locations,
   offerId,
 }: SeaFclCompProps) {
-  // Initialize filter state
-  const [priceMin, priceMax] = useMemo(
-    () => getPriceRange(linesFreightRates, containerTypes, containerDetails),
-    [linesFreightRates, containerTypes, containerDetails]
-  )
-
   const availableCarriers = useMemo(
     () => getAvailableCarriers(linesFreightRates),
     [linesFreightRates]
@@ -69,17 +62,8 @@ export function SeaFclComp({
 
   const [filters, setFilters] = useState<FilterState>({
     sort: 'cheapest',
-    container: 'all',
     carrier: 'all',
     currency: 'USD',
-    priceRange: [priceMin, priceMax],
-    transitTime: 'all',
-    quickFilters: {
-      cheapest: false,
-      fastest: false,
-      twentyFtOnly: false,
-      fortyFtOnly: false,
-    },
   })
 
   // Apply filters to get filtered lines
@@ -121,14 +105,6 @@ export function SeaFclComp({
             const quantity = containerDetails[dType]?.quantity ?? 0
             if (quantity <= 0) return null
 
-            // Apply container filter
-            if (
-              filters.container !== 'all' &&
-              containerType !== filters.container
-            ) {
-              return null
-            }
-
             return {
               dType,
               stdType: containerType as STDContainerType,
@@ -145,7 +121,7 @@ export function SeaFclComp({
           (container): container is NonNullable<typeof container> =>
             container !== null
         ),
-    [containerTypes, containerDetails, weightUnit, tags, filters.container]
+    [containerTypes, containerDetails, weightUnit, tags]
   )
 
   // Calculate total offers count for display
@@ -164,8 +140,6 @@ export function SeaFclComp({
         filters={filters}
         onFiltersChange={setFilters}
         availableCarriers={availableCarriers}
-        priceMin={priceMin}
-        priceMax={priceMax}
         offersCount={totalOffersCount}
       />
 

@@ -89,19 +89,19 @@ export const FclSchema = z
         .number()
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
-        .max(50, 'Must be less than 50.')
+        .optional()
         .describe('Number of 20STD containers. Max 50'),
       '40STD': z.coerce
         .number()
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
-        .max(50, 'Must be less than 50.')
+        .optional()
         .describe('Number of 40STD containers. Max 50'),
       '40HC': z.coerce
         .number()
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
-        .max(50, 'Must be less than 50.')
+        .optional()
         .describe('Number of 40HC containers. Max 50'),
     }),
     fcl_weights: z.object({
@@ -109,16 +109,19 @@ export const FclSchema = z
         .number()
         .min(0, 'Must be 0 or more.')
         .max(40000, 'Must be less than 40000.')
+        .optional()
         .describe('Weight of 20STD containers. Max 40000'),
       '40STD': z.coerce
         .number()
         .min(0, 'Must be 0 or more.')
         .max(40000, 'Must be less than 40000.')
+        .optional()
         .describe('Weight of 40STD containers. Max 40000'),
       '40HC': z.coerce
         .number()
         .min(0, 'Must be 0 or more.')
         .max(40000, 'Must be less than 40000.')
+        .optional()
         .describe('Weight of 40HC containers. Max 40000'),
     }),
     fcl_unit: z.enum(KG_LBS),

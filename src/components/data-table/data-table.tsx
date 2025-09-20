@@ -178,11 +178,15 @@ export function DataTable<TData, TValue>({
           {table.getFooterGroups().map((footerGroup) => {
             // Find the footer content from columns that have footer defined
             const footerContent = footerGroup.headers
-              .map((footer) => {
+              .map((footer, index) => {
                 if (!footer.isPlaceholder && footer.column.columnDef.footer) {
-                  return flexRender(
-                    footer.column.columnDef.footer,
-                    footer.getContext()
+                  return (
+                    <div key={footer.id || index}>
+                      {flexRender(
+                        footer.column.columnDef.footer,
+                        footer.getContext()
+                      )}
+                    </div>
                   )
                 }
                 return null

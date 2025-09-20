@@ -74,6 +74,7 @@ export const OfferSeaFclDataTable = ({
 
     if (containerLabels?.d2) {
       columns.push({
+        id: 'd2',
         accessorKey: 'd2',
         header: `${containerLabels.d2}`,
         cell: ({ row }) => {
@@ -88,6 +89,7 @@ export const OfferSeaFclDataTable = ({
 
     if (containerLabels?.d4) {
       columns.push({
+        id: 'd4',
         accessorKey: 'd4',
         header: `${containerLabels.d4}`,
         cell: ({ row }) => {
@@ -102,6 +104,7 @@ export const OfferSeaFclDataTable = ({
 
     if (containerLabels?.d5) {
       columns.push({
+        id: 'd5',
         accessorKey: 'd5',
         header: `${containerLabels.d5}`,
         cell: ({ row }) => {
@@ -115,6 +118,7 @@ export const OfferSeaFclDataTable = ({
     }
 
     columns.push({
+      id: 'total',
       accessorKey: 'total',
       header: 'TOTAL',
       cell: ({ row }) => {

@@ -22,6 +22,11 @@ export const currencyConverter = ({
   sourceCurrency: 'USD' | 'INR' | 'EUR'
   targetCurrency: 'USD' | 'INR'
 }) => {
+  // Handle NaN, null, undefined values
+  if (!cost || isNaN(cost)) {
+    return 0
+  }
+
   if (targetCurrency == 'INR') {
     return cost * INR_MAPPER[sourceCurrency]
   }

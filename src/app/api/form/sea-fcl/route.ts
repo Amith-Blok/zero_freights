@@ -255,7 +255,9 @@ export async function POST(request: NextRequest) {
     } = validateData.data
     //--- Calculate total quantity of containers ---
     const totalQuantity =
-      fcl_quantities['20STD'] + fcl_quantities['40STD'] + fcl_quantities['40HC']
+      (fcl_quantities['20STD'] || 0) +
+      (fcl_quantities['40STD'] || 0) +
+      (fcl_quantities['40HC'] || 0)
 
     // --- Port Selection ---
     const { startSeaPort, endSeaPort } = selectPorts({
@@ -275,8 +277,8 @@ export async function POST(request: NextRequest) {
 
     Object.keys(fcl_quantities).forEach((containerType) => {
       const quantity =
-        fcl_quantities[containerType as keyof typeof fcl_quantities]
-      const weight = fcl_weights[containerType as keyof typeof fcl_weights]
+        fcl_quantities[containerType as keyof typeof fcl_quantities] || 0
+      const weight = fcl_weights[containerType as keyof typeof fcl_weights] || 0
       if (quantity > 0 && weight > 0) {
         containerMetricTons[containerType as keyof typeof containerMetricTons] =
           weightTOMetricTon({ weight: weight * quantity, unit: fcl_unit })
@@ -286,7 +288,7 @@ export async function POST(request: NextRequest) {
     let tags: string[] = []
     fcl_container_type.forEach((containerType) => {
       tags.push(
-        `${fcl_quantities[containerType]} x ${containerType} (${fcl_weights[containerType]}${fcl_unit})`
+        `${fcl_quantities[containerType] || 0} x ${containerType} (${fcl_weights[containerType] || 0}${fcl_unit})`
       )
     })
     tags.push(incoterms)
@@ -559,20 +561,20 @@ export async function POST(request: NextRequest) {
     fcl_container_type.forEach((containerType) => {
       if (containerType === '20STD') {
         containerDetails['d2'] = {
-          quantity: fcl_quantities['20STD'],
-          weight: fcl_weights['20STD'],
+          quantity: fcl_quantities['20STD'] || 0,
+          weight: fcl_weights['20STD'] || 0,
         }
       }
       if (containerType === '40STD') {
         containerDetails['d4'] = {
-          quantity: fcl_quantities['40STD'],
-          weight: fcl_weights['40STD'],
+          quantity: fcl_quantities['40STD'] || 0,
+          weight: fcl_weights['40STD'] || 0,
         }
       }
       if (containerType === '40HC') {
         containerDetails['d5'] = {
-          quantity: fcl_quantities['40HC'],
-          weight: fcl_weights['40HC'],
+          quantity: fcl_quantities['40HC'] || 0,
+          weight: fcl_weights['40HC'] || 0,
         }
       }
     })
@@ -583,7 +585,7 @@ export async function POST(request: NextRequest) {
     // --- Quote Details ---
     let firstSlug = `SEA FCL `
     fcl_container_type.forEach((containerType) => {
-      firstSlug += `${fcl_quantities[containerType]} x ${containerType} (${fcl_weights[containerType]}${fcl_unit}) `
+      firstSlug += `${fcl_quantities[containerType] || 0} x ${containerType} (${fcl_weights[containerType] || 0}${fcl_unit}) `
     })
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
