@@ -13,16 +13,23 @@ import { IncotermsType } from '@/schema/sea-schema'
 
 const EXCLUDE_FEES_DAP_LIST = ['ISF', 'CUSTOMS_FEE']
 //COMMENT: append additional fees to the data array
-export const appendSeaFclAdditionalFees = (
-  data: ContainerCost[],
+export const appendSeaFclAdditionalFees = ({
+  data,
+  incoterms,
+  removeList,
+}: {
+  data: ContainerCost[]
   incoterms: IncotermsType
-) => {
+  removeList?: string[]
+}) => {
   if (incoterms === 'FOB' || incoterms === 'CIF') {
     return
   }
   US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+    if (removeList?.includes(fee.code)) {
+      return
+    }
     if (incoterms === 'DAP' && EXCLUDE_FEES_DAP_LIST.includes(fee.code)) {
-      console.log('DAP', fee.code)
       return
     }
     data.push({
@@ -36,7 +43,7 @@ export const appendSeaFclAdditionalFees = (
     })
   })
 }
-export const newAppendAdditionalFees = ({
+export const appendAdditionFees = ({
   data,
   incoterms,
   mode,

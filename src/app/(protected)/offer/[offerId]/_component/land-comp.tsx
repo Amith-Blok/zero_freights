@@ -26,7 +26,7 @@ export default function LandComp({
   containerType,
   containerLabel,
   offerId,
-  mode: _ = 'WAR',
+  mode: _ = 'LAND',
 }: LandCompProps) {
   return (
     <ShippingCard
@@ -43,6 +43,7 @@ export default function LandComp({
       price={price}
       url={`/api/confirmed-quote`}
       offerId={offerId}
+      currency="USD"
     >
       <OfferDataTable data={offers} containerType={''} grandTotal={price} />
     </ShippingCard>

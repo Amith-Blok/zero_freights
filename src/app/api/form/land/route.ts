@@ -7,7 +7,7 @@ import {
 } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
-import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { appendAdditionFees } from '../helper/table-data-appender'
 import { LandFormSchema } from '@/schema/land-schema'
 import { formatPhoneNumber, toTitleCase, weightTOMetricTon } from '@/lib/utils'
 import { currencyConverter, exchangeValues } from '@/lib/exchange'
@@ -232,7 +232,10 @@ export async function POST(request: NextRequest) {
     // //COMMENT: appended additional fees
     const removeList =
       modes === 'DOMESTIC_TRUCKING' ? [] : ['DELIVERY_ORDER_FEE']
-    newAppendAdditionalFees({
+    if (country !== 'US') {
+      removeList.push('ISF')
+    }
+    appendAdditionFees({
       data: quoteTableData,
       incoterms,
       removeList,

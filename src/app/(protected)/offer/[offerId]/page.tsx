@@ -61,7 +61,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.inr}
+        price={offers.total_cost.usd}
       />
     )
   }
@@ -79,7 +79,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.inr}
+        price={offers.total_cost.usd}
       />
     )
   } else if (offers.mode === 'AIR') {
@@ -96,7 +96,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.inr}
+        price={offers.total_cost.usd}
         estimatedDays={estimated_days}
       />
     )
@@ -114,7 +114,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.inr}
+        price={offers.total_cost.usd}
       />
     )
   } else {

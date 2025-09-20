@@ -9,7 +9,7 @@ import { getGoogleLocationByPlaceId } from '@/app/api/form/helper/google-map'
 import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
-import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { appendAdditionFees } from '../helper/table-data-appender'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { exchangeValues } from '@/lib/exchange'
@@ -299,9 +299,11 @@ export async function POST(request: NextRequest) {
       if (ori_country === 'IN' && incoterms !== 'DAP')
         quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
 
-      newAppendAdditionalFees({
+      const removeList = des_country !== 'US' ? ['ISF'] : []
+      appendAdditionFees({
         data: quoteTableData,
         incoterms,
+        removeList,
       })
 
       // Duty

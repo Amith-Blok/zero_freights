@@ -7,7 +7,7 @@ import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 import { USD_TO_INR } from '@/constants'
 import { INR_TO_USD } from '@/constants/exchange-value'
-import { newAppendAdditionalFees } from '../helper/table-data-appender'
+import { appendAdditionFees } from '../helper/table-data-appender'
 import { exchangeValues } from '@/lib/exchange'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
@@ -256,7 +256,7 @@ interface BuildQuoteTableDataArgs {
   incoterms: string
   ori_country: string
   CLEARANCE_FEE_OBJ: LabeledCost
-  newAppendAdditionalFees: (
+  additionFeesBuilder: (
     data: LabeledCost[],
     incoterms: string,
     mode?: string
@@ -273,7 +273,7 @@ function buildQuoteTableData({
   incoterms,
   ori_country,
   CLEARANCE_FEE_OBJ,
-  newAppendAdditionalFees,
+  additionFeesBuilder,
   dutyCost,
 }: BuildQuoteTableDataArgs): LabeledCost[] {
   let quoteTableData: LabeledCost[] = [airFreight, terminalCost, ams, awb]
@@ -285,7 +285,7 @@ function buildQuoteTableData({
   if (ori_country === 'IN') {
     quoteTableData.splice(2, 0, CLEARANCE_FEE_OBJ)
   }
-  newAppendAdditionalFees(quoteTableData, incoterms, 'AIR')
+  additionFeesBuilder(quoteTableData, incoterms, 'AIR')
   if (dutyCost) {
     quoteTableData.splice(quoteTableData.length - 2, 0, dutyCost)
   }
@@ -409,11 +409,12 @@ export async function POST(request: NextRequest) {
         incoterms,
         ori_country,
         CLEARANCE_FEE_OBJ,
-        newAppendAdditionalFees: (data, incoterms, mode) =>
-          newAppendAdditionalFees({
+        additionFeesBuilder: (data, incoterms, mode) =>
+          appendAdditionFees({
             data,
             incoterms: incoterms as IncotermsType,
             mode: mode as OfferModeTypes,
+            removeList: des_country !== 'US' ? ['ISF'] : [],
           }),
         dutyCost,
       })

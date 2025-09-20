@@ -486,7 +486,12 @@ export async function POST(request: NextRequest) {
         quoteTableData.local_charges.splice(1, 0, IN_FCL_CLEARANCE_FEE)
       }
       // --- Additional Fees ---
-      appendSeaFclAdditionalFees(quoteTableData.local_charges, incoterms)
+      const removeList = des_country !== 'US' ? ['ISF'] : []
+      appendSeaFclAdditionalFees({
+        data: quoteTableData.local_charges,
+        incoterms,
+        removeList,
+      })
 
       // --- Duty ---
       if (incoterms == 'DDP') {
