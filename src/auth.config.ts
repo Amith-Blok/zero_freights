@@ -10,6 +10,7 @@ export default {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
     Resend({
       from: process.env.AUTH_RESEND_FROM_EMAIL,
@@ -27,6 +28,18 @@ export default {
       },
     }),
   ],
+
+  callbacks: {
+    async signIn({ user, account }) {
+      // For email providers (like Resend), we need to handle the lack of name
+      if (account?.provider === 'resend' && user.email && !user.name) {
+        // Extract name from email if possible, or use email prefix
+        const emailPrefix = user.email.split('@')[0]
+        user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
+      }
+      return true
+    },
+  },
 
   //   events: {
   //     createUser: async ({ user }) => {
