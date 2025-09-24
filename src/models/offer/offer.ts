@@ -1,5 +1,5 @@
 import mongoose, { Document } from 'mongoose'
-import { UserSchema } from '../user'
+
 import { LocationSchema } from '../location'
 import { ExchangeSchema } from '../exchange'
 import {
@@ -24,6 +24,20 @@ export const transform = (ret: any) => {
   delete ret.__v
   return ret
 }
+
+//TODO: move to common
+const UserSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    company: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+)
 
 export interface OfferDocument extends Offer, Document {}
 export interface WarehouseOfferDocument extends WarehouseOffer, Document {}

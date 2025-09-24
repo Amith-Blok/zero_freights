@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import Image from 'next/image'
+import ProfileButton from './shared/profile-button'
 
 const companyMenuItems = [
   {
@@ -176,10 +177,11 @@ export default function Header() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center space-x-4 lg:flex">
-            <Button variant="outline" disabled>
+            {/* <Button variant="outline" disabled>
               Track Shipment
             </Button>
-            <Button disabled>Dashboard</Button>
+            <Button disabled>Dashboard</Button> */}
+            <ProfileButton />
           </div>
 
           {/* Mobile Menu */}
