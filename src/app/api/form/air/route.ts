@@ -9,7 +9,6 @@ import { USD_TO_INR } from '@/constants'
 import { INR_TO_USD } from '@/constants/exchange-value'
 import { appendAdditionFees } from '../helper/table-data-appender'
 import { exchangeValues } from '@/lib/exchange'
-import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { LabeledCost, ServiceType } from '@/models/offer/shared-types'
 import { createAirOffer } from '@/data/offer/air'
@@ -17,6 +16,8 @@ import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 import { OfferModeTypes, Location } from '@/models/offer/shared-types'
 import { IncotermsType } from '@/schema/sea-schema'
+import { getUser } from '@/lib/user'
+import { toTitleCase } from '@/lib/utils'
 
 // Helper to calculate pickup LTL
 interface PickupLTLArgs {
@@ -312,11 +313,25 @@ export async function POST(request: NextRequest) {
       incoterms,
       hsn,
       value,
-      user_name,
-      company_name,
-      email,
-      phone,
     } = validateData.data
+
+    const dbUser = await getUser()
+
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
+    const { name, email, companyName, phone } = dbUser
+
+    if (!name || !email || !companyName || !phone) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
+
     const { ton, cbm, kg } = air_cbm_ton
 
     // Prepare base cost objects
@@ -476,10 +491,10 @@ export async function POST(request: NextRequest) {
     const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
-      name: toTitleCase(user_name) || '',
+      name: name || '',
       email: email || '',
-      company: toTitleCase(company_name) || '',
-      phone: phone ? formatPhoneNumber(phone) : '',
+      company: companyName || '',
+      phone: phone || '',
     }
     const offer_id = await createAirOffer({
       blok_id: blok_quote_id,

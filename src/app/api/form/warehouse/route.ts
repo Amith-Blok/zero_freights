@@ -11,7 +11,6 @@ import { WarehouseFormSchema } from '@/schema/warehouse-schema'
 import { RateInfoType } from '@/types/common'
 import { createForm } from '@/data/form'
 import { createWarehouseOffer } from '@/data/offer/warehouse-offer'
-import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { exchangeValues } from '@/lib/exchange'
 import {
   Location,
@@ -19,6 +18,7 @@ import {
   ServiceType,
 } from '@/models/offer/shared-types'
 import { WAREHOUSE_CHARGE_USD } from '@/constants/warehosue'
+import { getUser } from '@/lib/user'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,11 +36,23 @@ export async function POST(request: NextRequest) {
       floor,
       delivery_location,
       storage_days,
-      user_name,
-      company_name,
-      email,
-      phone,
     } = validateData.data
+    const dbUser = await getUser()
+
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
+    const { name, email, companyName, phone } = dbUser
+
+    if (!name || !email || !companyName || !phone) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
     let tags: string[] = []
     let serviceType: ServiceType
     // Narrow the type based on `is_google_location`
@@ -209,10 +221,10 @@ export async function POST(request: NextRequest) {
     const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
-      name: toTitleCase(user_name) || '',
+      name: name || '',
       email: email || '',
-      company: toTitleCase(company_name) || '',
-      phone: phone ? formatPhoneNumber(phone) : '',
+      company: companyName || '',
+      phone: phone || '',
     }
     const offer_id = await createWarehouseOffer({
       blok_id: blok_quote_id,

@@ -10,13 +10,13 @@ import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { appendAdditionFees } from '../helper/table-data-appender'
-import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { createForm } from '@/data/form'
 import { exchangeValues } from '@/lib/exchange'
 import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
+import { getUser } from '@/lib/user'
 
 const pickupLTLBase = {
   label: 'Pickup LTL',
@@ -138,6 +138,22 @@ export async function POST(request: NextRequest) {
     if (!validateData.success) {
       return NextResponse.json({ error: 'invalid data' }, { status: 400 })
     }
+    const dbUser = await getUser()
+
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
+    const { name, email, companyName, phone } = dbUser
+
+    if (!name || !email || !companyName || !phone) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
 
     // Ensure the mode is LCL (Less than Container Load)
     const { modes } = validateData.data
@@ -164,10 +180,6 @@ export async function POST(request: NextRequest) {
       hsn,
       value,
       incoterms,
-      user_name,
-      company_name,
-      email,
-      phone,
     } = validateData.data
 
     // Initialize cost objects for various charges
@@ -429,10 +441,10 @@ export async function POST(request: NextRequest) {
     const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
-      name: toTitleCase(user_name) || '',
+      name: name || '',
       email: email || '',
-      company: toTitleCase(company_name) || '',
-      phone: phone ? formatPhoneNumber(phone) : '',
+      company: companyName || '',
+      phone: phone || '',
     }
 
     // Create a sea LCL offer with all the gathered information

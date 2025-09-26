@@ -1,14 +1,24 @@
 /* eslint-disable no-unused-vars */
-import NextAuth, { type DefaultSession } from 'next-auth';
+import { type DefaultSession } from 'next-auth';
 
 export type ExtendedUser = DefaultSession['user'] & {
-  companyId: string;
-  contactId: string;
-  company: string;
+  companyName?: string;
+  phone?: string;
+  blokVerified?: Date;
+  isBanned?: Date;
+  role?: 'ADMIN' | 'USER';
 };
 
 declare module 'next-auth' {
   interface Session {
     user: ExtendedUser;
+  }
+
+  interface User {
+    companyName?: string;
+    phone?: string;
+    blokVerified?: Date;
+    isBanned?: Date;
+    role?: 'ADMIN' | 'USER';
   }
 }

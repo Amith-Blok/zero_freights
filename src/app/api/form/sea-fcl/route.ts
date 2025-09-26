@@ -2,7 +2,7 @@ import { getAllIndiaOutboundHaulageRatesByCode } from '@/data/india-outbound-hau
 import { IncotermsType, SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
-import { formatPhoneNumber, weightTOMetricTon } from '@/lib/utils'
+import { weightTOMetricTon } from '@/lib/utils'
 import { formatLines } from '../helper/lines-rate-formatter'
 import { generateOfferId, generateQuoteMetaDetails } from '../helper/lib'
 import { inTrucking, usTrucking } from '../helper/trucking'
@@ -21,6 +21,7 @@ import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 import { HsSixType } from '@/models/hs-six'
+import { getUser } from '@/lib/user'
 
 // --- Constants ---
 const CFS_CHARGE = 28000
@@ -220,6 +221,17 @@ async function getDutyIfNeeded({
 // --- Main Handler ---
 export async function POST(request: NextRequest) {
   try {
+    const dbUser = await getUser()
+
+    if (!dbUser) {
+      return errorResponse('user not found please login again')
+    }
+    const { name, email, companyName, phone } = dbUser
+
+    if (!name || !email || !companyName || !phone) {
+      return errorResponse('user not found please login again')
+    }
+
     const data = await request.json()
     const validateData = SeaFormSchema.safeParse(data)
     if (!validateData.success) {
@@ -248,11 +260,8 @@ export async function POST(request: NextRequest) {
       incoterms,
       hsn,
       value,
-      email,
-      phone,
-      company_name,
-      user_name,
     } = validateData.data
+
     //--- Calculate total quantity of containers ---
     const totalQuantity =
       (fcl_quantities['20STD'] || 0) +
@@ -605,10 +614,10 @@ export async function POST(request: NextRequest) {
     const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
-      name: toTitleCase(user_name) || '',
+      name: name || '',
       email: email || '',
-      company: toTitleCase(company_name) || '',
-      phone: phone ? formatPhoneNumber(phone) : '',
+      company: companyName || '',
+      phone: phone || '',
     }
     const offer_id = await createSeaFclOffer({
       blok_id: blok_quote_id,

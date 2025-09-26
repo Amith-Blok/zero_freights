@@ -37,10 +37,6 @@ export const CommonSchema = z.object({
     .number()
     .min(1, { message: 'min one day is required' }),
   value: z.coerce.number().min(1),
-  phone: z.string(),
-  email: z.string().email(),
-  company_name: z.string().min(1, { message: 'Required' }),
-  user_name: z.string().min(1, { message: 'Required' }),
 })
 
 export const FclWarehouseSchema = z

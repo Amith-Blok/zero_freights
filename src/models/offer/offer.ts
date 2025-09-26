@@ -17,13 +17,7 @@ import {
   SeaFclOfferSchema,
   TotalCostSchema,
 } from './common-schema'
-
-export const transform = (ret: any) => {
-  ret.id = ret._id.toString()
-  delete ret._id
-  delete ret.__v
-  return ret
-}
+import { transform } from '@/lib/mongoose-transform'
 
 //TODO: move to common
 const UserSchema = new mongoose.Schema(
@@ -78,7 +72,7 @@ export const OfferSchema = new mongoose.Schema<OfferDocument>(
     collection: 'offers',
     timestamps: { createdAt: 'created_at', updatedAt: false },
     discriminatorKey: 'mode',
-    toJSON: { transform },
+    toJSON: { transform: transform },
   }
 )
 

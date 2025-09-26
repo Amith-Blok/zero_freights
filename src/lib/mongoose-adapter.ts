@@ -12,6 +12,7 @@ import {
   userSchema,
   verificationTokenSchema,
 } from '@/models/user'
+import { formatPhoneNumber, toTitleCase } from './utils'
 
 export const format = {
   /** Takes a MongoDB object and returns a plain old JavaScript object */
@@ -49,6 +50,10 @@ export function MongooseAdapter(): Adapter {
   return {
     async createUser(data) {
       await dbConnect()
+      data.name = toTitleCase(data.name || '')
+      data.companyName = toTitleCase(data.companyName || '')
+      data.phone = formatPhoneNumber(data.phone || '')
+      data.role = 'USER'
       const user = await UserModel.create(data)
       return from<AdapterUser>(user)
     },

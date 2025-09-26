@@ -9,7 +9,7 @@ import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 import { appendAdditionFees } from '../helper/table-data-appender'
 import { LandFormSchema } from '@/schema/land-schema'
-import { formatPhoneNumber, toTitleCase, weightTOMetricTon } from '@/lib/utils'
+import { weightTOMetricTon } from '@/lib/utils'
 import { currencyConverter, exchangeValues } from '@/lib/exchange'
 import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
@@ -17,6 +17,7 @@ import { createLandOffer } from '@/data/offer/land'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 import { USD_TO_INR } from '@/constants'
+import { getUser } from '@/lib/user'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,11 +34,24 @@ export async function POST(request: NextRequest) {
       incoterms,
       hsn,
       value,
-      user_name,
-      company_name,
-      email,
-      phone,
     } = validateData.data
+
+    const dbUser = await getUser()
+
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
+    const { name, email, companyName, phone } = dbUser
+
+    if (!name || !email || !companyName || !phone) {
+      return NextResponse.json(
+        { error: 'user not found please login again' },
+        { status: 400 }
+      )
+    }
     let firstSlug = ''
     let pickupLocationDescription = ''
     let serviceType: ServiceType
@@ -300,10 +314,10 @@ export async function POST(request: NextRequest) {
     const blok_quote_id = await generateOfferId()
     const user = {
       id: 'BLOK_UNKNOW_USER',
-      name: toTitleCase(user_name) || '',
+      name: name || '',
       email: email || '',
-      company: toTitleCase(company_name) || '',
-      phone: phone ? formatPhoneNumber(phone) : '',
+      company: companyName || '',
+      phone: phone || '',
     }
     const offer_id = await createLandOffer({
       blok_id: blok_quote_id,

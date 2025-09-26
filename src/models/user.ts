@@ -1,5 +1,6 @@
 import type { Types } from 'mongoose'
 import mongoose, { Schema } from 'mongoose'
+import { transform } from '@/lib/mongoose-transform'
 
 interface User {
   _id: Types.ObjectId
@@ -8,6 +9,11 @@ interface User {
   name: string | null
   email: string | null
   emailVerified: Date | null
+  blokVerified: Date | null
+  companyName: string | null
+  phone: string | null
+  role: string | null
+  isBanned: Date | null
   image: string | null
 }
 
@@ -48,12 +54,23 @@ interface VerificationToken {
   expires: Date
 }
 
-export const userSchema = new Schema<User>({
-  name: { type: String },
-  email: { type: String, unique: true },
-  emailVerified: { type: Date },
-  image: { type: String },
-})
+export const userSchema = new Schema<User>(
+  {
+    name: { type: String },
+    email: { type: String, unique: true },
+    emailVerified: { type: Date },
+    blokVerified: { type: Date },
+    companyName: { type: String },
+    phone: { type: String },
+    role: { type: String },
+    isBanned: { type: Date },
+    image: { type: String },
+  },
+  {
+    _id: true,
+    toJSON: { transform: transform },
+  }
+)
 
 export const accountSchema = new Schema<Account>({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -83,5 +100,5 @@ export const verificationTokenSchema = new Schema<VerificationToken>({
   expires: { type: Date },
 })
 
-export const UserModel =
-  mongoose.models.User || mongoose.model('User', userSchema)
+export const UserModel = (mongoose.models.User ||
+  mongoose.model('User', userSchema)) as mongoose.Model<User>

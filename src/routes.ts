@@ -20,6 +20,7 @@ export const authRoutes = [
   LOGIN_ROUTE,
   '/auth/login/email-send',
   '/auth/register',
+  '/auth/blok-verification',
   '/auth/error',
   '/auth/reset',
   '/auth/new-password',
