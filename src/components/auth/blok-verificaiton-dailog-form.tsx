@@ -26,7 +26,7 @@ interface BlokVerificationDialogFormProps {
 export const BlokVerificationDialogForm = (
   props: BlokVerificationDialogFormProps
 ) => {
-  const [open] = useState(props.open)
+  const [open, setOpen] = useState(props.open)
   const [loading, startTransition] = useTransition()
   const blokVerificationForm = useForm<z.infer<typeof BlokVerificationSchema>>({
     resolver: zodResolver(BlokVerificationSchema),
@@ -42,7 +42,6 @@ export const BlokVerificationDialogForm = (
   ) => {
     console.log({ data })
     startTransition(async () => {
-  //TODO: ADD delay of 3 second here
       const response = await blokVerificationAction(
         props.userId,
         data.companyName,
@@ -51,6 +50,7 @@ export const BlokVerificationDialogForm = (
       if (response.error) {
         setError('phone', { message: 'Something went please try again later' })
       }
+      setOpen(false)
     })
     window.location.reload()
   }
