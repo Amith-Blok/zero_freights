@@ -9,7 +9,6 @@ import SumbitButton from '@/components/shared/button-loading'
 import { FormMetaProvider } from '@/provider'
 import { useContext } from 'react'
 import { InputWrapper } from './form-wrapper/input-wrapper'
-import PhoneInputWrapper from '@/components/shared/phone-input-wrapper'
 import { HsSixType } from '@/models/hs-six'
 
 export const CargoAllForm = () => {
@@ -48,17 +47,6 @@ export const CargoAllForm = () => {
           inputProps={{ type: 'number', placeholder: 'Enter value in usd' }}
         />
         {!isWarehouse && <CalendarWrapper label="Ready to Load" field="date" />}
-        {isWarehouse && (
-          <InputWrapper
-            label="Your Name"
-            field="user_name"
-            inputProps={{
-              type: 'text',
-              placeholder: 'Enter your name',
-              autoComplete: 'name',
-            }}
-          />
-        )}
       </div>
       <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
         {!isWarehouse && (
@@ -68,43 +56,10 @@ export const CargoAllForm = () => {
               field="incoterms"
               data={arrayToSelectData([...incoterms])}
             />
-            <InputWrapper
-              label="Name"
-              field="user_name"
-              inputProps={{
-                type: 'text',
-                placeholder: 'Enter your name',
-                autoComplete: 'name',
-              }}
-            />
           </>
         )}
       </div>
-      <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
-        <InputWrapper
-          label="Email"
-          field="email"
-          inputProps={{
-            type: 'text',
-            placeholder: 'Enter your email',
-            autoComplete: 'email',
-          }}
-        />
-        <InputWrapper
-          label="Company Name"
-          field="company_name"
-          inputProps={{
-            type: 'text',
-            placeholder: 'Enter company name',
-            autoComplete: 'organization',
-          }}
-        />
-      </div>
-      <PhoneInputWrapper
-        fieldName="phone"
-        label="Phone Number"
-        placeHolder="Enter phone number"
-      />
+
       <div className="mt-5 flex w-full justify-end">
         <SumbitButton loading={loading} text="Submit" />
       </div>

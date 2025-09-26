@@ -68,10 +68,6 @@ const CommonSchema = z.object({
   value: z.coerce.number().min(1),
   date: z.coerce.date(),
   incoterms: z.enum(incoterms),
-  phone: z.string(),
-  email: z.string().email(),
-  company_name: z.string().min(1, { message: 'Required' }),
-  user_name: z.string().min(1, { message: 'Required' }),
 })
 
 //FCL SCHEMA

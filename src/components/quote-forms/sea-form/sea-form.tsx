@@ -28,6 +28,7 @@ export const SeaForm = () => {
     resolver: zodResolver(SeaFormSchema),
     defaultValues: SEA_DEFAULT_VALUES,
   })
+  const router = useRouter()
   const [loading, startTransition] = useTransition()
   const { toast } = useToast()
 
@@ -71,7 +72,6 @@ export const SeaForm = () => {
       // console.log({ result });
     })
   }
-  const router = useRouter()
   // const restoreData = SeaFormResetStore((state) => state.sea)
 
   // function restoreByIdx(idx: number) {

@@ -1,5 +1,5 @@
 import mongoose, { Document } from 'mongoose'
-import { UserSchema } from '../user'
+
 import { LocationSchema } from '../location'
 import { ExchangeSchema } from '../exchange'
 import {
@@ -17,13 +17,21 @@ import {
   SeaFclOfferSchema,
   TotalCostSchema,
 } from './common-schema'
+import { transform } from '@/lib/mongoose-transform'
 
-export const transform = (ret: any) => {
-  ret.id = ret._id.toString()
-  delete ret._id
-  delete ret.__v
-  return ret
-}
+//TODO: move to common
+const UserSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    company: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+)
 
 export interface OfferDocument extends Offer, Document {}
 export interface WarehouseOfferDocument extends WarehouseOffer, Document {}
@@ -64,7 +72,7 @@ export const OfferSchema = new mongoose.Schema<OfferDocument>(
     collection: 'offers',
     timestamps: { createdAt: 'created_at', updatedAt: false },
     discriminatorKey: 'mode',
-    toJSON: { transform },
+    toJSON: { transform: transform },
   }
 )
 

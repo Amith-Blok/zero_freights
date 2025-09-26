@@ -4,14 +4,27 @@ import { SeaForm } from '@/components/quote-forms/sea-form/sea-form'
 import { WarehouseForm } from '@/components/quote-forms/warehouse-form/warehouse-form'
 import { CardWrapper } from '@/components/shared/card-wrapper'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getUser } from '@/lib/user'
+import { BlokVerificationDialogForm } from '@/components/auth/blok-verificaiton-dailog-form'
 
 export default async function HomePage(props: {
   searchParams: Promise<{ mode: string }>
 }) {
+  const user = await getUser()
+
   const searchParams = await props.searchParams
   let defaultMode = searchParams.mode ?? 'SEA'
   if (!['SEA', 'LAND', 'AIR', 'WAR'].includes(defaultMode)) {
     defaultMode = 'SEA'
+  }
+  if (!user?.blokVerified) {
+    return (
+      <BlokVerificationDialogForm
+        userId={user?.id || ''}
+        open={true}
+        redirectTo={`/get-rates?mode=${defaultMode}`}
+      />
+    )
   }
   // console.log({ defaultMode })
   return (
@@ -28,7 +41,7 @@ export default async function HomePage(props: {
   )
 }
 
-const TabComponent = (params: { defaultTab: string }) => {
+const TabComponent = async (params: { defaultTab: string }) => {
   return (
     <Tabs defaultValue={params.defaultTab}>
       <div className="flex flex-col">
