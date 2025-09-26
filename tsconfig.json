@@ -34,7 +34,8 @@
     "src/models/offers.ts.bak",
     "src/app/api/confirmed-quote/route.ts.bak",
     "src/data/offer.ts.bak",
-    "src/app/api/form/sea-lcl/_route.ts.bak"
+    "src/app/api/form/sea-lcl/_route.ts.bak",
+    "src/middleware.ts"
   ],
   "exclude": ["node_modules"]
 }
