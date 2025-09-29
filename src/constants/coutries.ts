@@ -1,9 +1,36 @@
 //INDIAN SUBCONTINENT
 export const INDIA_OPTION = { value: 'IN', label: 'India' }
+export const PAKISTAN_OPTION = { value: 'PK', label: 'Pakistan' }
+export const BANGLADESH_OPTION = { value: 'BD', label: 'Bangladesh' }
+export const SRILANKA_OPTION = { value: 'LK', label: 'Sri Lanka' }
 
 //NORTH AMERICA
 export const AMERICA_OPTION = { value: 'US', label: 'United States' }
 export const CANADA_OPTION = { value: 'CA', label: 'Canada' }
+
+//CENTRAL AMERICA
+export const MEXICO_OPTION = { value: 'MX', label: 'Mexico' }
+export const JAMAIKA_OPTION = { value: 'JM', label: 'Jamaica' }
+export const COSTA_RICA_OPTION = { value: 'CR', label: 'Costa Rica' }
+export const PANAMA_OPTION = { value: 'PA', label: 'Panama' }
+export const BAHAMAS_OPTION = { value: 'BS', label: 'Bahamas' }
+export const DOMINICAN_REPUBLIC_OPTION = {
+  value: 'DO',
+  label: 'Dominican Republic',
+}
+export const TRINIDAD_AND_TOBAGO_OPTION = {
+  value: 'TT',
+  label: 'Trinidad and Tobago',
+}
+export const BARBADOS_OPTION = { value: 'BB', label: 'Barbados' }
+export const SAINT_LUCIA_OPTION = { value: 'LC', label: 'Saint Lucia' }
+
+// SOUTH AMERICA
+export const BRAZIL_OPTION = { value: 'BR', label: 'Brazil' }
+export const ARGENTINA_OPTION = { value: 'AR', label: 'Argentina' }
+export const CHILE_OPTION = { value: 'CL', label: 'Chile' }
+export const COLOMBIA_OPTION = { value: 'CO', label: 'Colombia' }
+export const PERU_OPTION = { value: 'PE', label: 'Peru' }
 
 // EUROPE
 export const BELGIUM_OPTION = { value: 'BE', label: 'Belgium' }
@@ -24,6 +51,9 @@ export const POLAND_OPTION = { value: 'PL', label: 'Poland' }
 export const ROMANIA_OPTION = { value: 'RO', label: 'Romania' }
 export const SWEDEN_OPTION = { value: 'SE', label: 'Sweden' }
 export const SLOVENIA_OPTION = { value: 'SI', label: 'Slovenia' }
+export const PORTUGAL_OPTION = { value: 'PT', label: 'Portugal' }
+export const TURKEY_OPTION = { value: 'TR', label: 'Turkey' }
+export const FINLAND_OPTION = { value: 'FI', label: 'Finland' }
 
 //OCEANIA
 export const AUSTRALIA_OPTION = { value: 'AU', label: 'Australia' }
@@ -36,12 +66,20 @@ export const KUWAIT_OPTION = { value: 'KW', label: 'Kuwait' }
 export const OMAN_OPTION = { value: 'OM', label: 'Oman' }
 export const QATAR_OPTION = { value: 'QA', label: 'Qatar' }
 export const SAUDI_ARABIA_OPTION = { value: 'SA', label: 'Saudi Arabia' }
+export const IRAQ_OPTION = { value: 'IQ', label: 'Iraq' }
+export const IRAN_OPTION = { value: 'IR', label: 'Iran' }
+export const LEBANON_OPTION = { value: 'LB', label: 'Lebanon' }
+export const JORDAN_OPTION = { value: 'JO', label: 'Jordan' }
 
 // SOUTH EAST ASIA
 export const MYANMAR_OPTION = { value: 'MM', label: 'Myanmar' }
 export const CAMBODIA_OPTION = { value: 'KH', label: 'Cambodia' }
 export const MALAYSIA_OPTION = { value: 'MY', label: 'Malaysia' }
 export const SINGAPORE_OPTION = { value: 'SG', label: 'Singapore' }
+export const THAILAND_OPTION = { value: 'TH', label: 'Thailand' }
+export const VIETNAM_OPTION = { value: 'VN', label: 'Vietnam' }
+export const PHILIPPINES_OPTION = { value: 'PH', label: 'Philippines' }
+export const INDONESIA_OPTION = { value: 'ID', label: 'Indonesia' }
 
 // FAR EAST
 export const CHINA_OPTION = { value: 'CN', label: 'China' }
@@ -60,15 +98,27 @@ export const ETHIOPIA_OPTION = { value: 'ET', label: 'Ethiopia' }
 export const EGYPT_OPTION = { value: 'EG', label: 'Egypt' }
 export const MOROCCO_OPTION = { value: 'MA', label: 'Morocco' }
 
-// SOUTH AMERICA
-export const BRAZIL_OPTION = { value: 'BR', label: 'Brazil' }
-export const ARGENTINA_OPTION = { value: 'AR', label: 'Argentina' }
-export const CHILE_OPTION = { value: 'CL', label: 'Chile' }
-export const COLOMBIA_OPTION = { value: 'CO', label: 'Colombia' }
-export const PERU_OPTION = { value: 'PE', label: 'Peru' }
+export const INDIAN_SUBCONTINENT_COUNTRIES_OPTIONS = [
+  INDIA_OPTION,
+  PAKISTAN_OPTION,
+  BANGLADESH_OPTION,
+  SRILANKA_OPTION,
+]
 
-export const INDIAN_SUBCONTINENT_COUNTRIES_OPTIONS = [INDIA_OPTION]
 export const NORTH_AMERICA_COUNTRIES_OPTIONS = [AMERICA_OPTION, CANADA_OPTION]
+
+export const CENTRAL_AMERICA_COUNTRIES_OPTIONS = [
+  MEXICO_OPTION,
+  JAMAIKA_OPTION,
+  COSTA_RICA_OPTION,
+  PANAMA_OPTION,
+  BAHAMAS_OPTION,
+  DOMINICAN_REPUBLIC_OPTION,
+  TRINIDAD_AND_TOBAGO_OPTION,
+  BARBADOS_OPTION,
+  SAINT_LUCIA_OPTION,
+]
+
 export const SOUTH_AMERICA_COUNTRIES_OPTIONS = [
   BRAZIL_OPTION,
   ARGENTINA_OPTION,
@@ -95,6 +145,9 @@ export const EUROPE_COUNTRIES_OPTIONS = [
   ROMANIA_OPTION,
   SWEDEN_OPTION,
   SLOVENIA_OPTION,
+  PORTUGAL_OPTION,
+  TURKEY_OPTION,
+  FINLAND_OPTION,
 ]
 export const OCEANIA_COUNTRIES_OPTIONS = [AUSTRALIA_OPTION, NEW_ZEALAND_OPTION]
 export const MIDDLE_EAST_COUNTRIES_OPTIONS = [
@@ -104,12 +157,20 @@ export const MIDDLE_EAST_COUNTRIES_OPTIONS = [
   OMAN_OPTION,
   QATAR_OPTION,
   SAUDI_ARABIA_OPTION,
+  IRAQ_OPTION,
+  IRAN_OPTION,
+  LEBANON_OPTION,
+  JORDAN_OPTION,
 ]
 export const SOUTH_EAST_ASIA_COUNTRIES_OPTIONS = [
   MYANMAR_OPTION,
   CAMBODIA_OPTION,
   MALAYSIA_OPTION,
   SINGAPORE_OPTION,
+  THAILAND_OPTION,
+  VIETNAM_OPTION,
+  PHILIPPINES_OPTION,
+  INDONESIA_OPTION,
 ]
 export const FAR_EAST_COUNTRIES_OPTIONS = [
   CHINA_OPTION,
@@ -132,6 +193,8 @@ export const AFRICA_COUNTRIES_OPTIONS = [
 export const ALL_COUNTRIES_OPTIONS = [
   ...INDIAN_SUBCONTINENT_COUNTRIES_OPTIONS,
   ...NORTH_AMERICA_COUNTRIES_OPTIONS,
+  ...CENTRAL_AMERICA_COUNTRIES_OPTIONS,
+  ...SOUTH_AMERICA_COUNTRIES_OPTIONS,
   ...EUROPE_COUNTRIES_OPTIONS,
   ...OCEANIA_COUNTRIES_OPTIONS,
   ...MIDDLE_EAST_COUNTRIES_OPTIONS,
