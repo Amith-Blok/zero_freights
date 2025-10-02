@@ -28,7 +28,7 @@ const AirFreightSchema = new mongoose.Schema(
     },
   },
   {
-    collection: 'air_freight',
+    collection: 'airfreight',
   }
 )
 
