@@ -25,6 +25,7 @@ import { Country } from '@/types/common'
 type CountryComboboxProps = {
   field: string
   label?: string
+  showError?: boolean
   countries: Country[]
   placeholder?: string
   className?: string
@@ -37,6 +38,7 @@ type CountryComboboxProps = {
 export function CountryCombobox({
   field,
   label,
+  showError = true,
   countries,
   placeholder = 'Select country...',
   className,
@@ -145,7 +147,7 @@ export function CountryCombobox({
           )
         }}
       />
-      {errors[field] && (
+      {errors[field] && showError && (
         <span className={cn('text-sm text-red-500', errorClass)}>
           {errors[field]?.message as string}
         </span>

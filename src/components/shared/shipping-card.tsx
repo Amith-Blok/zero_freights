@@ -111,7 +111,7 @@ export default function ShippingCard({
   locations,
   price,
   localCost,
-  currency = 'INR',
+  currency = 'USD',
   url,
   children,
 }: ShippingCardProps) {

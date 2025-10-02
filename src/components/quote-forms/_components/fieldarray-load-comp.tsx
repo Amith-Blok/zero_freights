@@ -101,7 +101,7 @@ export const FieldArrayLoadComp = ({
             {(errors?.[fieldArrayName] as any)?.[index] &&
               typeof (errors[fieldArrayName] as any)[index] === 'object' && (
                 <div className="mt-2 space-y-1 text-sm text-red-500">
-                  required
+                  Required
                 </div>
               )}
           </div>

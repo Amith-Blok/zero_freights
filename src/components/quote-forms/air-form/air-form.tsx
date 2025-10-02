@@ -16,6 +16,7 @@ import { LoadAirForm } from './load-air-form'
 import { useTransition } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { FormMetaProvider } from '@/provider'
+import { DevTool } from '@hookform/devtools'
 
 export const AirForm = () => {
   const airForm = useForm<AirFormTypes>({
@@ -92,7 +93,7 @@ export const AirForm = () => {
             </CardWrapper>
           </div>
         </form>
-        {/* <DevTool control={airForm.control} /> */}
+        <DevTool control={airForm.control} />
       </FormProvider>
     </FormMetaProvider.Provider>
   )

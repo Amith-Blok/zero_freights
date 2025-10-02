@@ -42,6 +42,7 @@ export default function AirComp({
       portToDays={estimatedDays}
       containerLabel={containerLabel}
       containerType={containerType}
+      currency="USD"
       price={price}
       url={`/api/confirmed-quote`}
       offerId={offerId}

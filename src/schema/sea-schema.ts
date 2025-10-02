@@ -13,7 +13,12 @@ import { z } from 'zod'
 // COMMON SCHEMA
 const CommonSchema = z.object({
   //TODO: different modes have different countries list
-  ori_country: z.enum(ALL_COUNTRIES),
+  ori_country: z
+    .string()
+    .refine((value) => ALL_COUNTRIES.includes(value as any), {
+      message:
+        'No Data for this country.Please select from the available country options.',
+    }),
   pickup_check: z.boolean(),
   pickup_location: z
     .object({
@@ -37,7 +42,12 @@ const CommonSchema = z.object({
   //NOTE: Trucking login is only applies for india
   trucking: z.enum(TRUCKING_TYPE).optional(),
 
-  des_country: z.enum(ALL_COUNTRIES),
+  des_country: z
+    .string()
+    .refine((value) => ALL_COUNTRIES.includes(value as any), {
+      message:
+        'No Data for this country.Please select from the available country options.',
+    }),
   delivery_check: z.boolean(),
   delivery_location: z
     .object({

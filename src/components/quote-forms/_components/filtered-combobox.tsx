@@ -11,6 +11,7 @@ type FilteredComboboxProps<T> = {
   placeHolder: string
   fieldName: string
   fetchUrl: string
+  showError?: boolean
   labelClass?: ComponentProps<'label'>['className']
   divClass?: ComponentProps<'div'>['className']
   getOptionLabel: (option: T) => string
@@ -23,6 +24,7 @@ export const FilteredCombobox = <T,>({
   labelClass,
   divClass,
   fieldName,
+  showError = true,
   getOptionLabel,
   fetchUrl,
   valueSetterCallback,
@@ -30,6 +32,7 @@ export const FilteredCombobox = <T,>({
   const {
     control,
     formState: { errors },
+    trigger,
   } = useFormContext()
 
   const [options, setOptions] = useState<T[]>([])
@@ -111,8 +114,10 @@ export const FilteredCombobox = <T,>({
                 onChange(selectedOption) // Update the form field value
                 valueSetterCallback(selectedOption)
               } else {
-                onChange(null)
+                onChange('')
               }
+
+              trigger(fieldName)
             }}
             renderOption={(props, option) => (
               <li {...props} key={getOptionLabel(option)}>
@@ -122,7 +127,7 @@ export const FilteredCombobox = <T,>({
           />
         )}
       />
-      {errors[fieldName] && (
+      {errors[fieldName] && showError && (
         <span className="text-sm text-red-500">
           {errors[fieldName].message as string}
         </span>

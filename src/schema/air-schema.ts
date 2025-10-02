@@ -3,36 +3,98 @@ import { AIR_COUNTRIES } from '@/constants/air-form'
 import * as z from 'zod'
 
 export const AirFormSchema = z.object({
-  ori_country: z.enum(AIR_COUNTRIES),
-  ori_airport: z.object({
-    port_name: z.string(),
-    port_code: z.string(),
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
-    type: z.string(),
-  }),
+  ori_country: z.string().refine(
+    (value) => {
+      return AIR_COUNTRIES.includes(value as any)
+    },
+    {
+      message: 'No data available for this country.',
+    }
+  ),
+  ori_airport: z
+    .object(
+      {
+        port_name: z.string(),
+        port_code: z.string(),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        type: z.string(),
+      },
+      {
+        invalid_type_error: 'Invalid airport',
+      }
+    )
+    .refine(
+      (value) => {
+        return (
+          value.port_name &&
+          value.port_code &&
+          value.lat &&
+          value.lng &&
+          value.type
+        )
+      },
+      {
+        message: 'Invalid airport',
+      }
+    ),
 
   pickup_check: z.boolean(),
   pickup_location: z
-    .object({
-      description: z.string(),
-      place_id: z.string(),
-    })
+    .object(
+      {
+        description: z.string(),
+        place_id: z.string(),
+      },
+      {
+        invalid_type_error: 'Invalid location',
+      }
+    )
     .optional(),
-  des_country: z.enum(AIR_COUNTRIES),
-  des_airport: z.object({
-    port_name: z.string(),
-    port_code: z.string(),
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
-    type: z.string(),
-  }),
+  des_country: z.string().refine(
+    (value) => {
+      return AIR_COUNTRIES.includes(value as any)
+    },
+    {
+      message: 'No data available for this country',
+    }
+  ),
+  des_airport: z
+    .object(
+      {
+        port_name: z.string(),
+        port_code: z.string(),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        type: z.string(),
+      },
+      {
+        invalid_type_error: 'Invalid airport',
+      }
+    )
+    .refine(
+      (value) => {
+        return (
+          value.port_name &&
+          value.port_code &&
+          value.lat &&
+          value.lng &&
+          value.type
+        )
+      },
+      {
+        message: 'Invalid airport.',
+      }
+    ),
   delivery_check: z.boolean(),
   delivery_location: z
-    .object({
-      description: z.string(),
-      place_id: z.string(),
-    })
+    .object(
+      {
+        description: z.string(),
+        place_id: z.string(),
+      },
+      { invalid_type_error: 'Invalid location' }
+    )
     .optional(),
   air_load: z.array(
     z.object({
@@ -58,7 +120,7 @@ export const AirFormSchema = z.object({
     heading: z.string(),
     subheading: z.string(),
   }),
-  value: z.coerce.number().min(1),
+  value: z.coerce.number({ invalid_type_error: 'Invalid value' }).min(1),
   date: z.coerce.date(),
   incoterms: z.enum(incoterms),
 })

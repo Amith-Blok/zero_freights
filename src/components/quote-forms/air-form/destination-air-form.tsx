@@ -9,20 +9,25 @@ import { AIR_DESTINATION_COUNTRIES_OPTIONS } from '@/constants/air-form'
 import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 
 export const DestinationAirForm = () => {
-  const { watch, setValue, resetField, control } = useFormContext()
-  const watchDesPick = watch('delivery_check') as boolean
-  useEffect(() => {
-    if (!watchDesPick) {
-      resetField('des_airport')
-      resetField('delivery_location')
-    }
-  }, [watchDesPick, resetField])
-
+  const {
+    setValue,
+    resetField,
+    control,
+    formState: { errors },
+  } = useFormContext()
   const watchDesCountry = useWatch({ control, name: 'des_country' }) as string
   const watchDesPlaceId = useWatch({
     control,
     name: 'delivery_location.place_id',
   }) as string
+  const watchDesPick = useWatch({ control, name: 'delivery_check' }) as boolean
+  useEffect(() => {
+    if (!watchDesPick || watchDesCountry) {
+      resetField('des_airport')
+      resetField('delivery_location')
+    }
+  }, [watchDesPick, watchDesCountry, resetField])
+
   const resetString = useMemo(() => {
     return `${watchDesCountry}-${watchDesPlaceId}-${watchDesPick}`
   }, [watchDesCountry, watchDesPlaceId, watchDesPick])
@@ -45,6 +50,7 @@ export const DestinationAirForm = () => {
           countries={AIR_DESTINATION_COUNTRIES_OPTIONS}
           divClass={`w-full ${watchDesPick && 'md:w-1/4'} `}
           labelClass="required"
+          showError={false}
         />
         {watchDesPick && (
           <FilteredCombobox<Prediction>
@@ -53,6 +59,7 @@ export const DestinationAirForm = () => {
             fieldName="delivery_location"
             getOptionLabel={(option) => `${option.description}`}
             fetchUrl={`/api/autos/google?country=${watchDesCountry}`}
+            showError={false}
             valueSetterCallback={(location) => {
               setValue('delivery_location', {
                 description: location.description,
@@ -62,6 +69,17 @@ export const DestinationAirForm = () => {
           />
         )}
       </div>
+      {errors.des_country && (
+        <span className="text-sm text-red-500">
+          {errors.des_country.message as string}
+        </span>
+      )}
+      {errors.delivery_location && (
+        <span className="text-sm text-red-500">
+          {errors.delivery_location.message as string}
+        </span>
+      )}
+      {}
       <AllDataCombobox<AirPortsType>
         key={resetString}
         resetString={resetString}

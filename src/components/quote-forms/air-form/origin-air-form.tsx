@@ -8,19 +8,24 @@ import { AirPortsType } from '@/models/air-ports'
 import { CountryCombobox } from '../_components/form-wrapper/country-combobox'
 import { AIR_ORIGIN_COUNTRIES_OPTIONS } from '@/constants/air-form'
 export const OriginAirForm = () => {
-  const { watch, setValue, control, resetField } = useFormContext()
-  const watchPick = watch('pickup_check') as boolean
-  useEffect(() => {
-    if (!watchPick) {
-      resetField('pickup_location')
-      resetField('ori_airport')
-    }
-  }, [watchPick, resetField])
+  const {
+    setValue,
+    control,
+    resetField,
+    formState: { errors },
+  } = useFormContext()
   const watchOriCountry = useWatch({ control, name: 'ori_country' }) as string
   const watchPlaceId = useWatch({
     control,
     name: 'pickup_location.place_id',
   }) as string
+  const watchPick = useWatch({ control, name: 'pickup_check' }) as boolean
+
+  useEffect(() => {
+    resetField('pickup_location')
+    resetField('ori_airport')
+  }, [watchPick, watchOriCountry, resetField])
+
   const resetString = useMemo(() => {
     return `${watchOriCountry}-${watchPlaceId}-${watchPick}`
   }, [watchOriCountry, watchPlaceId, watchPick])
@@ -41,6 +46,7 @@ export const OriginAirForm = () => {
           countries={AIR_ORIGIN_COUNTRIES_OPTIONS}
           divClass={`w-full ${watchPick && 'md:w-1/4'} `}
           labelClass="required"
+          showError={false}
         />
 
         {watchPick && (
@@ -50,6 +56,7 @@ export const OriginAirForm = () => {
             fieldName="pickup_location"
             getOptionLabel={(option) => option.description}
             fetchUrl={`/api/autos/google?country=${watchOriCountry}`}
+            showError={false}
             valueSetterCallback={(location) => {
               setValue('pickup_location', {
                 description: location.description,
@@ -59,6 +66,16 @@ export const OriginAirForm = () => {
           />
         )}
       </div>
+      {errors.ori_country && (
+        <span className="text-sm text-red-500">
+          {errors.ori_country.message as string}
+        </span>
+      )}
+      {errors.pickup_location && (
+        <span className="text-sm text-red-500">
+          {errors.pickup_location.message as string}
+        </span>
+      )}
       <AllDataCombobox<AirPortsType>
         key={resetString}
         resetString={resetString}
