@@ -21,7 +21,11 @@ import { SeaFormResetStore } from '@/store/form-restore'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { FormMetaProvider } from '@/provider'
-import { useToast } from '@/hooks/use-toast'
+import {
+  AlertDialogWrapper,
+  useAlertDialog,
+  AlertTypes,
+} from '../_components/alert-dialog-wrapper'
 
 export const SeaForm = () => {
   const seaForm = useForm<SeaFormType>({
@@ -30,16 +34,24 @@ export const SeaForm = () => {
   })
   const router = useRouter()
   const [loading, startTransition] = useTransition()
-  const { toast } = useToast()
+  const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
 
   const onHandleSubmit = (data: SeaFormType) => {
     // console.log({ data });
     const apiRouteString =
-      data.modes == 'FCL'
-        ? 'sea-fcl'
-        : data.modes === 'LCL'
-          ? 'sea-lcl'
-          : 'sea-bulk'
+      data.modes == 'FCL' ? 'sea-fcl' : data.modes === 'LCL' ? 'sea-lcl' : null
+    if (!apiRouteString) {
+      showAlert(AlertTypes.INFO, {
+        title: 'Feature Under Development',
+        description:
+          'This shipping mode is currently under development. Please try FCL or LCL modes for now.',
+        primaryAction: {
+          label: 'Got it',
+          onClick: () => {},
+        },
+      })
+      return
+    }
 
     const resetData = {
       label: `${data.ori_port_rail.port_code}-${data.des_port_rail.port_code}`,
@@ -58,10 +70,21 @@ export const SeaForm = () => {
       if (!response.ok) {
         console.log({ message: 'Failed to fetch', status: response.status })
         const errorResponse = await response.json()
-        toast({
-          variant: 'destructive',
+        showAlert(AlertTypes.ERROR, {
           title: 'Submission Failed',
-          description: errorResponse.error,
+          description:
+            errorResponse.error ||
+            'An error occurred while processing your request. Please try again.',
+          primaryAction: {
+            label: 'Try Again',
+            onClick: () => {},
+          },
+          secondaryAction: {
+            label: 'Contact Support',
+            onClick: () => {
+              window.location.href = 'https://www.bloksupplychain.com/contact'
+            },
+          },
         })
         return
       }
@@ -137,6 +160,14 @@ export const SeaForm = () => {
           </div>
         </form>
         <DevTool control={seaForm.control} />
+
+        {/* Alert Dialog */}
+        <AlertDialogWrapper
+          open={open}
+          onOpenChange={onOpenChange}
+          type={type}
+          customConfig={customConfig}
+        />
       </FormProvider>
     </FormMetaProvider.Provider>
   )
