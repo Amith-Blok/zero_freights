@@ -69,7 +69,7 @@ export default function MultiSelect({
             aria-label={ariaLabel}
             aria-expanded={open}
             className={cn(
-              'w-full justify-between',
+              'h-fit w-full justify-between',
               selectedOptions.length === 0 && 'text-muted-foreground'
             )}
           >
@@ -85,7 +85,7 @@ export default function MultiSelect({
                       toggle(opt.value)
                     }}
                   >
-                    {opt.label}
+                    {opt.value}
                     <X className="h-3 w-3" aria-hidden="true" />
                     <span className="sr-only">{'Remove ' + opt.label}</span>
                   </Badge>

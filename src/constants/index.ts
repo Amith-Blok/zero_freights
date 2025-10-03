@@ -9,7 +9,7 @@ export { USD_TO_INR, INR_TO_USD, HEADER_ROUTES }
 export const SEA_MODES = [
   { label: 'Full container load(FCL)', value: 'FCL' },
   { label: 'Less container load(LCL)', value: 'LCL' },
-  { label: 'Bulk', value: 'BULK', disable: true },
+  { label: 'Dangerous Goods(DG)', value: 'DG' },
 ]
 export const LAND_MODES = [
   { label: 'Seaport Trucking', value: 'SEAPORT_TRUCKING' },
@@ -66,9 +66,9 @@ export const LCL_PACKAGE_TYPE_LIST = [
 export const LCL_PACKAGE_TYPE = ['pallete', 'boxes', 'package', 'bag'] as const
 
 export const FCL_CONTAINER_TYPE_LIST = [
-  { value: '20STD', label: '20 STD' },
-  { value: '40STD', label: '40 STD' },
-  { value: '40HC', label: '40 HC' },
+  { value: '20STD', label: '20 Standard' },
+  { value: '40STD', label: '40 Standard' },
+  { value: '40HC', label: '40 High Cube' },
 ]
 
 export const SEA_DEFAULT_VALUES = {

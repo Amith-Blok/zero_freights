@@ -1,21 +1,17 @@
 'use client'
-import {
-  BULK_TYPE_LIST,
-  IN_CM,
-  KG_LBS,
-  KG_LBS_DAY,
-  LCL_PACKAGE_TYPE_LIST,
-} from '@/constants'
-import { InputSelect } from '@/components/quote-forms/_components/form-wrapper/input-select'
+import { IN_CM, KG_LBS, LCL_PACKAGE_TYPE_LIST } from '@/constants'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
 import { FieldArrayLoadComp } from '../_components/fieldarray-load-comp'
 import { CbmComponent } from '../_components/cbm-comp'
 import { SeaFclLoadFormWrapper } from '../_components/form-wrapper/sea-fcl-load-form-wrapper'
+import { DG_CLASSES_OPTIONS } from '@/constants/sea-dg-form'
+import InputInlineAddonWrapper from '../_components/form-wrapper/input-inline-addon-wrapper'
+import { SeaIgLoadFormWrapper } from '../_components/form-wrapper/sea-ig-load-form-wrapper'
 
 export const LoadFclForm = () => {
   return (
     <>
-      <SeaFclLoadFormWrapper />
+      <SeaFclLoadFormWrapper prefix="fcl" />
     </>
   )
 }
@@ -57,56 +53,75 @@ export const LoadLclForm = () => {
   )
 }
 
-export const LoadBulkForm = () => {
+export const LoadDgForm = () => {
   return (
-    <div>
-      <div className="flex flex-col sm:space-y-2">
-        <SelectWrapper
-          label="Ship type"
-          field="bullk_type"
-          data={BULK_TYPE_LIST}
+    <div className="flex flex-col space-y-2">
+      <SelectWrapper
+        label="DG Class"
+        field="dg_class"
+        data={DG_CLASSES_OPTIONS}
+      />
+      <SeaFclLoadFormWrapper prefix="dg" />
+    </div>
+  )
+}
+
+export const LoadRfForm = () => {
+  return (
+    <div className="flex flex-col space-y-2">
+      <div className="flex flex-col md:flex-row md:space-x-2">
+        <InputInlineAddonWrapper
+          field="rf_temperture"
+          label="Temperture"
+          inputProps={{ placeholder: 'temp' }}
+          addonBack="°C"
+          divClass="w-full md:w-1/2"
         />
-        {/* NOTE:lm is custom screen size */}
-        <div className="flex w-full gap-2 sm:flex-row lg:flex-row lm:flex-col">
-          <InputSelect
-            label="Loading Rate"
-            inputProps={{ type: 'number', placeholder: '2', step: 0.01 }}
-            inputField="bulk_loading_rate"
-            selectField="bulk_loading_unit"
-            data={[...KG_LBS_DAY]}
-          />
-          <InputSelect
-            label="Discharge Rate"
-            inputProps={{ type: 'number', placeholder: '2', step: 0.01 }}
-            inputField="bulk_discharge_rate"
-            selectField="bulk_discharge_unit"
-            data={[...KG_LBS_DAY]}
-          />
-        </div>
+        <InputInlineAddonWrapper
+          field="rf_humidity"
+          label="Humidity"
+          inputProps={{ placeholder: 'humidity' }}
+          addonBack="%"
+          divClass="w-full md:w-1/2"
+        />
       </div>
+      <SeaFclLoadFormWrapper prefix="rf" />
+    </div>
+  )
+}
+export const LoadIgForm = () => {
+  return (
+    <div className="flex flex-col space-y-2">
+      <SeaIgLoadFormWrapper prefix="ig" />
+    </div>
+  )
+}
+export const LoadOogForm = () => {
+  return (
+    <div className="flex flex-col space-y-2">
       <FieldArrayLoadComp
-        fieldArrayName="bulk_load"
-        dimLabel="Volume"
-        dimInputFieldOne="bulk_lgt"
-        dimInputFieldTwo="bulk_hgt"
-        dimInputFieldThree="bulk_wid"
-        dimSelectField="bulk_volume_unit"
+        fieldArrayName="oog_load"
+        dimLabel="Volumne"
+        dimInputFieldOne="oog_lgt"
+        dimInputFieldTwo="oog_hgt"
+        dimInputFieldThree="oog_wid"
+        dimSelectField="oog_volume_unit"
         dimSelectData={[...IN_CM]}
-        inputField="bulk_quantity"
-        inputSelectFieldOne="bulk_weight"
-        inputSelectFieldTwo="bulk_weight_unit"
+        inputField="oog_quantity"
+        inputSelectFieldOne="oog_weight"
+        inputSelectFieldTwo="oog_weight_unit"
         inputSelecFieldData={[...KG_LBS]}
       />
       <CbmComponent
-        fieldArrayName="bulk_load"
-        cbmField="bulk_cbm_ton"
-        widthField="bulk_wid"
-        lengthField="bulk_lgt"
-        heightField="bulk_hgt"
-        weightField="bulk_weight"
-        quantityField="bulk_quantity"
-        volumeUnitField="bulk_volume_unit"
-        weightUnitField="bulk_weight_unit"
+        fieldArrayName="oog_load"
+        cbmField="oog_cbm_ton"
+        widthField="oog_wid"
+        lengthField="oog_lgt"
+        heightField="oog_hgt"
+        weightField="oog_weight"
+        quantityField="oog_quantity"
+        volumeUnitField="oog_volume_unit"
+        weightUnitField="oog_weight_unit"
       />
     </div>
   )

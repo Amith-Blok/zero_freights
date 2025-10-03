@@ -11,7 +11,13 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { InputSelect } from './input-select'
 
-export function SeaFclLoadFormWrapper() {
+interface SeaFclLoadFormWrapperProps {
+  prefix?: string
+}
+
+export function SeaFclLoadFormWrapper({
+  prefix = 'fcl',
+}: SeaFclLoadFormWrapperProps) {
   const {
     control,
     register,
@@ -21,21 +27,27 @@ export function SeaFclLoadFormWrapper() {
     formState: { errors },
     watch,
   } = useFormContext()
-  const fclContainerType = watch('fcl_container_type')
-  const fclQuantities = watch('fcl_quantities')
-  const fclWeights = watch('fcl_weights')
-  const fclUnit = watch('fcl_unit')
+
+  const containerTypeField = `${prefix}_container_type`
+  const quantitiesField = `${prefix}_quantities`
+  const weightsField = `${prefix}_weights`
+  const unitField = `${prefix}_unit`
+
+  const containerType = watch(containerTypeField)
+  const quantities = watch(quantitiesField)
+  const weights = watch(weightsField)
+  const unit = watch(unitField)
 
   const totalSelectedQty =
-    fclContainerType?.reduce((acc: number, id: string) => {
-      const qty = fclQuantities?.[id]
+    containerType?.reduce((acc: number, id: string) => {
+      const qty = quantities?.[id]
       const validQty = typeof qty === 'number' && !isNaN(qty) ? qty : 0
       return acc + validQty
     }, 0) ?? 0
 
   const totalSelectedWeight =
-    fclContainerType?.reduce((acc: number, id: string) => {
-      const wt = fclWeights?.[id]
+    containerType?.reduce((acc: number, id: string) => {
+      const wt = weights?.[id]
       const validWt = typeof wt === 'number' && !isNaN(wt) ? wt : 0
       return acc + validWt
     }, 0) ?? 0
@@ -43,10 +55,12 @@ export function SeaFclLoadFormWrapper() {
   return (
     <>
       <div className="mt-2 flex flex-col gap-2">
-        <Label htmlFor="container-types">Container Types</Label>
+        <Label htmlFor="container-types" className="required">
+          Container Types
+        </Label>
         <Controller
           control={control}
-          name="fcl_container_type"
+          name={containerTypeField}
           render={({ field }) => (
             <MultiSelect
               placeholder="Select container types"
@@ -57,13 +71,14 @@ export function SeaFclLoadFormWrapper() {
                 const nextIds = next as STDContainerType[]
                 field.onChange(nextIds)
 
-                const currentQuantities = getValues('fcl_quantities')
-                // const currentWeights = getValues('fcl_weights')
+                const currentQuantities = getValues(quantitiesField)
 
                 // Set newly selected quantities to 1 if currently 0 for convenience
                 nextIds.forEach((id) => {
                   if ((currentQuantities?.[id] ?? 0) === 0) {
-                    setValue(`fcl_quantities.${id}`, 1, { shouldDirty: true })
+                    setValue(`${quantitiesField}.${id}`, 1, {
+                      shouldDirty: true,
+                    })
                   }
                 })
 
@@ -72,30 +87,29 @@ export function SeaFclLoadFormWrapper() {
                   (id: STDContainerType) => !nextIds.includes(id)
                 )
                 removedIds.forEach((id: string) => {
-                  setValue(`fcl_quantities.${id}`, 0, { shouldDirty: true })
-                  setValue(`fcl_weights.${id}`, 0, { shouldDirty: true })
+                  setValue(`${quantitiesField}.${id}`, 0, { shouldDirty: true })
+                  setValue(`${weightsField}.${id}`, 0, { shouldDirty: true })
                 })
               }}
             />
           )}
         />
-        {errors.fcl_container_type && (
+        {errors[containerTypeField] && (
           <p className="text-sm text-destructive" role="alert">
-            {(errors.fcl_container_type as any)?.message}
+            {(errors[containerTypeField] as any)?.message}
           </p>
         )}
       </div>
 
-      {fclContainerType.length > 0 && (
+      {containerType?.length > 0 && (
         <div className="space-y-4">
           <Separator />
           <div className="space-y-3">
             <div className="flex flex-col gap-3">
-              {fclContainerType.map((id: string) => {
-                const errMsg = (errors.fcl_quantities as any)?.[id]?.message as
-                  | string
-                  | undefined
-                const weightErrMsg = (errors.fcl_weights as any)?.[id]
+              {containerType.map((id: string) => {
+                const errMsg = (errors[quantitiesField] as any)?.[id]
+                  ?.message as string | undefined
+                const weightErrMsg = (errors[weightsField] as any)?.[id]
                   ?.message as string | undefined
                 return (
                   <div key={id} className="flex flex-col gap-1">
@@ -114,11 +128,11 @@ export function SeaFclLoadFormWrapper() {
                             inputMode="numeric"
                             type="number"
                             placeholder="Qty"
-                            className="placeholder:text-xs"
+                            className="no-arrows placeholder:text-xs"
                             min={0}
                             step={1}
                             aria-invalid={!!errMsg}
-                            {...register(`fcl_quantities.${id}` as const, {
+                            {...register(`${quantitiesField}.${id}` as const, {
                               valueAsNumber: true,
                             })}
                           />
@@ -130,9 +144,9 @@ export function SeaFclLoadFormWrapper() {
                               placeholder: 'Weight',
                               step: 0.01,
                             }}
-                            className="placeholder:text-xs"
-                            inputField={`fcl_weights.${id}` as const}
-                            selectField="fcl_unit"
+                            className="no-arrows placeholder:text-xs"
+                            inputField={`${weightsField}.${id}` as const}
+                            selectField={unitField}
                             isInputValueAsNumber={true}
                             data={[...KG_LBS]}
                           />
@@ -169,7 +183,7 @@ export function SeaFclLoadFormWrapper() {
                   {totalSelectedWeight ?? 0}
                 </span>{' '}
                 <span className="font-medium uppercase text-foreground">
-                  {fclUnit}
+                  {unit}
                 </span>
               </p>
             </div>
@@ -178,35 +192,35 @@ export function SeaFclLoadFormWrapper() {
               variant="outline"
               size="sm"
               onClick={() => {
-                resetField('fcl_container_type', { defaultValue: [] })
+                resetField(containerTypeField, { defaultValue: [] })
               }}
             >
               Clear
             </Button>
           </div>
 
-          {/* Refine error for overall quantities rule */}
-          {errors.fcl_quantities &&
-            !fclContainerType.some(
-              (id: string) => (errors.fcl_quantities as any)[id]
+          {/* Refined error for overall quantities rule */}
+          {errors[quantitiesField] &&
+            !containerType.some(
+              (id: string) => (errors[quantitiesField] as any)[id]
             ) && (
               <div
                 role="alert"
                 className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
               >
-                {(errors.fcl_quantities as any)?.message ??
+                {(errors[quantitiesField] as any)?.message ??
                   'Please adjust quantities so that at least one selected type is greater than 0.'}
               </div>
             )}
-          {errors.fcl_weights &&
-            !fclContainerType.some(
-              (id: string) => (errors.fcl_weights as any)[id]
+          {errors[weightsField] &&
+            !containerType.some(
+              (id: string) => (errors[weightsField] as any)[id]
             ) && (
               <div
                 role="alert"
                 className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
               >
-                {(errors.fcl_weights as any)?.message ??
+                {(errors[weightsField] as any)?.message ??
                   'Please adjust weights so that at least one selected type is greater than 0.'}
               </div>
             )}

@@ -1,28 +1,36 @@
 'use client'
 import { useEffect } from 'react'
-import { LoadBulkForm, LoadFclForm, LoadLclForm } from './load-mode-sea-form'
+import {
+  LoadDgForm,
+  LoadFclForm,
+  LoadIgForm,
+  LoadLclForm,
+  LoadOogForm,
+  LoadRfForm,
+} from './load-mode-sea-form'
 import { SelectWrapper } from '../_components/form-wrapper/select-wrapper'
-import { SEA_MODES } from '@/constants'
 import { useFormContext } from 'react-hook-form'
+import { ModesType } from '@/schema/sea-schema'
+import { SEA_MODES } from '@/constants/sea-form'
 
 export const LoadSeaForm = () => {
   const { watch, setValue } = useFormContext()
 
-  const watchMode: 'FCL' | 'LCL' | 'BULK' = watch('modes')
+  const watchMode: ModesType = watch('modes')
   useEffect(() => {
-    if (watchMode == 'BULK') {
-      const defaultBulkLoad = [
+    if (watchMode == 'OOG') {
+      const defaultOogLoad = [
         {
-          bulk_wid: undefined,
-          bulk_hgt: undefined,
-          bulk_lgt: undefined,
-          bulk_volume_unit: 'CM',
-          bulk_quantity: undefined,
-          bulk_weight: undefined,
-          bulk_weight_unit: 'KG',
+          oog_wid: undefined,
+          oog_hgt: undefined,
+          oog_lgt: undefined,
+          oog_volume_unit: 'CM',
+          oog_quantity: undefined,
+          oog_weight: undefined,
+          oog_weight_unit: 'KG',
         },
       ]
-      setValue('bulk_load', defaultBulkLoad)
+      setValue('oog_load', defaultOogLoad)
     }
     if (watchMode == 'LCL') {
       const defaultLclLoad = [
@@ -48,7 +56,10 @@ export const LoadSeaForm = () => {
       />
       {watchMode === 'FCL' && <LoadFclForm />}
       {watchMode === 'LCL' && <LoadLclForm />}
-      {watchMode === 'BULK' && <LoadBulkForm />}
+      {watchMode === 'DG' && <LoadDgForm />}
+      {watchMode === 'RF' && <LoadRfForm />}
+      {watchMode === 'IG' && <LoadIgForm />}
+      {watchMode === 'OOG' && <LoadOogForm />}
     </>
   )
 }

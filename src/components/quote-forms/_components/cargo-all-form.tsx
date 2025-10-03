@@ -8,8 +8,8 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import SumbitButton from '@/components/shared/button-loading'
 import { FormMetaProvider } from '@/provider'
 import { useContext } from 'react'
-import { InputWrapper } from './form-wrapper/input-wrapper'
 import { HsSixType } from '@/models/hs-six'
+import InputInlineAddonWrapper from './form-wrapper/input-inline-addon-wrapper'
 
 export const CargoAllForm = () => {
   const {
@@ -41,10 +41,20 @@ export const CargoAllForm = () => {
         }}
       />
       <div className="flex w-full flex-col items-center justify-center space-x-2 md:flex-row">
-        <InputWrapper
+        {/* <InputWrapper
           label="Value"
           field="value"
           inputProps={{ type: 'number', placeholder: 'Enter value in usd' }}
+        /> */}
+        <InputInlineAddonWrapper
+          field="value"
+          label="Value"
+          addonBack="$"
+          inputProps={{
+            type: 'number',
+            placeholder: '0.00',
+            className: ' no-arrows',
+          }}
         />
         {!isWarehouse && <CalendarWrapper label="Ready to Load" field="date" />}
       </div>

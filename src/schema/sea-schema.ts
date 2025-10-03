@@ -1,18 +1,17 @@
 import {
   ALL_COUNTRIES,
-  BULK_TYPE,
   incoterms,
   IN_CM,
   KG_LBS,
-  KG_LBS_DAY,
   LCL_PACKAGE_TYPE,
   TRUCKING_TYPE,
 } from '@/constants'
+import { DG_CLASSES } from '@/constants/sea-dg-form'
+import { OOG_CONTAINER_TYPE } from '@/constants/sea-oog-form'
 import { z } from 'zod'
 
 // COMMON SCHEMA
 const CommonSchema = z.object({
-  //TODO: different modes have different countries list
   ori_country: z
     .string()
     .refine((value) => ALL_COUNTRIES.includes(value as any), {
@@ -21,23 +20,32 @@ const CommonSchema = z.object({
     }),
   pickup_check: z.boolean(),
   pickup_location: z
-    .object({
-      description: z.string().min(1, { message: 'required' }),
-      place_id: z.string().min(1, { message: 'required' }),
-    })
+    .object(
+      {
+        description: z.string().min(1, { message: 'required' }),
+        place_id: z.string().min(1, { message: 'required' }),
+      },
+      { invalid_type_error: 'Invalid location' }
+    )
     .nullish(),
-  ori_port_rail: z.object({
-    port_name: z.string(),
-    port_code: z.string(),
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
-    type: z.string(),
-  }),
-  ori_port_if_rail: z
-    .object({
+  ori_port_rail: z.object(
+    {
       port_name: z.string(),
       port_code: z.string(),
-    })
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180),
+      type: z.string(),
+    },
+    { invalid_type_error: 'Invalid port' }
+  ),
+  ori_port_if_rail: z
+    .object(
+      {
+        port_name: z.string(),
+        port_code: z.string(),
+      },
+      { invalid_type_error: 'Invalid port' }
+    )
     .nullish(),
   //NOTE: Trucking login is only applies for india
   trucking: z.enum(TRUCKING_TYPE).optional(),
@@ -50,32 +58,44 @@ const CommonSchema = z.object({
     }),
   delivery_check: z.boolean(),
   delivery_location: z
-    .object({
-      description: z.string().min(1, { message: 'required' }),
-      place_id: z.string().min(1, { message: 'required' }),
-    })
+    .object(
+      {
+        description: z.string().min(1, { message: 'required' }),
+        place_id: z.string().min(1, { message: 'required' }),
+      },
+      { invalid_type_error: 'Invalid location' }
+    )
     .nullish(),
-  des_port_rail: z.object({
-    port_name: z.string(),
-    port_code: z.string(),
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
-    type: z.string(),
-  }),
-  des_port_if_rail: z
-    .object({
+  des_port_rail: z.object(
+    {
       port_name: z.string(),
       port_code: z.string(),
-    })
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180),
+      type: z.string(),
+    },
+    { invalid_type_error: 'Invalid port' }
+  ),
+  des_port_if_rail: z
+    .object(
+      {
+        port_name: z.string(),
+        port_code: z.string(),
+      },
+      { invalid_type_error: 'Invalid port' }
+    )
     .nullish(),
 
-  hsn: z.object({
-    code: z.string(),
-    chapter: z.string(),
-    heading: z.string(),
-    subheading: z.string(),
-  }),
-  value: z.coerce.number().min(1),
+  hsn: z.object(
+    {
+      code: z.string(),
+      chapter: z.string(),
+      heading: z.string(),
+      subheading: z.string(),
+    },
+    { invalid_type_error: 'Invalid hsn' }
+  ),
+  value: z.coerce.number({ invalid_type_error: 'Invalid value' }).min(1),
   date: z.coerce.date(),
   incoterms: z.enum(incoterms),
 })
@@ -83,6 +103,7 @@ const CommonSchema = z.object({
 //FCL SCHEMA
 // TODO: put this different file
 export const FCL_CONTAINER_ENUM = z.enum(['20STD', '40STD', '40HC'])
+export const IG_CONTAINER_ENUM = z.enum(OOG_CONTAINER_TYPE)
 export const FclSchema = z
   .object({
     modes: z.literal('FCL'),
@@ -92,19 +113,19 @@ export const FclSchema = z
     //NOTE: Multiple container type is allowed
     fcl_quantities: z.object({
       '20STD': z.coerce
-        .number()
+        .number({ invalid_type_error: 'Invalid quantity' })
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
         .optional()
         .describe('Number of 20STD containers. Max 50'),
       '40STD': z.coerce
-        .number()
+        .number({ invalid_type_error: 'Invalid quantity' })
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
         .optional()
         .describe('Number of 40STD containers. Max 50'),
       '40HC': z.coerce
-        .number()
+        .number({ invalid_type_error: 'Invalid quantity' })
         .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
         .optional()
@@ -112,19 +133,22 @@ export const FclSchema = z
     }),
     fcl_weights: z.object({
       '20STD': z.coerce
-        .number()
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
         .max(40000, 'Must be less than 40000.')
         .optional()
         .describe('Weight of 20STD containers. Max 40000'),
       '40STD': z.coerce
-        .number()
-        .min(0, 'Must be 0 or more.')
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(1, 'Must be 1 or more.')
         .max(40000, 'Must be less than 40000.')
         .optional()
         .describe('Weight of 40STD containers. Max 40000'),
       '40HC': z.coerce
-        .number()
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
         .min(0, 'Must be 0 or more.')
         .max(40000, 'Must be less than 40000.')
         .optional()
@@ -150,7 +174,6 @@ const LclSchema = z
         lcl_weight_unit: z.enum(KG_LBS),
       })
     ),
-
     lcl_cbm_ton: z.object({
       cbm: z.number(),
       ton: z.number(),
@@ -159,27 +182,205 @@ const LclSchema = z
   })
   .merge(CommonSchema)
 
-//BULK SCHEMA
-const BulkSchema = z
+//DG SCHEMA
+const DgSchema = z
   .object({
-    modes: z.literal('BULK'),
-    bulk_type: z.enum(BULK_TYPE),
-    bulk_load: z.array(
+    modes: z.literal('DG'),
+    dg_class: z.enum(DG_CLASSES),
+    dg_container_type: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    dg_quantities: z.object({
+      '20STD': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional()
+        .describe('Number of 20STD containers. Max 50'),
+      '40STD': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional()
+        .describe('Number of 40STD containers. Max 50'),
+      '40HC': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional()
+        .describe('Number of 40HC containers. Max 50'),
+    }),
+    dg_weights: z.object({
+      '20STD': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional()
+        .describe('Weight of 20STD containers. Max 40000'),
+      '40STD': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional()
+        .describe('Weight of 40STD containers. Max 40000'),
+      '40HC': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional()
+        .describe('Weight of 40HC containers. Max 40000'),
+    }),
+    dg_unit: z.enum(KG_LBS),
+  })
+  .merge(CommonSchema)
+
+//REEFER SCHEMA
+const RFSchema = z
+  .object({
+    modes: z.literal('RF'),
+    rf_container_type: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    rf_quantities: z.object({
+      '20STD': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      '40STD': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      '40HC': z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+    }),
+    rf_weights: z.object({
+      '20STD': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      '40STD': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      '40HC': z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+    }),
+    rf_unit: z.enum(KG_LBS),
+    rf_temperture: z.coerce
+      .number({ invalid_type_error: 'Invalid temperature' })
+      .min(-20, 'Must be greater than -20.')
+      .max(20, 'Must be less than 20.'),
+    rf_humidity: z.coerce
+      .number({ invalid_type_error: 'Invalid humidity' })
+      .min(0, 'Must be greater than 0.')
+      .max(100, 'Must be less than 100.'),
+  })
+  .merge(CommonSchema)
+
+// Ingauge Schema
+export const IgSchema = z
+  .object({
+    modes: z.literal('IG'),
+    ig_container_type: z
+      .array(IG_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    ig_quantities: z.object({
+      OT20: z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      OT40: z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      FR20: z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      FR40: z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+      FR45: z.coerce
+        .number({ invalid_type_error: 'Invalid quantity' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .optional(),
+    }),
+    ig_weights: z.object({
+      OT20: z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      OT40: z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      FR20: z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      FR40: z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+      FR45: z.coerce
+        .number({ invalid_type_error: 'Invalid weight' })
+        .int('Must be an a whole number.')
+        .min(0, 'Must be 0 or more.')
+        .max(40000, 'Must be less than 40000.')
+        .optional(),
+    }),
+  })
+  .merge(CommonSchema)
+
+// Outgauge Schema
+export const OogSchema = z
+  .object({
+    modes: z.literal('OOG'),
+    oog_load: z.array(
       z.object({
-        bulk_wid: z.coerce.number(),
-        bulk_hgt: z.coerce.number(),
-        bulk_lgt: z.coerce.number(),
-        bulk_volume_unit: z.enum(IN_CM),
-        bulk_quantity: z.coerce.number(),
-        bulk_weight: z.coerce.number(),
-        bulk_weight_unit: z.enum(KG_LBS),
+        oog_wid: z.coerce.number(),
+        oog_hgt: z.coerce.number(),
+        oog_lgt: z.coerce.number(),
+        oog_volume_unit: z.enum(IN_CM),
+        oog_quantity: z.coerce.number(),
+        oog_weight: z.coerce.number(),
+        oog_weight_unit: z.enum(KG_LBS),
       })
     ),
-    bulk_loading_rate: z.coerce.number(),
-    bulk_loading_unit: z.enum(KG_LBS_DAY),
-    bulk_discharge_rate: z.coerce.number(),
-    bulk_discharge_unit: z.enum(KG_LBS_DAY),
-    bulk_cbm_ton: z.object({
+    oog_cbm_ton: z.object({
       cbm: z.number(),
       ton: z.number(),
       kg: z.number(),
@@ -188,7 +389,14 @@ const BulkSchema = z
   .merge(CommonSchema)
 
 export const SeaFormSchema = z
-  .discriminatedUnion('modes', [FclSchema, LclSchema, BulkSchema])
+  .discriminatedUnion('modes', [
+    FclSchema,
+    LclSchema,
+    DgSchema,
+    RFSchema,
+    OogSchema,
+    IgSchema,
+  ])
   .superRefine((data, ctx) => {
     if (data.modes === 'FCL') {
       const total = data.fcl_container_type.reduce(
@@ -270,6 +478,66 @@ export const SeaFormSchema = z
         })
       }
     }
+    if (data.modes === 'DG') {
+      const total = data.dg_container_type.reduce(
+        (sum, id) => sum + (data.dg_quantities[id] ?? 0),
+        0
+      )
+      if (total <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Provide a quantity greater than 0 for at least one selected type.',
+          path: ['dg_quantities'],
+        })
+      }
+      const totalWeight = data.dg_container_type.reduce(
+        (sum, id) => sum + (data.dg_weights?.[id] ?? 0),
+        0
+      )
+      if (totalWeight <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Provide a weight greater than 0 for at least one selected type.',
+          path: ['dg_weights'],
+        })
+      }
+      if (data.des_country == data.ori_country) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'same origin country and destination',
+          path: ['des_country'],
+        })
+      }
+    }
+    if (data.modes === 'RF') {
+      if (data.rf_temperture === undefined || data.rf_humidity === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'temperature and humidity are required',
+          path: ['rf_temperture', 'rf_humidity'],
+        })
+      }
+    }
+    if (data.modes === 'IG') {
+      if (data.ig_container_type.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'container type is required',
+          path: ['ig_container_type'],
+        })
+      }
+    }
+    if (data.modes === 'OOG') {
+      if (data.oog_load.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'load is required',
+          path: ['oog_load'],
+        })
+      }
+    }
   })
 
 export type SeaFormType = z.infer<typeof SeaFormSchema>
@@ -282,3 +550,4 @@ export type PickupDeliveryLocationType = z.infer<
 >['pickup_location']
 export type PortType = z.infer<typeof SeaFormSchema>['ori_port_rail']
 export type IncotermsType = z.infer<typeof SeaFormSchema>['incoterms']
+export type ModesType = z.infer<typeof SeaFormSchema>['modes']
