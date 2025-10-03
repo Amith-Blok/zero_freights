@@ -14,6 +14,8 @@ type InputInlineAddonWrapperProp = {
   inputProps?: ComponentPropsWithoutRef<'input'>
   addonFront?: string
   addonBack?: string
+  addonBackClass?: string
+  addonFrontClass?: string
 } & ComponentPropsWithoutRef<'div'>
 export default function InputInlineAddonWrapper({
   field,
@@ -26,6 +28,8 @@ export default function InputInlineAddonWrapper({
   inputProps = {},
   addonFront,
   addonBack,
+  addonBackClass,
+  addonFrontClass,
   ...divProps
 }: InputInlineAddonWrapperProp) {
   const {
@@ -58,12 +62,22 @@ export default function InputInlineAddonWrapper({
           )}
         />
         {addonFront && (
-          <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sm text-muted-foreground peer-disabled:opacity-50">
+          <span
+            className={cn(
+              'pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sm text-muted-foreground peer-disabled:opacity-50',
+              addonFrontClass
+            )}
+          >
             {addonFront}
           </span>
         )}
         {addonBack && (
-          <span className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-sm text-muted-foreground peer-disabled:opacity-50">
+          <span
+            className={cn(
+              'pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-sm text-muted-foreground peer-disabled:opacity-50',
+              addonBackClass
+            )}
+          >
             {addonBack}
           </span>
         )}

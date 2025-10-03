@@ -49,7 +49,7 @@ export const CargoAllForm = () => {
         <InputInlineAddonWrapper
           field="value"
           label="Value"
-          addonBack="$"
+          addonBack="USD"
           inputProps={{
             type: 'number',
             placeholder: '0.00',
