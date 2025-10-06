@@ -86,4 +86,10 @@
 .no-arrows::-webkit-outer-spin-button,
 .no-arrows::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  margin: 0;
+}
+/* For Firefox and modern browsers */
+.no-arrows {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

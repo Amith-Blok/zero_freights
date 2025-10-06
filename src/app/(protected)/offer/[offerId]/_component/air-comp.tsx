@@ -47,7 +47,12 @@ export default function AirComp({
       url={`/api/confirmed-quote`}
       offerId={offerId}
     >
-      <OfferDataTable data={offers} containerType={''} grandTotal={price} />
+      <OfferDataTable
+        data={offers}
+        containerType={''}
+        grandTotal={price}
+        currency="USD"
+      />
     </ShippingCard>
   )
 }

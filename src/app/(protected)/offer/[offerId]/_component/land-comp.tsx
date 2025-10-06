@@ -45,7 +45,12 @@ export default function LandComp({
       offerId={offerId}
       currency="USD"
     >
-      <OfferDataTable data={offers} containerType={''} grandTotal={price} />
+      <OfferDataTable
+        data={offers}
+        containerType={''}
+        grandTotal={price}
+        currency="USD"
+      />
     </ShippingCard>
   )
 }
