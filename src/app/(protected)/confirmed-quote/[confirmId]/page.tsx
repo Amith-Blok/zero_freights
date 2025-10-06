@@ -21,6 +21,7 @@ export default async function ConfirmedQuotePage(props: {
     container_type,
     service_type,
     transit_time,
+    total_cost,
   } = confirmQuote
   const origin = locations?.[0]?.name || 'N/A'
   const destination = locations?.at(-1)?.name || 'N/A'
@@ -28,10 +29,11 @@ export default async function ConfirmedQuotePage(props: {
   const transitTimeInfo = transitTime
     ? `Est. ${transit_time} days port to port`
     : 'N/A'
-  const totalInr = confirmQuote.data.reduce(
-    (acc, value) => (acc += value.inr),
-    0
-  )
+  // const totalInr = confirmQuote.data.reduce(
+  //   (acc, value) => (acc += value.inr),
+  //   0
+  // )
+  const totalUsd = total_cost.usd
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center p-4">
@@ -59,7 +61,8 @@ export default async function ConfirmedQuotePage(props: {
         containerType={container_type}
         tag={service_type.toUpperCase()}
         carrier={carrier.toUpperCase()}
-        total={totalInr}
+        total={totalUsd}
+        currency="USD"
         tableData={confirmQuote.data}
       />
 

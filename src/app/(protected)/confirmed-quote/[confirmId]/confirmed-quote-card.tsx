@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { OfferDataTable } from '@/components/data-table/offer-data-table'
-import { inFormater } from '@/lib/utils'
+import { inFormater, usFormater } from '@/lib/utils'
 
 interface ConfirmedQuoteCardProps {
   id: string
@@ -19,6 +19,7 @@ interface ConfirmedQuoteCardProps {
   containerType: string
   carrier: string
   tag: string
+  currency: 'USD' | 'INR'
   tableData: { label: string; inr: number; usd: number }[]
 }
 export function ConfirmedQuoteCard({
@@ -34,9 +35,11 @@ export function ConfirmedQuoteCard({
   total,
   carrier,
   tag,
+  currency,
   tableData,
 }: ConfirmedQuoteCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const formater = currency === 'INR' ? inFormater : usFormater
   return (
     <Card className="mb-8 w-full max-w-4xl">
       <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-gray-100">
@@ -118,7 +121,7 @@ export function ConfirmedQuoteCard({
             <h3 className="mb-2 font-semibold text-gray-900">Total Cost</h3>
             <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6 text-center">
               <div className="mb-2 text-3xl font-bold text-green-700">
-                {inFormater.format(total)}
+                {formater.format(total)}
               </div>
               <p className="text-sm font-medium text-green-600">Final Quote</p>
               <p className="mt-2 text-xs text-gray-500">
@@ -151,6 +154,7 @@ export function ConfirmedQuoteCard({
                 data={tableData}
                 containerType={containerType}
                 grandTotal={total}
+                currency={currency}
               />
             </div>
           )}
