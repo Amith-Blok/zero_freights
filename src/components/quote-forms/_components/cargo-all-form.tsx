@@ -55,6 +55,7 @@ export const CargoAllForm = () => {
             placeholder: '0.00',
             className: ' no-arrows',
           }}
+          className="w-full"
         />
         {!isWarehouse && <CalendarWrapper label="Ready to Load" field="date" />}
       </div>
