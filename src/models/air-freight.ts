@@ -35,5 +35,5 @@ const AirFreightSchema = new mongoose.Schema(
 export type AirFreightType = mongoose.InferSchemaType<typeof AirFreightSchema>
 export type AirlineType = mongoose.InferSchemaType<typeof AirlineSchema>
 
-export default mongoose.models.air_freight ||
-  mongoose.model('air_freight', AirFreightSchema)
+export default mongoose.models.airfreight ||
+  mongoose.model('airfreight', AirFreightSchema)

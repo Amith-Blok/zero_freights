@@ -12,9 +12,12 @@ export const airFreightByStartEndCode = async ({
     throw new Error('invalid air freight code')
   }
   await mongoosedb()
+  console.log({ startCode, endCode })
   const response = await airFreight
     .findOne({ start_code: startCode, end_code: endCode })
     .lean<AirFreightType>()
+
+  console.log({ response })
   if (!response) {
     throw new Error('no air freight result')
   }
