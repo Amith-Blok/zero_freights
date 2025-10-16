@@ -38,7 +38,7 @@ export const LoginEmailSuccessful = () => {
         <Image
           src="/login-bg.png"
           fill
-          objectFit="contain"
+          style={{ objectFit: 'contain' }}
           alt="zero freights login banner"
         />
       </div>

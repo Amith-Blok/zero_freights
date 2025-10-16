@@ -50,7 +50,7 @@ export default async function QuotePage({
           message={`couldn't find line:${lineName} in offer:${offerId}`}
         />
       )
-    subject = `${offer.subject} ${lineName}`
+    subject = `${offer.subject} ${lineName.toUpperCase()}`
     const localsRates = offer.offers.local_charges
     containerType = fclContainerType as DContainerTypeSmallCase
     containerLabel = convertDToStdContainer(containerType)

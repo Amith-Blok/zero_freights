@@ -118,7 +118,7 @@ export default function ShippingCard({
   const [isExpanded, setIsExpanded] = useState(false)
   const [loading, startTransition] = useTransition()
   const router = useRouter()
-  const handleSubmit = (line: string) => {
+  const handleBookingSubmit = (line: string) => {
     // console.log("handleSubmit")
     // console.log("fetchUrl",url,line)
     startTransition(async () => {
@@ -239,7 +239,7 @@ export default function ShippingCard({
               )}
             </div>
             <Button
-              onClick={() => handleSubmit(lineName.toLowerCase())}
+              onClick={() => handleBookingSubmit(lineName.toLowerCase())}
               disabled={loading || serviceType == ServiceType.SEA_FCL}
               className="h-8 shrink-0 gap-1"
               size="sm"

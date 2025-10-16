@@ -7,6 +7,7 @@ import {
   LOGIN_ROUTE,
   DEFAULT_HOME_ROUTE,
 } from '@/routes'
+import { verifyPdfToken } from '@/lib/pdf-token'
 
 // async function getUserCredits(userId: string): Promise<{ credit: number }> {
 //   try {
@@ -26,6 +27,12 @@ export default auth(async (req) => {
   // Check if the route is an API authentication route
   const isApiAuthRoute = pathname.startsWith(API_AUTH_PREFIX)
 
+  // Check if the route is a download route (for PDF generation)
+  const isDownloadRoute = pathname.startsWith('/download/')
+
+  // Check if the route is an API route (for PDF generation and other APIs)
+  const isApiRoute = pathname.startsWith('/api/')
+
   // Check if the route is a public route
   const isPublicRoute = publicRoutes.includes(pathname)
 
@@ -34,6 +41,37 @@ export default auth(async (req) => {
 
   // Allow API auth routes to pass through
   if (isApiAuthRoute) {
+    return NextResponse.next()
+  }
+
+  // Allow API routes to pass through
+  if (isApiRoute) {
+    return NextResponse.next()
+  }
+
+  // Handle download routes - require either authentication or valid PDF token
+  if (isDownloadRoute) {
+    // Check for PDF token in query params
+    const pdfToken = nextUrl.searchParams.get('pdf_token')
+
+    if (pdfToken) {
+      // Verify the PDF token
+      const tokenPayload = await verifyPdfToken(pdfToken)
+      if (tokenPayload) {
+        // Valid token, allow access
+        return NextResponse.next()
+      }
+    }
+
+    // If no valid token, require authentication
+    if (!isLoggedIn) {
+      const callbackUrl = encodeURIComponent(pathname + nextUrl.search)
+      return NextResponse.redirect(
+        new URL(`${LOGIN_ROUTE}?callback=${callbackUrl}`, nextUrl)
+      )
+    }
+
+    // User is authenticated, allow access
     return NextResponse.next()
   }
 
