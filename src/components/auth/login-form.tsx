@@ -77,7 +77,7 @@ export const LoginForm = () => {
         <Image
           src="/layout_bg.jpg"
           fill
-          objectFit="cover"
+          style={{ objectFit: 'cover' }}
           alt="zero freights login banner"
         />
       </div>

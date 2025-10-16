@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
 import puppeteerCore from 'puppeteer-core'
 import chromium from '@sparticuz/chromium'
-import { PdfType } from '@/types/common'
+import { generatePdfToken } from '@/lib/pdf-token'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,15 +16,21 @@ export async function GET(request: NextRequest) {
     const isDev = process.env.NODE_ENV == 'development'
     console.log({ isDev })
     console.log({ env: process.env.NEXT_PUBLIC_APP_URL })
+    // console.log({ type, lineName, containerType, currency })
     const baseUrl = isDev
       ? 'http://localhost:3000'
       : process.env.NEXT_PUBLIC_APP_URL
     console.log({ baseUrl })
+
+    // Generate a temporary token for PDF access
+    const pdfToken = await generatePdfToken(id!, type!)
+
     const url =
-      type == PdfType.OFFER
+      type == 'OFFER'
         ? baseUrl +
-          `/download/offer/${id}?line_name=${lineName}&container_type=${containerType}&currency=${currency}`
-        : baseUrl + `/download/confirmed-quote/${id}?currency=${currency}`
+          `/download/offer/${id}?line_name=${lineName}&container_type=${containerType}&currency=${currency}&pdf_token=${pdfToken}`
+        : baseUrl +
+          `/download/confirmed-quote/${id}?currency=${currency}&pdf_token=${pdfToken}`
     console.log({ url })
     if (!id) return NextResponse.json('quote-id not found', { status: 400 })
     let browser
@@ -37,6 +43,8 @@ export async function GET(request: NextRequest) {
       await page.goto(url, {
         waitUntil: 'networkidle0',
       })
+
+      // console.log({html:await page.content()})
 
       // Wait for fonts to load
       await page.evaluateOnNewDocument(() => {
