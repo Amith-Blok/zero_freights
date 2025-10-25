@@ -6,6 +6,7 @@ import { getTableFromSeaFcl } from './helper'
 import { LabeledCost } from '@/models/offer/shared-types'
 import { getOfferById } from '@/data/offer/offer'
 import { generateConfirmedQuoteId } from '../form/helper/lib'
+import { getUserById } from '@/data/user'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'validation failded' }, { status: 400 })
     }
     const {
-      user,
+      user_id,
       bill_to,
       form_id,
       blok_id: offerId,
@@ -36,6 +37,16 @@ export async function POST(request: NextRequest) {
       mode,
       created_at,
     } = safeParseOffer.data
+
+    const dbUser = await getUserById(user_id)
+    if (
+      !dbUser?.name ||
+      !dbUser?.email ||
+      !dbUser?.phone ||
+      !dbUser?.companyName
+    ) {
+      return NextResponse.json({ error: 'user not found' }, { status: 404 })
+    }
 
     let confirmedQuote = [] as LabeledCost[]
     let packageLabel = ''
@@ -97,7 +108,7 @@ export async function POST(request: NextRequest) {
       blok_id: quoteId,
       offer_id: offerId,
       offer_date: created_at?.toISOString() ?? '',
-      user,
+      user_id: dbUser.id,
       tags,
       locations,
       service_type,
@@ -122,10 +133,10 @@ export async function POST(request: NextRequest) {
     }
 
     await sendQuoteInfoToZeroFreight({
-      userName: user.name,
-      userEmail: user.email,
-      userPhone: user.phone,
-      userCompany: user.company,
+      userName: dbUser.name,
+      userEmail: dbUser.email,
+      userPhone: dbUser.phone,
+      userCompany: dbUser.companyName,
       subject,
       tag: service_type,
       containerType: packageLabel,

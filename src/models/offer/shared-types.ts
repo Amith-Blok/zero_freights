@@ -1,12 +1,5 @@
 export type ContainerType = 'd2' | 'd4' | 'd5'
 export type STDContainerType = '20STD' | '40STD' | '40HC'
-interface User {
-  id: string
-  name: string
-  email: string
-  company: string
-  phone: string
-}
 
 export interface Exchange {
   usd_to_inr: number
@@ -14,7 +7,6 @@ export interface Exchange {
   eur_to_inr: number
   eur_to_usd: number
 }
-
 export type LocationType = 'port' | 'rail' | 'door' | 'warehouse' | 'air'
 export interface Location {
   name: string
@@ -64,8 +56,7 @@ export interface TotalCostByContainerType {
       total: number
     }
   }
-
-  //NOTE this is gonna be freight cost + local cost
+  //NOTE: total cost= freight cost + local cost
   total_cost: {
     inr: {
       d2: number
@@ -81,6 +72,63 @@ export interface TotalCostByContainerType {
     }
   }
 }
+export interface TotatCostByIgContainerType {
+  freight_cost: {
+    inr: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+    usd: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+  }
+  local_cost: {
+    inr: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+    usd: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+  }
+  //NOTE: total cost= freight cost + local cost
+  total_cost: {
+    inr: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+    usd: {
+      io2: number
+      io4: number
+      if2: number
+      if4: number
+      if5: number
+      total: number
+    }
+  }
+}
 export interface ContainerCost {
   label: string
   currency: string
@@ -88,6 +136,17 @@ export interface ContainerCost {
   d2: number
   d4: number
   d5: number
+  total: number
+}
+export interface IgContainerCost {
+  label: string
+  currency: string
+  additional_notes?: string
+  io2: number
+  io4: number
+  if2: number
+  if4: number
+  if5: number
   total: number
 }
 export interface LineChargeData {
@@ -99,12 +158,32 @@ export interface LineChargeData {
   valid_to: string
   data: ContainerCost
 }
-
-export type OfferModeTypes = 'WAR' | 'AIR' | 'LAND' | 'SEA_FCL' | 'SEA_LCL'
-
+export interface IgLineChargeData {
+  line_name: string
+  port_to_days: number
+  estimated_days: number
+  tags: string[]
+  cost_breakdown: TotatCostByIgContainerType
+  valid_to: string
+  data: IgContainerCost
+}
+export type OfferModeTypes =
+  | 'WAR'
+  | 'AIR'
+  | 'LAND'
+  | 'SEA_FCL'
+  | 'SEA_LCL'
+  | 'SEA_DG'
+  | 'SEA_RF'
+  | 'SEA_IG'
+  | 'SEA_OOG'
 export enum ServiceType {
   SEA_FCL = 'Sea FCL',
   SEA_LCL = 'Sea LCL',
+  SEA_DG = 'Sea DG',
+  SEA_RF = 'Sea RF',
+  SEA_IG = 'Sea IG',
+  SEA_OOG = 'Sea OOG',
   AIR = 'Air',
   DOMESTIC_TRUCKING = 'Domestic Trucking',
   SEAPORT_TRUCKING = 'Seaport Trucking',
@@ -113,11 +192,10 @@ export enum ServiceType {
   LCL_WAR = 'LCL WH',
   LTL_WAR = 'LTL WH',
 }
-
 export interface Offer {
   form_id: string
   blok_id: string
-  user: User
+  user_id: string
   subject: string
   place_of_supply: string
   bill_to: string
@@ -130,7 +208,6 @@ export interface Offer {
   locations: Location[]
   created_at?: Date
 }
-
 export interface WarehouseOffer extends Offer {
   estimated_days: number
   carrier: string
@@ -138,7 +215,6 @@ export interface WarehouseOffer extends Offer {
   total_cost: TotalCost
   offers: LabeledCost[]
 }
-
 export interface AirOffer extends Offer {
   estimated_days: number
   carrier: string
@@ -146,21 +222,18 @@ export interface AirOffer extends Offer {
   total_cost: TotalCost
   offers: LabeledCost[]
 }
-
 export interface LandOffer extends Offer {
   carrier: string
   package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
-
 export interface SeaLclOffer extends Offer {
   carrier: string
   package_type: string
   total_cost: TotalCost
   offers: LabeledCost[]
 }
-
 export interface SeaFclOffer extends Offer {
   container_types: string[]
   container_details: ContainerDetailsType
@@ -169,4 +242,40 @@ export interface SeaFclOffer extends Offer {
     line_charges: LineChargeData[]
     local_charges: ContainerCost[]
   }
+}
+export interface SeaDgOffer extends Offer {
+  container_types: string[]
+  container_details: ContainerDetailsType
+  weight_unit: 'KG' | 'LBS'
+  dg_class: string
+  offers: {
+    line_charges: LineChargeData[]
+    local_charges: ContainerCost[]
+  }
+}
+export interface SeaRfOffer extends Offer {
+  container_types: string[]
+  container_details: ContainerDetailsType
+  weight_unit: 'KG' | 'LBS'
+  temperature: number
+  humidity: number
+  offers: {
+    line_charges: LineChargeData[]
+    local_charges: ContainerCost[]
+  }
+}
+export interface SeaIgOffer extends Offer {
+  container_types: string[]
+  container_details: ContainerDetailsType
+  weight_unit: 'KG' | 'LBS'
+  offers: {
+    line_charges: IgLineChargeData[]
+    local_charges: IgContainerCost[]
+  }
+}
+export interface SeaOogOffer extends Offer {
+  carrier: string
+  package_type: string
+  total_cost: TotalCost
+  offers: LabeledCost[]
 }

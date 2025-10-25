@@ -39,19 +39,6 @@ const LocationSchema = new mongoose.Schema(
   }
 )
 
-const UserSchema = new mongoose.Schema(
-  {
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    company: { type: String, required: true },
-    phone: { type: String, required: true },
-  },
-  {
-    _id: false,
-  }
-)
-
 const TotalCostSchema = new mongoose.Schema(
   {
     inr: { type: Number, required: true },
@@ -68,7 +55,7 @@ const ConfimredQuoteSchema = new mongoose.Schema(
     blok_id: { type: String, required: true },
     offer_id: { type: String, required: true },
     offer_date: { type: String, required: true },
-    user: { type: UserSchema, required: true },
+    user_id: { type: String, required: true },
     subject: { type: String, required: true },
     place_of_supply: { type: String, required: true },
     bill_to: { type: String, required: true },

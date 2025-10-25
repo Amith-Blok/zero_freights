@@ -20,14 +20,6 @@ const LocationZodSchema = z.object({
   type: z.enum(['door', 'port', 'rail', 'air', 'warehouse']),
 })
 
-const UserZodSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string(),
-  company: z.string(),
-  phone: z.string(),
-})
-
 export const TotalCostZodSchema = z.object({
   inr: z.number(),
   usd: z.number(),
@@ -38,7 +30,7 @@ export const ConfirmedQuoteZodSchema = z.object({
   blok_id: z.string(),
   offer_id: z.string(),
   offer_date: z.string(),
-  user: UserZodSchema,
+  user_id: z.string(),
   subject: z.string(),
   place_of_supply: z.string(),
   bill_to: z.string(),

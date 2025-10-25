@@ -5,6 +5,7 @@ import { getConfirmedQuoteById } from '@/data/confirmed-quote'
 import { notFound } from 'next/navigation'
 import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
 import { ConfirmedQuoteCard } from './confirmed-quote-card'
+import { getUserById } from '@/data/user'
 
 export default async function ConfirmedQuotePage(props: {
   params: Promise<{ confirmId: string }>
@@ -15,7 +16,7 @@ export default async function ConfirmedQuotePage(props: {
 
   const {
     blok_id,
-    user,
+    user_id,
     locations,
     carrier,
     container_type,
@@ -23,6 +24,10 @@ export default async function ConfirmedQuotePage(props: {
     transit_time,
     total_cost,
   } = confirmQuote
+  const user = await getUserById(user_id)
+  if (!user?.name || !user?.email || !user?.phone || !user?.companyName) {
+    return notFound()
+  }
   const origin = locations?.[0]?.name || 'N/A'
   const destination = locations?.at(-1)?.name || 'N/A'
   const transitTime = confirmQuote.transit_time
@@ -54,7 +59,7 @@ export default async function ConfirmedQuotePage(props: {
         userName={toTitleCase(user.name)}
         userEmail={user.email}
         userPhone={formatPhoneNumber(user.phone)}
-        userCompany={toTitleCase(user.company)}
+        userCompany={toTitleCase(user.companyName)}
         transitInfo={transitTimeInfo}
         origin={origin}
         destination={destination}

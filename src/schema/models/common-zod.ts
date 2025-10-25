@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-export const UserZodSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string(),
-  company: z.string(),
-  phone: z.string(),
-})
-
 export const ExchangeZodSchema = z.object({
   usd_to_inr: z.number(),
   inr_to_usd: z.number(),

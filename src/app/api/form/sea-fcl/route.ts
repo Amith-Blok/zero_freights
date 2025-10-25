@@ -1,27 +1,26 @@
-import { getAllIndiaOutboundHaulageRatesByCode } from '@/data/india-outbound-haulage'
-import { IncotermsType, SeaFormSchema } from '@/schema/sea-schema'
+import { SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
-import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
 import { weightTOMetricTon } from '@/lib/utils'
 import { formatLines } from '../helper/lines-rate-formatter'
 import { generateOfferId, generateQuoteMetaDetails } from '../helper/lib'
-import { inTrucking, usTrucking } from '../helper/trucking'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { appendSeaFclAdditionalFees } from '../helper/table-data-appender'
 import { getLinesChargesByCode } from '@/data/lines-charges'
 import { exchangeValues } from '@/lib/exchange'
 import { calculateTotalOfferCost } from '../helper/total'
 import { createForm } from '@/data/form'
-import {
-  Location as LocationType,
-  ServiceType,
-} from '@/models/offer/shared-types'
-import { toTitleCase } from '@/lib/utils'
+import { ServiceType } from '@/models/offer/shared-types'
 import { createSeaFclOffer } from '@/data/offer/sea-fcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
-import { getDutyByHsCodeCountry } from '@/data/duties'
-import { HsSixType } from '@/models/hs-six'
 import { getUser } from '@/lib/user'
+import {
+  buildLocations,
+  errorResponse,
+  getDutyIfNeeded,
+  getTruckingCost,
+} from './helper'
+import { selectPorts } from './helper'
+import { getRailCost } from './helper'
 
 // --- Constants ---
 const CFS_CHARGE = 28000
@@ -33,189 +32,6 @@ let IN_FCL_CLEARANCE_FEE = {
   d4: CLEARANCE_FEE_OBJ.inr,
   d5: CLEARANCE_FEE_OBJ.inr,
   total: 0,
-}
-
-// --- Helper Functions ---
-function errorResponse(message: string, status = 400, details?: any) {
-  if (details) console.log({ error: message, details })
-  else console.log({ error: message })
-  return NextResponse.json({ error: message, details }, { status })
-}
-
-function selectPorts({
-  ori_country,
-  ori_port_rail,
-  ori_port_if_rail,
-  des_port_rail,
-  des_port_if_rail,
-}: any) {
-  let startSeaPort, endSeaPort
-  if (ori_country === 'IN') {
-    startSeaPort =
-      ori_port_rail.type === 'RAIL' ? ori_port_if_rail : ori_port_rail
-    endSeaPort = des_port_rail
-  } else {
-    startSeaPort = ori_port_rail
-    endSeaPort = des_port_rail.type == 'RAIL' ? des_port_if_rail : des_port_rail
-  }
-  return { startSeaPort, endSeaPort }
-}
-
-async function getRailCost({
-  ori_country,
-  ori_port_rail,
-  des_country,
-  des_port_rail,
-  ori_port_if_rail,
-  des_port_if_rail,
-  fcl_unit,
-  fcl_weights,
-  fcl_quantities,
-}: any) {
-  const indianRail =
-    ori_country == 'IN' && ori_port_rail.type == 'RAIL'
-      ? ori_port_rail
-      : des_country == 'IN' && des_port_rail.type == 'RAIL'
-        ? des_port_rail
-        : undefined
-  const indianPortForRail =
-    !!indianRail && (ori_country == 'IN' ? ori_port_if_rail : des_port_if_rail)
-  let indianRailRate = undefined
-  if (indianRail && indianPortForRail) {
-    const IndiaOutboundHaulageRates =
-      await getAllIndiaOutboundHaulageRatesByCode({
-        start_code: indianRail.port_code,
-        end_code: indianPortForRail.port_code,
-      })
-    indianRailRate = filterHaulageRateByWeight({
-      haulageRates: IndiaOutboundHaulageRates,
-      fcl_weights,
-      fcl_unit,
-      fcl_quantities,
-    })
-    if (!indianRailRate)
-      throw Error("Couldn't find rail rate. Please try with other port")
-  }
-  return { indianRail, indianPortForRail, indianRailRate }
-}
-
-async function getTruckingCost({
-  country,
-  start,
-  end,
-  MetricTon,
-  stuffingTimes,
-}: any) {
-  if (country == 'IN') {
-    return await inTrucking({
-      start_latitude: start.lat,
-      start_longitude: start.lng,
-      end_latitude: end.lat,
-      end_longitude: end.lng,
-      ton: MetricTon,
-      times: stuffingTimes,
-    })
-  } else {
-    return await usTrucking({
-      start_latitude: start.lat,
-      start_longitude: start.lng,
-      end_latitude: end.lat,
-      end_longitude: end.lng,
-    })
-  }
-}
-
-function buildLocations({
-  pickup_check,
-  pickup_location,
-  ori_country,
-  ori_port_rail,
-  ori_port_if_rail,
-  des_port_rail,
-  des_port_if_rail,
-  des_country,
-  delivery_check,
-  delivery_location,
-}: any): LocationType[] {
-  let locations: LocationType[] = []
-  if (pickup_check) {
-    locations.push({
-      name: toTitleCase(pickup_location?.description ?? ''),
-      code: ori_country.toUpperCase(),
-      type: 'door',
-    })
-  }
-  locations.push({
-    name: toTitleCase(ori_port_rail.port_name.toUpperCase()),
-    code: ori_port_rail.port_code.toUpperCase(),
-    type: `${ori_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
-  })
-  if (ori_port_rail.type == 'RAIL' && !!ori_port_if_rail?.port_name) {
-    locations.push({
-      name: toTitleCase(ori_port_if_rail?.port_name ?? ''),
-      code: ori_port_if_rail?.port_code.toUpperCase() ?? '',
-      type: 'port',
-    })
-  }
-  if (des_port_rail.type == 'RAIL' && !!des_port_if_rail?.port_name) {
-    locations.push({
-      name: toTitleCase(des_port_if_rail?.port_name.toUpperCase() ?? ''),
-      code: des_port_if_rail?.port_code.toUpperCase() ?? '',
-      type: 'port',
-    })
-  }
-  locations.push({
-    name: toTitleCase(des_port_rail.port_name.toUpperCase()),
-    code: des_port_rail.port_code.toUpperCase(),
-    type: `${des_port_rail.type === 'PORT' ? 'port' : 'rail'}`,
-  })
-  if (delivery_check) {
-    locations.push({
-      name: delivery_location?.description ?? '',
-      code: des_country,
-      type: 'door',
-    })
-  }
-  return locations
-}
-
-async function getDutyIfNeeded({
-  incoterms,
-  hsn,
-  des_country,
-  value,
-  totalQuantity,
-}: {
-  incoterms: IncotermsType
-  hsn: HsSixType
-  des_country: string
-  value: number
-  totalQuantity: number
-}) {
-  if (incoterms !== 'DAP') {
-    const duty = await getDutyByHsCodeCountry(hsn.code, des_country).catch(
-      (error) => {
-        console.log({ error })
-        return undefined
-      }
-    )
-    console.log({ duty })
-    if (typeof duty === 'number') {
-      return {
-        label: `Duty ${duty.toFixed(2)}%`,
-        currency: 'USD',
-        additional_notes: `Duty:${duty}%`,
-        d2: (duty * value) / 100,
-        d4: (duty * value) / 100,
-        d5: (duty * value) / 100,
-        total: ((duty * value) / 100) * totalQuantity,
-        tag: `HS: ${hsn.code}`,
-        valueTag: `${value} USD`,
-        dutyTag: `DUTY: ${duty.toFixed(2)}%`,
-      }
-    }
-  }
-  return null
 }
 
 // --- Main Handler ---
@@ -337,9 +153,9 @@ export async function POST(request: NextRequest) {
           des_port_rail,
           ori_port_if_rail,
           des_port_if_rail,
-          fcl_unit,
-          fcl_weights,
-          fcl_quantities,
+          unit: fcl_unit,
+          weights: fcl_weights,
+          quantities: fcl_quantities,
         })
       if (indianRailRate && indianPortForRail) {
         quoteTableData.local_charges.splice(1, 0, {
@@ -612,17 +428,11 @@ export async function POST(request: NextRequest) {
         incoterms,
       })
     const blok_quote_id = await generateOfferId()
-    const user = {
-      id: 'BLOK_UNKNOW_USER',
-      name: name || '',
-      email: email || '',
-      company: companyName || '',
-      phone: phone || '',
-    }
+
     const offer_id = await createSeaFclOffer({
       blok_id: blok_quote_id,
       form_id: formId,
-      user,
+      user_id: dbUser.id,
       subject,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,

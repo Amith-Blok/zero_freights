@@ -13,7 +13,7 @@ interface SeaFclComponentProps {
   offerId: string
   lineName: string
   subject: string
-  offer: Offer
+  offer: Offer & { user: { name: string; companyName: string } }
   containerDetails: ContainerDetailsType
   totalCharges: ContainerCost[]
   totalCost: number
@@ -57,7 +57,7 @@ export default function SeaFclComponent({
             blok_quoteId={offer.blok_id}
             billTo={{
               name: offer.user.name ?? '',
-              company: offer.user.company ?? '',
+              company: offer.user.companyName ?? '',
               address: offer.bill_to,
             }}
             validFrom={offer.created_at?.toISOString() ?? ''}

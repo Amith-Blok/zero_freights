@@ -219,17 +219,11 @@ export async function POST(request: NextRequest) {
     const formId = await createForm(validateData)
 
     const blok_quote_id = await generateOfferId()
-    const user = {
-      id: 'BLOK_UNKNOW_USER',
-      name: name || '',
-      email: email || '',
-      company: companyName || '',
-      phone: phone || '',
-    }
+
     const offer_id = await createWarehouseOffer({
       blok_id: blok_quote_id,
       form_id: formId,
-      user,
+      user_id: dbUser.id,
       subject,
       place_of_supply: placeOfSupply,
       bill_to: pointDetination,

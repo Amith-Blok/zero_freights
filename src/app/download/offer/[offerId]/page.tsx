@@ -10,6 +10,8 @@ import { LabeledCost } from '@/models/offer/shared-types'
 import { QuotePdfDownloadBtn } from '../../_component/quote-pdf-download-btn'
 import { DContainerTypeSmallCase } from '@/types/containers'
 import SeaFclComponent from '../_components/sea-fcl-component'
+import SeaDGComponent from '../_components/sea-dg-component'
+import { getUserById } from '@/data/user'
 
 export default async function QuotePage({
   params,
@@ -33,6 +35,8 @@ export default async function QuotePage({
     console.log(`couldn't find offer:${offerId}\nerror details:${err}`)
   })
   if (!offer) return <NotFound message={`couldn't find offer:${offerId}`} />
+  const user = await getUserById(offer.user_id)
+  if (!user) return <NotFound message={`couldn't find user:${offer.user_id}`} />
   let totalCost: number = 0
   let totalCharges: LabeledCost[] = []
   let containerLabel: string = ''
@@ -68,7 +72,49 @@ export default async function QuotePage({
         offerId={offerId}
         lineName={lineName}
         subject={subject}
-        offer={offer}
+        offer={{
+          ...offer,
+          user: { name: user.name ?? '', companyName: user.companyName ?? '' },
+        }}
+        totalCharges={totalChargesSeaFcl}
+        containerDetails={offer.container_details}
+        totalCost={totalCost}
+        currency={currency}
+      />
+    )
+  } else if (offer.mode === 'SEA_DG') {
+    const linesFreightRates = offer.offers.line_charges.find(
+      (line) => line.line_name === lineName
+    )?.data
+    // console.log({ linesFreightRates: linesFreightRates })
+    if (!linesFreightRates)
+      return (
+        <NotFound
+          message={`couldn't find line:${lineName} in offer:${offerId}`}
+        />
+      )
+    subject = `${offer.subject} ${lineName.toUpperCase()}`
+    const localsRates = offer.offers.local_charges
+    containerType = fclContainerType as DContainerTypeSmallCase
+    containerLabel = convertDToStdContainer(containerType)
+    const { totalCharges: totalChargesSeaFcl } = getTotalSeaFclCostAndCharges(
+      [linesFreightRates],
+      localsRates,
+      currency
+    )
+    totalCost = totalChargesSeaFcl.reduce(
+      (acc, charge) => acc + charge.total,
+      0
+    )
+    return (
+      <SeaDGComponent
+        offerId={offerId}
+        lineName={lineName}
+        subject={subject}
+        offer={{
+          ...offer,
+          user: { name: user.name ?? '', companyName: user.companyName ?? '' },
+        }}
         totalCharges={totalChargesSeaFcl}
         containerDetails={offer.container_details}
         totalCost={totalCost}
@@ -114,8 +160,8 @@ export default async function QuotePage({
           <QuoteTemplate
             blok_quoteId={offer.blok_id}
             billTo={{
-              name: offer.user.name ?? '',
-              company: offer.user.company ?? '',
+              name: user.name ?? '',
+              company: user.companyName ?? '',
               address: offer.bill_to,
             }}
             validFrom={offer.created_at?.toISOString() ?? ''}

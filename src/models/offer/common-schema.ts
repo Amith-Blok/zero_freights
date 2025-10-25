@@ -11,6 +11,15 @@ export const TotalCostByContainerTypeSchema = new mongoose.Schema(
     _id: false,
   }
 )
+
+export const IgTotalCostByContainerTypeSchema = new mongoose.Schema({
+  io2: { type: Number, required: true },
+  io4: { type: Number, required: true },
+  if2: { type: Number, required: true },
+  if4: { type: Number, required: true },
+  if5: { type: Number, required: true },
+  total: { type: Number, required: true },
+})
 export const ContainerCostSchema = new mongoose.Schema(
   {
     label: { type: String, required: true },
@@ -25,7 +34,22 @@ export const ContainerCostSchema = new mongoose.Schema(
     _id: false,
   }
 )
-
+export const IgContainerCostSchema = new mongoose.Schema(
+  {
+    label: { type: String, required: true },
+    currency: { type: String, required: true },
+    additional_notes: { default: '', type: String },
+    io2: { type: Number, required: true },
+    io4: { type: Number, required: true },
+    if2: { type: Number, required: true },
+    if4: { type: Number, required: true },
+    if5: { type: Number, required: true },
+    total: { type: Number, required: true },
+  },
+  {
+    _id: false,
+  }
+)
 export const MultiCurrencyContainerCostSchema = new mongoose.Schema(
   {
     total_cost: {
@@ -39,6 +63,26 @@ export const MultiCurrencyContainerCostSchema = new mongoose.Schema(
     local_cost: {
       inr: { type: TotalCostByContainerTypeSchema, required: true },
       usd: { type: TotalCostByContainerTypeSchema, required: true },
+    },
+  },
+  {
+    _id: false,
+  }
+)
+
+export const IgMultiCurrencyContainerCostSchema = new mongoose.Schema(
+  {
+    total_cost: {
+      inr: { type: IgTotalCostByContainerTypeSchema, required: true },
+      usd: { type: IgTotalCostByContainerTypeSchema, required: true },
+    },
+    freight_cost: {
+      inr: { type: IgTotalCostByContainerTypeSchema, required: true },
+      usd: { type: IgTotalCostByContainerTypeSchema, required: true },
+    },
+    local_cost: {
+      inr: { type: IgTotalCostByContainerTypeSchema, required: true },
+      usd: { type: IgTotalCostByContainerTypeSchema, required: true },
     },
   },
   {
@@ -80,9 +124,24 @@ export const LineChargeSchema = new mongoose.Schema({
   valid_to: { type: String, required: true },
   data: { type: ContainerCostSchema, required: true },
 })
+
+export const IgLineChargeSchema = new mongoose.Schema({
+  line_name: { type: String, required: true },
+  port_to_days: { type: Number, required: true },
+  estimated_days: { type: Number, required: true },
+  tags: { type: [String], required: true },
+  cost_breakdown: { type: IgMultiCurrencyContainerCostSchema, required: true },
+  valid_to: { type: String, required: true },
+  data: { type: IgContainerCostSchema, required: true },
+})
 export const SeaFclOfferSchema = new mongoose.Schema({
   line_charges: { type: [LineChargeSchema], required: true },
   local_charges: { type: [ContainerCostSchema], required: true },
+})
+
+export const SeaIgOfferSchema = new mongoose.Schema({
+  line_charges: { type: [IgLineChargeSchema], required: true },
+  local_charges: { type: [IgContainerCostSchema], required: true },
 })
 
 export function getOrCreateDiscriminator<T extends Document>(

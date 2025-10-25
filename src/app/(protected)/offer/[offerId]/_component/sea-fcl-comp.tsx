@@ -4,14 +4,14 @@ import { OfferSeaFclDataTable } from '@/components/data-table/offer-sea-fcl-data
 import ShippingCard from '@/components/shared/shipping-card'
 import { getTotalSeaFclCostAndCharges } from '@/lib/sea-fcl-util'
 import {
-  ContainerType,
+  // ContainerType,
   ContainerCost,
   TotalCostByContainerType,
   Location,
   ServiceType,
   ContainerDetailsType,
 } from '@/models/offer/shared-types'
-import { STDContainerType } from '@/types/containers'
+// import { STDContainerType } from '@/types/containers'
 import {
   SeaFclFilters,
   FilterState,
@@ -37,7 +37,7 @@ interface SeaFclCompProps {
   localCharges: ContainerCost[]
   containerTypes: string[]
   containerDetails: ContainerDetailsType
-  weightUnit: 'KG' | 'LBS'
+  weightUnit?: 'KG' | 'LBS'
   locations: Location[]
   service_type: ServiceType
   tags: string[]
@@ -49,7 +49,7 @@ export function SeaFclComp({
   localCharges,
   containerTypes,
   containerDetails,
-  weightUnit,
+  // weightUnit : _weightUnit, //not used
   service_type,
   tags,
   locations,
@@ -79,59 +79,56 @@ export function SeaFclComp({
   )
 
   // Convert container types to D types and filter only those with quantities > 0
-  const availableContainers = useMemo(
-    () =>
-      containerTypes
-        .map(
-          (
-            containerType
-          ): {
-            dType: ContainerType
-            stdType: STDContainerType
-            containerType: string
-            containerTags: string[]
-          } | null => {
-            // Map FCL container types to D types
-            const containerMap: Record<string, ContainerType> = {
-              '20STD': 'd2',
-              '40STD': 'd4',
-              '40HC': 'd5',
-            }
+  // const availableContainers = useMemo(
+  //   () =>
+  //     containerTypes
+  //       .map(
+  //         (
+  //           containerType
+  //         ): {
+  //           dType: ContainerType
+  //           stdType: STDContainerType
+  //           containerType: string
+  //           containerTags: string[]
+  //         } | null => {
+  //           // Map FCL container types to D types
+  //           const containerMap: Record<string, ContainerType> = {
+  //             '20STD': 'd2',
+  //             '40STD': 'd4',
+  //             '40HC': 'd5',
+  //           }
 
-            const dType = containerMap[containerType] as ContainerType
-            if (!dType) return null
+  //           const dType = containerMap[containerType] as ContainerType
+  //           if (!dType) return null
 
-            // Check if this container has quantity > 0
-            const quantity = containerDetails[dType]?.quantity ?? 0
-            if (quantity <= 0) return null
+  //           // Check if this container has quantity > 0
+  //           const quantity = containerDetails[dType]?.quantity ?? 0
+  //           if (quantity <= 0) return null
 
-            return {
-              dType,
-              stdType: containerType as STDContainerType,
-              containerType: containerType,
-              containerTags: [
-                `${quantity} x ${containerType}`,
-                `${containerDetails[dType]?.weight ?? 0} ${weightUnit}`,
-                ...tags,
-              ],
-            }
-          }
-        )
-        .filter(
-          (container): container is NonNullable<typeof container> =>
-            container !== null
-        ),
-    [containerTypes, containerDetails, weightUnit, tags]
-  )
+  //           return {
+  //             dType,
+  //             stdType: containerType as STDContainerType,
+  //             containerType: containerType,
+  //             containerTags: [
+  //               `${quantity} x ${containerType}`,
+  //               `${containerDetails[dType]?.weight ?? 0} ${weightUnit}`,
+  //               ...tags,
+  //             ],
+  //           }
+  //         }
+  //       )
+  //       .filter(
+  //         (container): container is NonNullable<typeof container> =>
+  //           container !== null
+  //       ),
+  //   [containerTypes, containerDetails, weightUnit, tags]
+  // )
 
   // Calculate total offers count for display
   const totalOffersCount = useMemo(() => {
-    let count = 0
-    filteredLinesFreightRates.forEach(() => {
-      count += availableContainers.length
-    })
+    let count = filteredLinesFreightRates.length
     return count
-  }, [filteredLinesFreightRates, availableContainers])
+  }, [filteredLinesFreightRates])
 
   return (
     <div className="flex h-full w-full flex-col gap-5">

@@ -5,7 +5,6 @@ import {
   LabeledCostZodSchema,
   LineContainerCostZodSchema,
   LocationZodSchema,
-  UserZodSchema,
 } from './common-zod'
 import { TotalCostZodSchema } from './confirmed-quote-zod'
 import { ServiceType } from '@/models/offer/shared-types'
@@ -14,7 +13,7 @@ import { FCL_CONTAINER_ENUM } from '../sea-schema'
 const OfferBaseSchema = z.object({
   form_id: z.string(),
   blok_id: z.string(),
-  user: UserZodSchema,
+  user_id: z.string(),
   subject: z.string(),
   place_of_supply: z.string(),
   bill_to: z.string(),
@@ -88,10 +87,73 @@ const SeaFclOfferSchema = z
     }),
   })
   .merge(OfferBaseSchema)
+
+const SeaDgOfferSchema = z
+  .object({
+    mode: z.literal('SEA_DG'),
+    container_types: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    container_details: SeaFclContainerDetailsSchema,
+    weight_unit: z.enum(['KG', 'LBS']),
+    dg_class: z.string(),
+    offers: z.object({
+      line_charges: z.array(LineContainerCostZodSchema),
+      local_charges: z.array(ContainerCostZodSchema),
+    }),
+  })
+  .merge(OfferBaseSchema)
+
+const SeaRfOfferSchema = z
+  .object({
+    mode: z.literal('SEA_RF'),
+    container_types: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    container_details: SeaFclContainerDetailsSchema,
+    weight_unit: z.enum(['KG', 'LBS']),
+    temperature: z.number(),
+    humidity: z.number(),
+    offers: z.object({
+      line_charges: z.array(LineContainerCostZodSchema),
+      local_charges: z.array(ContainerCostZodSchema),
+    }),
+  })
+  .merge(OfferBaseSchema)
+
+const SeaIgOfferSchema = z
+  .object({
+    mode: z.literal('SEA_IG'),
+    container_types: z
+      .array(FCL_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    container_details: SeaFclContainerDetailsSchema,
+    weight_unit: z.enum(['KG', 'LBS']),
+    offers: z.object({
+      line_charges: z.array(LineContainerCostZodSchema),
+      local_charges: z.array(ContainerCostZodSchema),
+    }),
+  })
+  .merge(OfferBaseSchema)
+
+const SeaOogOfferSchema = z
+  .object({
+    mode: z.literal('SEA_OOG'),
+    carrier: z.string(),
+    package_type: z.string(),
+    total_cost: TotalCostZodSchema,
+    offers: z.array(LabeledCostZodSchema),
+  })
+  .merge(OfferBaseSchema)
+
 export const OfferZodSchema = z.discriminatedUnion('mode', [
   WarOfferSchema,
   AirOfferSchema,
   LandOfferSchema,
   SeaFclOfferSchema,
   SeaLclOfferSchema,
+  SeaDgOfferSchema,
+  SeaRfOfferSchema,
+  SeaIgOfferSchema,
+  SeaOogOfferSchema,
 ])

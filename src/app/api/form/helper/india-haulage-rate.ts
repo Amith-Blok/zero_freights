@@ -8,15 +8,17 @@ import { weightTOMetricTon } from '@/lib/utils'
 
 export const filterHaulageRateByWeight = ({
   haulageRates,
-  fcl_weights,
-  fcl_unit,
-  fcl_quantities,
+  weights,
+  unit,
+  quantities,
 }: {
   haulageRates: IndiaOutboundHaulageType[]
-  fcl_weights: FclWeightsType
-  fcl_unit: FclWeightUnitType
-  fcl_quantities: FclQuantitiesType
+  weights: FclWeightsType
+  unit: FclWeightUnitType
+  quantities: FclQuantitiesType
 }): { d2: number; d4: number; d5: number; total: number } => {
+  console.log('__Filter Haulage Rate By Weight__')
+  console.log({ haulageRates, weights, unit, quantities })
   const filteredHaulageRate = { d2: 0, d4: 0, d5: 0, total: 0 }
   const BLOK_RAIL_PROFIT = 10000
 
@@ -39,8 +41,8 @@ export const filterHaulageRateByWeight = ({
     // Get the weight for this container type and convert to metric tons
     const stdContainerType =
       targetType === 'd2' ? '20STD' : targetType === 'd4' ? '40STD' : '40HC'
-    const weight = fcl_weights[stdContainerType]
-    const ton = weightTOMetricTon({ weight: weight || 0, unit: fcl_unit })
+    const weight = weights[stdContainerType]
+    const ton = weightTOMetricTon({ weight: weight || 0, unit: unit })
 
     for (const haulage of haulageRates) {
       //TODO: fix / in container haulage rail database database
@@ -85,13 +87,15 @@ export const filterHaulageRateByWeight = ({
 
   // Add profit margin
   filteredHaulageRate.d2 =
-    filteredHaulageRate.d2 * (fcl_quantities['20STD'] || 0) + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d2 * (quantities['20STD'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.d4 =
-    filteredHaulageRate.d4 * (fcl_quantities['40STD'] || 0) + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d4 * (quantities['40STD'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.d5 =
-    filteredHaulageRate.d5 * (fcl_quantities['40HC'] || 0) + BLOK_RAIL_PROFIT
+    filteredHaulageRate.d5 * (quantities['40HC'] || 0) + BLOK_RAIL_PROFIT
   filteredHaulageRate.total =
     filteredHaulageRate.d2 + filteredHaulageRate.d4 + filteredHaulageRate.d5
 
+  console.log('__Filtered Haulage Rate__')
+  console.log({ filteredHaulageRate })
   return filteredHaulageRate
 }

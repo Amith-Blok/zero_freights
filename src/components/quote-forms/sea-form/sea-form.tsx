@@ -26,6 +26,7 @@ import {
   useAlertDialog,
   AlertTypes,
 } from '../_components/alert-dialog-wrapper'
+import { getApiRouteStringForSeaFormByMode } from '../helper'
 
 export const SeaForm = () => {
   const seaForm = useForm<SeaFormType>({
@@ -37,9 +38,9 @@ export const SeaForm = () => {
   const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
 
   const onHandleSubmit = (data: SeaFormType) => {
-    // console.log({ data });
-    const apiRouteString =
-      data.modes == 'FCL' ? 'sea-fcl' : data.modes === 'LCL' ? 'sea-lcl' : null
+    console.log({ data })
+    const apiRouteString = getApiRouteStringForSeaFormByMode(data.modes)
+
     if (!apiRouteString) {
       showAlert(AlertTypes.INFO, {
         title: 'Feature Under Development',

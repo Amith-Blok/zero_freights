@@ -37,7 +37,7 @@ export async function usTrucking({
   )
   const distance = meterToMile(distanceInMeter)
   const totalDistance = 2 * distance
-  const estimatedDays = calcualteEstimatedDay({ country: 'IND', totalDistance })
+  const estimatedDays = calcualteEstimatedDay({ country: 'US', totalDistance })
   const truckingCost = totalDistance * 3
   const profit = 250
   const grandTotal = Math.max(truckingCost + profit, 601)
@@ -249,4 +249,95 @@ export async function newUsLtlTruckingCost({
     total,
   })
   return total
+}
+
+/**
+ *
+ * @param start_latitude: number
+ * @param start_longitude: number
+ * @param end_latitude: number
+ * @param end_longitude: number
+ * @param ton: number
+ * @param times?: number
+ * @returns { cost: number; estimatedDays: number, distance: number }
+ * cost: number in INR
+ * estimatedDays: number
+ * distance: number in km
+ */
+export async function inSeaRfTrucking({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+  ton,
+  times = 2,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+  ton: number
+  times?: number
+}): Promise<{ cost: number; estimatedDays: number; distance: number }> {
+  const distanceInMeter = await calculateDistance(
+    { latitude: start_latitude, longitude: start_longitude },
+    {
+      latitude: end_latitude,
+      longitude: end_longitude,
+    }
+  )
+  const distance = meterToKilometer(distanceInMeter)
+  const totalDistance = times * distance
+  const estimatedDays = calcualteEstimatedDay({ country: 'IND', totalDistance })
+  const desielCost = (totalDistance / 2.5) * 110
+  const tollCost = 1000
+  const driverCost = Math.ceil(totalDistance / 300) * 1000
+  const emiCost = 3500
+  const overWeightCost = ton >= 19.5 ? Math.min(30 * totalDistance, 12000) : 0
+  const sum = desielCost + tollCost + driverCost + emiCost + overWeightCost
+  const profit = sum * 0.25
+  const grandTotal = sum + profit
+  return { cost: grandTotal, estimatedDays, distance }
+}
+
+/**
+ *
+ * @param start_latitude: number
+ * @param start_longitude: number
+ * @param end_latitude: number
+ * @param end_longitude: number
+ * @returns { cost: number; estimatedDays: number, distance: number }
+ * cost: number in USD
+ * estimatedDays: number
+ * distance: number in km
+ */
+export async function usSeaRfTrucking({
+  start_latitude,
+  start_longitude,
+  end_latitude,
+  end_longitude,
+}: {
+  start_latitude: number
+  start_longitude: number
+  end_latitude: number
+  end_longitude: number
+}): Promise<{ cost: number; estimatedDays: number; distance: number }> {
+  const distanceInMeter = await calculateDistance(
+    { latitude: start_latitude, longitude: start_longitude },
+    {
+      latitude: end_latitude,
+      longitude: end_longitude,
+    }
+  )
+  const distance = meterToMile(distanceInMeter)
+  const totalDistance = 2 * distance
+  const estimatedDays = calcualteEstimatedDay({ country: 'US', totalDistance })
+  const truckingCost = totalDistance * 3
+  const profit = 250
+  const grandTotal = Math.max(truckingCost + profit, 601)
+  return {
+    cost: grandTotal,
+    estimatedDays,
+    distance: meterToKilometer(distanceInMeter),
+  }
 }
