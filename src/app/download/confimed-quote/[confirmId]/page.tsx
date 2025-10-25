@@ -5,6 +5,7 @@ import React from 'react'
 import { QuotePdfDownloadBtn } from '../../_component/quote-pdf-download-btn'
 import { getConfirmedQuoteById } from '@/data/confirmed-quote'
 import { PdfType } from '@/types/common'
+import { getUserById } from '@/data/user'
 
 export default async function QuotePage(props: {
   params: Promise<{ confirmId: string }>
@@ -19,6 +20,9 @@ export default async function QuotePage(props: {
   })
   if (!quote) return <NotFound message={`couldn't find quote:${confirmId}`} />
 
+  const user = await getUserById(quote.user_id)
+  if (!user) return <NotFound message={`couldn't find user:${quote.user_id}`} />
+
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-white">
       <div className="flex flex-col items-center justify-center">
@@ -32,8 +36,8 @@ export default async function QuotePage(props: {
           <QuoteTemplate
             blok_quoteId={''}
             billTo={{
-              name: quote.user.name ?? '',
-              company: quote.user.company ?? '',
+              name: user.name ?? '',
+              company: user.companyName ?? '',
               address: quote.bill_to,
             }}
             validFrom={quote.offer_date}
