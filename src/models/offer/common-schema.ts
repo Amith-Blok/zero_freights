@@ -13,11 +13,11 @@ export const TotalCostByContainerTypeSchema = new mongoose.Schema(
 )
 
 export const IgTotalCostByContainerTypeSchema = new mongoose.Schema({
-  io2: { type: Number, required: true },
-  io4: { type: Number, required: true },
-  if2: { type: Number, required: true },
-  if4: { type: Number, required: true },
-  if5: { type: Number, required: true },
+  ot2: { type: Number, required: true },
+  ot4: { type: Number, required: true },
+  fr2: { type: Number, required: true },
+  fr4: { type: Number, required: true },
+  fr5: { type: Number, required: true },
   total: { type: Number, required: true },
 })
 export const ContainerCostSchema = new mongoose.Schema(
@@ -39,11 +39,11 @@ export const IgContainerCostSchema = new mongoose.Schema(
     label: { type: String, required: true },
     currency: { type: String, required: true },
     additional_notes: { default: '', type: String },
-    io2: { type: Number, required: true },
-    io4: { type: Number, required: true },
-    if2: { type: Number, required: true },
-    if4: { type: Number, required: true },
-    if5: { type: Number, required: true },
+    ot2: { type: Number, required: true },
+    ot4: { type: Number, required: true },
+    fr2: { type: Number, required: true },
+    fr4: { type: Number, required: true },
+    fr5: { type: Number, required: true },
     total: { type: Number, required: true },
   },
   {

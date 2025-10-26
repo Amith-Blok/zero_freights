@@ -2,13 +2,15 @@ import { z } from 'zod'
 import {
   ContainerCostZodSchema,
   ExchangeZodSchema,
+  IgContainerCostZodSchema,
+  IgLineContainerCostZodSchema,
   LabeledCostZodSchema,
   LineContainerCostZodSchema,
   LocationZodSchema,
 } from './common-zod'
 import { TotalCostZodSchema } from './confirmed-quote-zod'
 import { ServiceType } from '@/models/offer/shared-types'
-import { FCL_CONTAINER_ENUM } from '../sea-schema'
+import { FCL_CONTAINER_ENUM, IG_CONTAINER_ENUM } from '../sea-schema'
 
 const OfferBaseSchema = z.object({
   form_id: z.string(),
@@ -73,6 +75,14 @@ const SeaFclContainerDetailsSchema = z.object({
   d5: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
 })
 
+const SeaIgContainerDetailsSchema = z.object({
+  ot2: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  ot4: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  fr2: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  fr4: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+  fr5: z.object({ quantity: z.number(), weight: z.number() }).nullish(),
+})
+
 const SeaFclOfferSchema = z
   .object({
     mode: z.literal('SEA_FCL'),
@@ -125,13 +135,13 @@ const SeaIgOfferSchema = z
   .object({
     mode: z.literal('SEA_IG'),
     container_types: z
-      .array(FCL_CONTAINER_ENUM)
+      .array(IG_CONTAINER_ENUM)
       .nonempty('Select at least one container type.'),
-    container_details: SeaFclContainerDetailsSchema,
+    container_details: SeaIgContainerDetailsSchema,
     weight_unit: z.enum(['KG', 'LBS']),
     offers: z.object({
-      line_charges: z.array(LineContainerCostZodSchema),
-      local_charges: z.array(ContainerCostZodSchema),
+      line_charges: z.array(IgLineContainerCostZodSchema),
+      local_charges: z.array(IgContainerCostZodSchema),
     }),
   })
   .merge(OfferBaseSchema)

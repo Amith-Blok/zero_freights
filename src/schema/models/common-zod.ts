@@ -41,6 +41,28 @@ export const MultiCurrencyContainerCostZodSchema = z.object({
   }),
 })
 
+export const IgTotalCostByContainerTypeZodSchema = z.object({
+  ot2: z.number(),
+  ot4: z.number(),
+  fr2: z.number(),
+  fr4: z.number(),
+  fr5: z.number(),
+  total: z.number(),
+})
+export const IgMultiCurrencyContainerCostZodSchema = z.object({
+  total_cost: z.object({
+    inr: IgTotalCostByContainerTypeZodSchema,
+    usd: IgTotalCostByContainerTypeZodSchema,
+  }),
+  freight_cost: z.object({
+    inr: IgTotalCostByContainerTypeZodSchema,
+    usd: IgTotalCostByContainerTypeZodSchema,
+  }),
+  local_cost: z.object({
+    inr: IgTotalCostByContainerTypeZodSchema,
+    usd: IgTotalCostByContainerTypeZodSchema,
+  }),
+})
 export const TotalCostZodSchema = z.object({
   usd: z.number(),
   inr: z.number(),
@@ -64,6 +86,25 @@ export const LineContainerCostZodSchema = z.object({
   data: ContainerCostZodSchema,
 })
 
+export const IgContainerCostZodSchema = z.object({
+  label: z.string(),
+  currency: z.string(),
+  additional_notes: z.string(),
+  ot2: z.number(),
+  ot4: z.number(),
+  fr2: z.number(),
+  fr4: z.number(),
+  fr5: z.number(),
+  total: z.number(),
+})
+export const IgLineContainerCostZodSchema = z.object({
+  line_name: z.string(),
+  port_to_days: z.number(),
+  valid_to: z.string(),
+  estimated_days: z.number(),
+  cost_breakdown: IgMultiCurrencyContainerCostZodSchema,
+  data: IgContainerCostZodSchema,
+})
 export type LineContainerCostZodType = z.infer<
   typeof LineContainerCostZodSchema
 >

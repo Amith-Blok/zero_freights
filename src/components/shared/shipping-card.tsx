@@ -195,29 +195,6 @@ export default function ShippingCard({
 
             {/* Route Display */}
             <RouteDisplay locations={locations} />
-
-            {/* Expandable Content */}
-            {isExpanded && children && (
-              <div className="mt-4 rounded-lg bg-gray-50 p-4">{children}</div>
-            )}
-
-            {/* View More Button */}
-            <Button
-              onClick={() => setIsExpanded(!isExpanded)}
-              variant="outline"
-              size="sm"
-              className="mt-3 flex items-center justify-center gap-2 border-green-200 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
-            >
-              <span className="text-xs font-medium">
-                {' '}
-                View {isExpanded ? 'less' : 'more'}
-              </span>
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
           </div>
 
           {/* Price and Select Button */}
@@ -234,7 +211,7 @@ export default function ShippingCard({
                   {currency === 'INR'
                     ? inFormater.format(localCost)
                     : usFormater.format(localCost)}{' '}
-                  local
+                  locals
                 </div>
               )}
             </div>
@@ -252,6 +229,30 @@ export default function ShippingCard({
             </Button>
           </div>
         </div>
+
+        {/* Expandable Content - Full Width */}
+        {isExpanded && children && (
+          <div className="mt-4 overflow-x-auto rounded-lg bg-gray-50 p-4">
+            {children}
+          </div>
+        )}
+        {/* View More Button */}
+        <Button
+          onClick={() => setIsExpanded(!isExpanded)}
+          variant="outline"
+          size="sm"
+          className="mt-3 flex items-center justify-center gap-2 border-green-200 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
+        >
+          <span className="text-xs font-medium">
+            {' '}
+            View {isExpanded ? 'less' : 'more'}
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
       </CardContent>
     </Card>
   )

@@ -19,6 +19,7 @@ import {
   getOrCreateDiscriminator,
   LabeledCostSchema,
   SeaFclOfferSchema,
+  SeaIgOfferSchema,
   TotalCostSchema,
 } from './common-schema'
 import { transform } from '@/lib/mongoose-transform'
@@ -171,7 +172,7 @@ export const SeaIgOfferModel = getOrCreateDiscriminator<SeaIgOfferDocument>(
     container_types: { type: [String], required: true },
     container_details: { type: Object, required: true },
     weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
-    offers: { type: SeaFclOfferSchema, required: true },
+    offers: { type: SeaIgOfferSchema, required: true },
   })
 )
 

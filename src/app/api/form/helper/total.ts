@@ -1,4 +1,5 @@
 import { currencyConverter } from '@/lib/exchange'
+import { IgContainerCost } from '@/models/offer/shared-types'
 import { RateByContainerType } from '@/types/offers'
 
 export const calculateTotalOfferCost = (
@@ -55,6 +56,80 @@ export const calculateTotalOfferCost = (
     {
       inr: { d2: 0, d4: 0, d5: 0, total: 0 },
       usd: { d2: 0, d4: 0, d5: 0, total: 0 },
+    }
+  )
+}
+
+export const calculateIgTotalOfferCost = (
+  containerRates: IgContainerCost[]
+) => {
+  return containerRates.reduce(
+    (acc, rate) => {
+      acc.inr.fr2 += currencyConverter({
+        cost: rate.fr2,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.inr.fr4 += currencyConverter({
+        cost: rate.fr4 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.inr.fr5 += currencyConverter({
+        cost: rate.fr5 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.inr.total += currencyConverter({
+        cost: rate.total,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.usd.fr2 += currencyConverter({
+        cost: rate.fr2 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.usd.fr4 += currencyConverter({
+        cost: rate.fr4 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'INR',
+      })
+      acc.usd.ot2 += currencyConverter({
+        cost: rate.ot2 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      acc.usd.ot4 += currencyConverter({
+        cost: rate.ot4 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      acc.usd.fr2 += currencyConverter({
+        cost: rate.fr2 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      acc.usd.fr4 += currencyConverter({
+        cost: rate.fr4 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      acc.usd.fr5 += currencyConverter({
+        cost: rate.fr5 || 0,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      acc.usd.total += currencyConverter({
+        cost: rate.total,
+        sourceCurrency: rate.currency as 'USD' | 'INR' | 'EUR',
+        targetCurrency: 'USD',
+      })
+      return acc
+    },
+    {
+      inr: { ot2: 0, ot4: 0, fr2: 0, fr4: 0, fr5: 0, total: 0 },
+      usd: { ot2: 0, ot4: 0, fr2: 0, fr4: 0, fr5: 0, total: 0 },
     }
   )
 }

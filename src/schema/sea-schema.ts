@@ -7,7 +7,6 @@ import {
   TRUCKING_TYPE,
 } from '@/constants'
 import { DG_CLASSES } from '@/constants/sea-dg-form'
-import { OOG_CONTAINER_TYPE } from '@/constants/sea-oog-form'
 import { z } from 'zod'
 
 // COMMON SCHEMA
@@ -103,7 +102,15 @@ const CommonSchema = z.object({
 //FCL SCHEMA
 // TODO: put this different file
 export const FCL_CONTAINER_ENUM = z.enum(['20STD', '40STD', '40HC'])
-export const IG_CONTAINER_ENUM = z.enum(OOG_CONTAINER_TYPE)
+export const IG_CONTAINER_ENUM = z.enum([
+  'OT20',
+  'OT40',
+  'FR20',
+  'FR40',
+  'FR45',
+])
+export const DG_CONTAINER_ENUM = z.enum(['20STD', '40STD', '40HC'])
+export const RF_CONTAINER_ENUM = z.enum(['20STD', '40STD', '40HC'])
 export const FclSchema = z
   .object({
     modes: z.literal('FCL'),
@@ -188,7 +195,7 @@ const DgSchema = z
     modes: z.literal('DG'),
     dg_class: z.enum(DG_CLASSES),
     dg_container_type: z
-      .array(FCL_CONTAINER_ENUM)
+      .array(DG_CONTAINER_ENUM)
       .nonempty('Select at least one container type.'),
     dg_quantities: z.object({
       '20STD': z.coerce
@@ -245,7 +252,7 @@ const RFSchema = z
   .object({
     modes: z.literal('RF'),
     rf_container_type: z
-      .array(FCL_CONTAINER_ENUM)
+      .array(RF_CONTAINER_ENUM)
       .nonempty('Select at least one container type.'),
     rf_quantities: z.object({
       '20STD': z.coerce
@@ -362,6 +369,7 @@ export const IgSchema = z
         .max(40000, 'Must be less than 40000.')
         .optional(),
     }),
+    ig_unit: z.enum(KG_LBS),
   })
   .merge(CommonSchema)
 
@@ -543,6 +551,9 @@ export const SeaFormSchema = z
 export type SeaFormType = z.infer<typeof SeaFormSchema>
 export type FclContainerType = z.infer<typeof FclSchema>['fcl_container_type']
 export type FclQuantitiesType = z.infer<typeof FclSchema>['fcl_quantities']
+export type IgQuantitiesType = z.infer<typeof IgSchema>['ig_quantities']
+export type IgWeightsType = z.infer<typeof IgSchema>['ig_weights']
+export type IgUnitType = z.infer<typeof IgSchema>['ig_unit']
 export type FclWeightUnitType = z.infer<typeof FclSchema>['fcl_unit']
 export type FclWeightsType = z.infer<typeof FclSchema>['fcl_weights']
 export type PickupDeliveryLocationType = z.infer<

@@ -27,6 +27,13 @@ export interface ContainerDetailsType {
   d4?: { quantity: number; weight: number } | null
   d5?: { quantity: number; weight: number } | null
 }
+export interface IgContainerDetailsType {
+  ot2?: { quantity: number; weight: number } | null
+  ot4?: { quantity: number; weight: number } | null
+  fr2?: { quantity: number; weight: number } | null
+  fr4?: { quantity: number; weight: number } | null
+  fr5?: { quantity: number; weight: number } | null
+}
 export interface TotalCostByContainerType {
   freight_cost: {
     inr: {
@@ -75,56 +82,56 @@ export interface TotalCostByContainerType {
 export interface TotatCostByIgContainerType {
   freight_cost: {
     inr: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
     usd: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
   }
   local_cost: {
     inr: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
     usd: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
   }
   //NOTE: total cost= freight cost + local cost
   total_cost: {
     inr: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
     usd: {
-      io2: number
-      io4: number
-      if2: number
-      if4: number
-      if5: number
+      ot2: number
+      ot4: number
+      fr2: number
+      fr4: number
+      fr5: number
       total: number
     }
   }
@@ -142,11 +149,11 @@ export interface IgContainerCost {
   label: string
   currency: string
   additional_notes?: string
-  io2: number
-  io4: number
-  if2: number
-  if4: number
-  if5: number
+  ot2: number
+  ot4: number
+  fr2: number
+  fr4: number
+  fr5: number
   total: number
 }
 export interface LineChargeData {
@@ -266,7 +273,7 @@ export interface SeaRfOffer extends Offer {
 }
 export interface SeaIgOffer extends Offer {
   container_types: string[]
-  container_details: ContainerDetailsType
+  container_details: IgContainerDetailsType
   weight_unit: 'KG' | 'LBS'
   offers: {
     line_charges: IgLineChargeData[]

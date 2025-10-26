@@ -8,6 +8,7 @@ import AirComp from './_component/air-comp'
 import SeaLclComp from './_component/sea-lcl-comp'
 import { SeaDGComp } from './_component/sea-dg-comp'
 import { SeaRFComp } from './_component/sea-rf-comp'
+import { SeaIgComp } from './_component/sea-ig-comp'
 
 export default async function OfferPage(props: {
   params: Promise<{ offerId: string }>
@@ -137,6 +138,21 @@ const OfferComp = async ({ id }: { id: string }) => {
   } else if (offers.mode === 'SEA_RF') {
     return (
       <SeaRFComp
+        id={id}
+        locations={offers.locations}
+        linesFreightRates={offers.offers.line_charges}
+        containerTypes={offers.container_types}
+        containerDetails={offers.container_details}
+        weightUnit={offers.weight_unit}
+        service_type={offers.service_type}
+        tags={offers.tags}
+        offerId={offers.blok_id}
+        localCharges={offers.offers.local_charges}
+      />
+    )
+  } else if (offers.mode === 'SEA_IG') {
+    return (
+      <SeaIgComp
         id={id}
         locations={offers.locations}
         linesFreightRates={offers.offers.line_charges}

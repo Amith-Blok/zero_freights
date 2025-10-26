@@ -6,6 +6,7 @@ import {
 } from '@/constants/us-custom'
 import {
   ContainerCost,
+  IgContainerCost,
   LabeledCost,
   OfferModeTypes,
 } from '@/models/offer/shared-types'
@@ -39,6 +40,35 @@ export const appendSeaFclAdditionalFees = ({
       d2: fee.value,
       d4: fee.value,
       d5: fee.value,
+      total: fee.value,
+    })
+  })
+}
+export const appendSeaIgAdditionalFees = ({
+  data,
+  incoterms,
+  removeList,
+}: {
+  data: IgContainerCost[]
+  incoterms: IncotermsType
+  removeList?: string[]
+}) => {
+  if (incoterms === 'FOB' || incoterms === 'CIF') {
+    return
+  }
+  US_ALL_ADDITIONAL_FEES.forEach((fee) => {
+    if (removeList?.includes(fee.code)) {
+      return
+    }
+    data.push({
+      label: fee.name,
+      currency: fee.currency,
+      additional_notes: 'Blok Custom additions',
+      ot2: fee.value,
+      ot4: fee.value,
+      fr2: fee.value,
+      fr4: fee.value,
+      fr5: fee.value,
       total: fee.value,
     })
   })
