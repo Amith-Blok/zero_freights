@@ -1,6 +1,6 @@
 import { SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
-import { getLCLSeaFreightCostByCode } from '@/data/lcl-sea-freight'
+// import { getLCLSeaFreightCostByCode } from '@/data/lcl-sea-freight'
 import { generateQuoteMetaDetails, generateOfferId } from '../helper/lib'
 import { INR_TO_USD, USD_TO_INR } from '@/constants'
 import { appendAdditionFees } from '../helper/table-data-appender'
@@ -66,6 +66,8 @@ export async function POST(request: NextRequest) {
     } = validateData.data
 
     // Initialize cost objects for various charges
+    const SEA_LCL_VALUES = 50
+
     const seaLclFreight = {
       label: 'LCL Sea Freight',
       currency: 'USD',
@@ -111,20 +113,21 @@ export async function POST(request: NextRequest) {
     let tags: string[] = []
 
     // Fetch sea freight cost from the database
-    const seaFreightCostDB = await getLCLSeaFreightCostByCode(
-      des_port_rail.port_code
-    ).catch((error) => {
-      console.log({ error, location: 'api/form/sea-lcl' })
-    })
-    if (!seaFreightCostDB) {
-      return NextResponse.json(
-        {
-          error:
-            "Couldn't find lcl sea freight cost try agains with new form data",
-        },
-        { status: 500 }
-      )
-    }
+    const seaFreightCostDB = SEA_LCL_VALUES
+    //  await getLCLSeaFreightCostByCode(
+    //   des_port_rail.port_code
+    // ).catch((error) => {
+    //   console.log({ error, location: 'api/form/sea-lcl' })
+    // })
+    // if (!seaFreightCostDB) {
+    //   return NextResponse.json(
+    //     {
+    //       error:
+    //         "Couldn't find lcl sea freight cost try agains with new form data",
+    //     },
+    //     { status: 500 }
+    //   )
+    // }
 
     // Calculate weights and charges
     let { cbm, ton, kg } = lcl_cbm_ton
