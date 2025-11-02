@@ -19,35 +19,42 @@ export function LogoTicker({
   const content = [...items, ...items]
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative w-full overflow-hidden"
       role="region"
       aria-label={ariaLabel}
     >
-      {/* edge fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
-      <ul
-        className="ticker flex min-w-max items-center gap-10 motion-reduce:animate-none"
-        style={{ ['--ticker-duration' as any]: `${speed}s` }}
-      >
-        {content.map((it, idx) => (
-          <li key={`${it.name}-${idx}`} className="flex items-center">
-            <a
-              href={it.href || '#'}
-              aria-label={it.name}
-              className="inline-flex items-center"
+      {/* edge fades - hidden on mobile to show full logo */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-0 bg-gradient-to-r from-background to-transparent sm:w-12" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-0 bg-gradient-to-l from-background to-transparent sm:w-12" />
+
+      {/* Container that limits visible area */}
+      <div className="mx-auto max-w-[120px] sm:mx-0 sm:max-w-none">
+        <ul
+          className="ticker flex min-w-max items-center gap-8 motion-reduce:animate-none sm:gap-6 md:gap-10"
+          style={{ ['--ticker-duration' as any]: `${speed}s` }}
+        >
+          {content.map((it, idx) => (
+            <li
+              key={`${it.name}-${idx}`}
+              className="flex flex-shrink-0 items-center"
             >
-              <Image
-                src={it.src || '/placeholder.svg'}
-                alt={it.name}
-                width={120}
-                height={height}
-                className="opacity-80 transition-opacity hover:opacity-100"
-              />
-            </a>
-          </li>
-        ))}
-      </ul>
+              <a
+                href={it.href || '#'}
+                aria-label={it.name}
+                className="inline-flex items-center"
+              >
+                <Image
+                  src={it.src || '/placeholder.svg'}
+                  alt={it.name}
+                  width={120}
+                  height={height}
+                  className="h-14 opacity-80 transition-opacity hover:opacity-100 md:h-20"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <style jsx>{`
         .ticker {
