@@ -99,30 +99,7 @@ export const LoadIgForm = () => {
 export const LoadOogForm = () => {
   return (
     <div className="flex flex-col space-y-2">
-      <FieldArrayLoadComp
-        fieldArrayName="oog_load"
-        dimLabel="Volumne"
-        dimInputFieldOne="oog_lgt"
-        dimInputFieldTwo="oog_hgt"
-        dimInputFieldThree="oog_wid"
-        dimSelectField="oog_volume_unit"
-        dimSelectData={[...IN_CM]}
-        inputField="oog_quantity"
-        inputSelectFieldOne="oog_weight"
-        inputSelectFieldTwo="oog_weight_unit"
-        inputSelecFieldData={[...KG_LBS]}
-      />
-      <CbmComponent
-        fieldArrayName="oog_load"
-        cbmField="oog_cbm_ton"
-        widthField="oog_wid"
-        lengthField="oog_lgt"
-        heightField="oog_hgt"
-        weightField="oog_weight"
-        quantityField="oog_quantity"
-        volumeUnitField="oog_volume_unit"
-        weightUnitField="oog_weight_unit"
-      />
+      <SeaIgLoadFormWrapper prefix="oog" />
     </div>
   )
 }

@@ -149,10 +149,15 @@ const SeaIgOfferSchema = z
 const SeaOogOfferSchema = z
   .object({
     mode: z.literal('SEA_OOG'),
-    carrier: z.string(),
-    package_type: z.string(),
-    total_cost: TotalCostZodSchema,
-    offers: z.array(LabeledCostZodSchema),
+    container_types: z
+      .array(IG_CONTAINER_ENUM)
+      .nonempty('Select at least one container type.'),
+    container_details: SeaIgContainerDetailsSchema,
+    weight_unit: z.enum(['KG', 'LBS']),
+    offers: z.object({
+      line_charges: z.array(IgLineContainerCostZodSchema),
+      local_charges: z.array(IgContainerCostZodSchema),
+    }),
   })
   .merge(OfferBaseSchema)
 

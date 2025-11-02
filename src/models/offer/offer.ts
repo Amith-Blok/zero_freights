@@ -180,9 +180,9 @@ export const SeaOogOfferModel = getOrCreateDiscriminator<SeaOogOfferDocument>(
   OfferModel,
   'SEA_OOG',
   new mongoose.Schema({
-    carrier: { type: String, required: true },
-    package_type: { type: String, required: true },
-    total_cost: { type: TotalCostSchema, required: true },
-    offers: { type: [LabeledCostSchema], required: true },
+    container_types: { type: [String], required: true },
+    container_details: { type: Object, required: true },
+    weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
+    offers: { type: SeaIgOfferSchema, required: true },
   })
 )

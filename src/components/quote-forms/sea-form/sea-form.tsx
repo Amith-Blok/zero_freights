@@ -38,7 +38,7 @@ export const SeaForm = () => {
   const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
 
   const onHandleSubmit = (data: SeaFormType) => {
-    console.log({ data })
+    // console.log({ data })
     const apiRouteString = getApiRouteStringForSeaFormByMode(data.modes)
 
     if (!apiRouteString) {

@@ -14,6 +14,7 @@ import SeaDGComponent from '../_components/sea-dg-component'
 import { getUserById } from '@/data/user'
 import SeaIgComponent from '../_components/sea-ig-component'
 import { getTotalSeaGaugeCostAndCharges } from '@/lib/sea-gauge'
+import SeaOogComponent from '../_components/sea-oog-component'
 
 export default async function QuotePage({
   params,
@@ -154,6 +155,45 @@ export default async function QuotePage({
           user: { name: user.name ?? '', companyName: user.companyName ?? '' },
         }}
         totalCharges={totalChargesSeaIg}
+        containerDetails={offer.container_details}
+        totalCost={totalCost}
+        currency={currency as 'INR' | 'USD'}
+      />
+    )
+  } else if (offer.mode === 'SEA_OOG') {
+    const lineChargesData = offer.offers.line_charges.find(
+      (line) => line.line_name === lineName
+    )?.data
+    // console.log({ linesFreightRates: linesFreightRates })
+    if (!lineChargesData)
+      return (
+        <NotFound
+          message={`couldn't find line:${lineName} in offer:${offerId}`}
+        />
+      )
+    subject = `${offer.subject} ${lineName.toUpperCase()}`
+    const localsRates = offer.offers.local_charges
+    containerType = fclContainerType as DContainerTypeSmallCase
+    containerLabel = convertDToStdContainer(containerType)
+    const { totalCharges: totalChargesSeaOog } = getTotalSeaGaugeCostAndCharges(
+      [lineChargesData],
+      localsRates,
+      currency
+    )
+    totalCost = totalChargesSeaOog.reduce(
+      (acc, charge) => acc + charge.total,
+      0
+    )
+    return (
+      <SeaOogComponent
+        offerId={offerId}
+        lineName={lineName}
+        subject={subject}
+        offer={{
+          ...offer,
+          user: { name: user.name ?? '', companyName: user.companyName ?? '' },
+        }}
+        totalCharges={totalChargesSeaOog}
         containerDetails={offer.container_details}
         totalCost={totalCost}
         currency={currency as 'INR' | 'USD'}

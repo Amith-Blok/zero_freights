@@ -281,8 +281,11 @@ export interface SeaIgOffer extends Offer {
   }
 }
 export interface SeaOogOffer extends Offer {
-  carrier: string
-  package_type: string
-  total_cost: TotalCost
-  offers: LabeledCost[]
+  container_types: string[]
+  container_details: IgContainerDetailsType
+  weight_unit: 'KG' | 'LBS'
+  offers: {
+    line_charges: IgLineChargeData[]
+    local_charges: IgContainerCost[]
+  }
 }

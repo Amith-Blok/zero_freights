@@ -18,20 +18,6 @@ export const LoadSeaForm = () => {
 
   const watchMode: ModesType = watch('modes')
   useEffect(() => {
-    if (watchMode == 'OOG') {
-      const defaultOogLoad = [
-        {
-          oog_wid: undefined,
-          oog_hgt: undefined,
-          oog_lgt: undefined,
-          oog_volume_unit: 'CM',
-          oog_quantity: undefined,
-          oog_weight: undefined,
-          oog_weight_unit: 'KG',
-        },
-      ]
-      setValue('oog_load', defaultOogLoad)
-    }
     if (watchMode == 'LCL') {
       const defaultLclLoad = [
         {
