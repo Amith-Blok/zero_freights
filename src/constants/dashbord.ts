@@ -4,13 +4,15 @@ export const ALL_SERVICES = [
   {
     key: 'sea',
     title: 'Sea Freight',
-    description:
-      'FCL and LCL ocean freight solutions across major trade lanes.',
+    description: 'Reliable ocean freight services.',
     icon: Ship,
     href: '/get-rates?mode=SEA',
     subServices: [
       { label: 'FCL', href: '/get-rates?mode=SEA' },
       { label: 'LCL', href: '/get-rates?mode=SEA' },
+      { label: 'DG', href: '/get-rates?mode=SEA' },
+      { label: 'IG', href: '/get-rates?mode=SEA' },
+      { label: 'OOG', href: '/get-rates?mode=SEA' },
     ],
   },
   {

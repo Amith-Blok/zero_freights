@@ -174,6 +174,7 @@ export interface IgLineChargeData {
   valid_to: string
   data: IgContainerCost
 }
+
 export type OfferModeTypes =
   | 'WAR'
   | 'AIR'
@@ -184,20 +185,21 @@ export type OfferModeTypes =
   | 'SEA_RF'
   | 'SEA_IG'
   | 'SEA_OOG'
+
 export enum ServiceType {
-  SEA_FCL = 'Sea FCL',
-  SEA_LCL = 'Sea LCL',
-  SEA_DG = 'Sea DG',
-  SEA_RF = 'Sea RF',
-  SEA_IG = 'Sea IG',
-  SEA_OOG = 'Sea OOG',
-  AIR = 'Air',
-  DOMESTIC_TRUCKING = 'Domestic Trucking',
-  SEAPORT_TRUCKING = 'Seaport Trucking',
-  AIRPORT_TRUCKING = 'Airport Trucking',
-  FCL_WAR = 'FCL WH',
-  LCL_WAR = 'LCL WH',
-  LTL_WAR = 'LTL WH',
+  SEA_FCL = 'SEA FCL',
+  SEA_LCL = 'SEA LCL',
+  SEA_DG = 'SEA DG',
+  SEA_RF = 'SEA RF',
+  SEA_IG = 'SEA IG',
+  SEA_OOG = 'SEA OOG',
+  AIR = 'AIR',
+  DOMESTIC_TRUCKING = 'DOMESTIC TRUCKING',
+  SEAPORT_TRUCKING = 'SEAPORT TRUCKING',
+  AIRPORT_TRUCKING = 'AIRPORT TRUCKING',
+  FCL_WAR = 'FCL WAR',
+  LCL_WAR = 'LCL WAR',
+  LTL_WAR = 'LTL WAR',
 }
 export interface Offer {
   form_id: string

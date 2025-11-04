@@ -58,25 +58,25 @@ const companyMenuItems = [
 const servicesMenuItems = [
   {
     title: 'Sea Freight',
-    href: '/?mode=SEA',
+    href: '/get-rates?mode=SEA',
     description: 'Ocean shipping solutions worldwide',
     icon: Globe,
   },
   {
     title: 'Air Freight',
-    href: '/?mode=AIR',
+    href: '/get-rates?mode=AIR',
     description: 'Fast air cargo services',
     icon: Package,
   },
   {
     title: 'Land Transport',
-    href: '/?mode=LAND',
+    href: '/get-rates?mode=LAND',
     description: 'Ground transportation and trucking',
     icon: Truck,
   },
   {
     title: 'Warehouse Solutions',
-    href: '/?mode=WAR',
+    href: '/get-rates?mode=WAR',
     description: 'Storage and distribution services',
     icon: Package,
   },
@@ -177,10 +177,10 @@ export default function Header() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center space-x-4 lg:flex">
-            {/* <Button variant="outline" disabled>
-              Track Shipment
+            <Button size="sm">
+              <Link href="/tracking">Track Shipment</Link>
             </Button>
-            <Button disabled>Dashboard</Button> */}
+            {/* <Button >Dashboard</Button> */}
             <ProfileButton />
           </div>
 
