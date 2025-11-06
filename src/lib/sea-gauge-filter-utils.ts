@@ -4,6 +4,7 @@ import {
   IgContainerDetailsType,
   TotatCostByIgContainerType,
 } from '@/models/offer/shared-types'
+import { currencyConverter } from './exchange'
 
 // Actual line charge data structure from the API for Sea IG (In Gauge)
 export interface ActualIgLineChargeData {
@@ -163,4 +164,44 @@ export function getIgPriceRange(
   maxPrice = Math.ceil(maxPrice / 1000) * 1000
 
   return [minPrice, maxPrice]
+}
+
+export const getTargetCurrencyGaugeDataTableData = (
+  charges: IgContainerCost[],
+  currency: 'INR' | 'USD'
+) => {
+  return charges.map((charge) => ({
+    label: charge.label,
+    currency: charge.currency as 'INR' | 'USD',
+    ot2: currencyConverter({
+      cost: charge.ot2,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    ot4: currencyConverter({
+      cost: charge.ot4,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    fr2: currencyConverter({
+      cost: charge.fr2,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    fr4: currencyConverter({
+      cost: charge.fr4,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    fr5: currencyConverter({
+      cost: charge.fr5,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    total: currencyConverter({
+      cost: charge.total,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+  }))
 }

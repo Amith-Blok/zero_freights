@@ -22,8 +22,8 @@ import { transform } from '@/lib/mongoose-transform'
 import {
   ContainerCostSchema,
   IgContainerCostSchema,
-  IgTotalCostByContainerTypeSchema,
-  TotalCostByContainerTypeSchema,
+  IgMultiCurrencyContainerCostSchema,
+  MultiCurrencyContainerCostSchema,
 } from '../offer/common-schema'
 import { getOrCreateDiscriminator } from '../offer/common-schema'
 
@@ -75,15 +75,15 @@ export const ConfirmedQuoteSchema = new mongoose.Schema<ConfirmedQuoteDocument>(
       type: String,
       required: true,
       enum: [
-        'WAR',
-        'AIR',
-        'LAND',
-        'SEA_LCL',
-        'SEA_FCL',
-        'SEA_DG',
-        'SEA_RF',
-        'SEA_IG',
-        'SEA_OOG',
+        'CONFIRMED_WAR',
+        'CONFIRMED_AIR',
+        'CONFIRMED_LAND',
+        'CONFIRMED_SEA_LCL',
+        'CONFIRMED_SEA_FCL',
+        'CONFIRMED_SEA_DG',
+        'CONFIRMED_SEA_RF',
+        'CONFIRMED_SEA_IG',
+        'CONFIRMED_SEA_OOG',
       ],
     },
 
@@ -110,10 +110,11 @@ export const ConfirmedQuoteModel =
 export const WarehouseConfirmedQuoteModel =
   getOrCreateDiscriminator<WarehouseConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'WAR',
+    'CONFIRMED_WAR',
     new mongoose.Schema<WarehouseConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       package_type: { type: String, required: true },
+      transit_days: { type: Number, required: true },
       total_cost: { type: TotalCostSchema, required: true },
       data: { type: [ConfirmedQuoteData], required: true },
     })
@@ -122,10 +123,11 @@ export const WarehouseConfirmedQuoteModel =
 export const AirConfirmedQuoteModel =
   getOrCreateDiscriminator<AirConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'AIR',
+    'CONFIRMED_AIR',
     new mongoose.Schema<AirConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       package_type: { type: String, required: true },
+      transit_days: { type: Number, required: true },
       total_cost: { type: TotalCostSchema, required: true },
       data: { type: [ConfirmedQuoteData], required: true },
     })
@@ -134,7 +136,7 @@ export const AirConfirmedQuoteModel =
 export const LandConfirmedQuoteModel =
   getOrCreateDiscriminator<LandConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'LAND',
+    'CONFIRMED_LAND',
     new mongoose.Schema<LandConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       package_type: { type: String, required: true },
@@ -146,7 +148,7 @@ export const LandConfirmedQuoteModel =
 export const SeaLclConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaLclConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_LCL',
+    'CONFIRMED_SEA_LCL',
     new mongoose.Schema<SeaLclConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       package_type: { type: String, required: true },
@@ -158,7 +160,7 @@ export const SeaLclConfirmedQuoteModel =
 export const SeaFclConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaFclConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_FCL',
+    'CONFIRMED_SEA_FCL',
     new mongoose.Schema<SeaFclConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       port_to_days: { type: Number, required: true },
@@ -167,14 +169,14 @@ export const SeaFclConfirmedQuoteModel =
       container_types: { type: [String], required: true },
       container_details: { type: Object, required: true },
       weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
-      total_cost: { type: TotalCostByContainerTypeSchema, required: true },
+      total_cost: { type: MultiCurrencyContainerCostSchema, required: true },
       data: { type: [ContainerCostSchema], required: true },
     })
   )
 export const SeaDgConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaDgConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_DG',
+    'CONFIRMED_SEA_DG',
     new mongoose.Schema<SeaDgConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       port_to_days: { type: Number, required: true },
@@ -184,14 +186,14 @@ export const SeaDgConfirmedQuoteModel =
       container_details: { type: Object, required: true },
       weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
       dg_class: { type: String, required: true },
-      total_cost: { type: TotalCostByContainerTypeSchema, required: true },
+      total_cost: { type: MultiCurrencyContainerCostSchema, required: true },
       data: { type: [ContainerCostSchema], required: true },
     })
   )
 export const SeaRfConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaRfConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_RF',
+    'CONFIRMED_SEA_RF',
     new mongoose.Schema<SeaRfConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       port_to_days: { type: Number, required: true },
@@ -202,7 +204,7 @@ export const SeaRfConfirmedQuoteModel =
       weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
       temperature: { type: Number, required: true },
       humidity: { type: Number, required: true },
-      total_cost: { type: TotalCostByContainerTypeSchema, required: true },
+      total_cost: { type: MultiCurrencyContainerCostSchema, required: true },
       data: { type: [ContainerCostSchema], required: true },
     })
   )
@@ -210,7 +212,7 @@ export const SeaRfConfirmedQuoteModel =
 export const SeaIgConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaIgConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_IG',
+    'CONFIRMED_SEA_IG',
     new mongoose.Schema<SeaIgConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       port_to_days: { type: Number, required: true },
@@ -220,7 +222,7 @@ export const SeaIgConfirmedQuoteModel =
       container_details: { type: Object, required: true },
       weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
       total_cost: {
-        type: IgTotalCostByContainerTypeSchema,
+        type: IgMultiCurrencyContainerCostSchema,
         required: true,
       },
       data: { type: [IgContainerCostSchema], required: true },
@@ -229,7 +231,7 @@ export const SeaIgConfirmedQuoteModel =
 export const SeaOogConfirmedQuoteModel =
   getOrCreateDiscriminator<SeaOogConfirmedQuoteDocument>(
     ConfirmedQuoteModel,
-    'SEA_OOG',
+    'CONFIRMED_SEA_OOG',
     new mongoose.Schema<SeaOogConfirmedQuoteDocument>({
       carrier: { type: String, required: true },
       port_to_days: { type: Number, required: true },
@@ -238,7 +240,7 @@ export const SeaOogConfirmedQuoteModel =
       container_types: { type: [String], required: true },
       container_details: { type: Object, required: true },
       weight_unit: { type: String, required: true, enum: ['KG', 'LBS'] },
-      total_cost: { type: IgTotalCostByContainerTypeSchema, required: true },
+      total_cost: { type: IgMultiCurrencyContainerCostSchema, required: true },
       data: { type: [IgContainerCostSchema], required: true },
     })
   )

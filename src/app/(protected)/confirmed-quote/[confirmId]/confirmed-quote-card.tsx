@@ -1,9 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { OfferDataTable } from '@/components/data-table/offer-data-table'
 import { inFormater, usFormater } from '@/lib/utils'
 
 interface ConfirmedQuoteCardProps {
@@ -20,7 +19,7 @@ interface ConfirmedQuoteCardProps {
   carrier: string
   tag: string
   currency: 'USD' | 'INR'
-  tableData: { label: string; inr: number; usd: number }[]
+  children: ReactNode
 }
 export function ConfirmedQuoteCard({
   id,
@@ -36,7 +35,7 @@ export function ConfirmedQuoteCard({
   carrier,
   tag,
   currency,
-  tableData,
+  children,
 }: ConfirmedQuoteCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const formater = currency === 'INR' ? inFormater : usFormater
@@ -148,15 +147,8 @@ export function ConfirmedQuoteCard({
           </div>
 
           {/* Expandable Content */}
-          {isExpanded && tableData.length > 0 && (
-            <div className="mt-4 rounded-lg bg-gray-50 p-4">
-              <OfferDataTable
-                data={tableData}
-                containerType={containerType}
-                grandTotal={total}
-                currency={currency}
-              />
-            </div>
+          {isExpanded && children && (
+            <div className="mt-4 rounded-lg bg-gray-50 p-4">{children}</div>
           )}
 
           {/* View More Button */}

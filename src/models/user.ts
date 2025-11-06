@@ -2,7 +2,7 @@ import type { Types } from 'mongoose'
 import mongoose, { Schema } from 'mongoose'
 import { transform } from '@/lib/mongoose-transform'
 
-interface User {
+export interface User {
   _id: Types.ObjectId
   __v: string
   id: string

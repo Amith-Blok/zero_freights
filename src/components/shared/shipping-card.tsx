@@ -217,7 +217,7 @@ export default function ShippingCard({
             </div>
             <Button
               onClick={() => handleBookingSubmit(lineName.toLowerCase())}
-              disabled={loading || true}
+              disabled={loading}
               className="h-8 shrink-0 gap-1"
               size="sm"
             >

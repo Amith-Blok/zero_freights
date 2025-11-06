@@ -9,12 +9,21 @@ import {
   IgContainerCost,
   IgContainerDetailsType,
   TotalCostByContainerType,
-  OfferModeTypes,
 } from '../offer/shared-types'
 
 export interface _LineChargeData {
   data: ContainerCost
 }
+export type ConfirmedQuoteModeTypes =
+  | 'CONFIRMED_WAR'
+  | 'CONFIRMED_AIR'
+  | 'CONFIRMED_LAND'
+  | 'CONFIRMED_SEA_LCL'
+  | 'CONFIRMED_SEA_FCL'
+  | 'CONFIRMED_SEA_DG'
+  | 'CONFIRMED_SEA_RF'
+  | 'CONFIRMED_SEA_IG'
+  | 'CONFIRMED_SEA_OOG'
 export interface ConfirmedQuote {
   form_id: string
   blok_id: string
@@ -24,7 +33,7 @@ export interface ConfirmedQuote {
   subject: string
   place_of_supply: string
   bill_to: string
-  mode: OfferModeTypes
+  mode: ConfirmedQuoteModeTypes
   service_type: ServiceType
   start_code: string
   end_code: string
@@ -36,12 +45,14 @@ export interface ConfirmedQuote {
 export interface WarehouseConfirmedQuote extends ConfirmedQuote {
   carrier: string
   package_type: string
+  transit_days: number
   total_cost: TotalCost
   data: LabeledCost[]
 }
 export interface AirConfirmedQuote extends ConfirmedQuote {
   carrier: string
   package_type: string
+  transit_days: number
   total_cost: TotalCost
   data: LabeledCost[]
 }

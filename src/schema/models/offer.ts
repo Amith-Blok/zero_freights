@@ -172,3 +172,14 @@ export const OfferZodSchema = z.discriminatedUnion('mode', [
   SeaIgOfferSchema,
   SeaOogOfferSchema,
 ])
+
+export type Offer = z.infer<typeof OfferZodSchema>
+export type WarehouseOffer = z.infer<typeof WarOfferSchema>
+export type AirOffer = z.infer<typeof AirOfferSchema>
+export type LandOffer = z.infer<typeof LandOfferSchema>
+export type SeaLclOffer = z.infer<typeof SeaLclOfferSchema>
+export type SeaFclOffer = z.infer<typeof SeaFclOfferSchema>
+export type SeaDgOffer = z.infer<typeof SeaDgOfferSchema>
+export type SeaRfOffer = z.infer<typeof SeaRfOfferSchema>
+export type SeaIgOffer = z.infer<typeof SeaIgOfferSchema>
+export type SeaOogOffer = z.infer<typeof SeaOogOfferSchema>

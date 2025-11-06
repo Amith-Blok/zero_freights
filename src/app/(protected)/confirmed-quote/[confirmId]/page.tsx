@@ -1,11 +1,17 @@
 import { Phone, Mail, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
-import { getConfirmedQuoteById } from '@/data/confirmed-quote'
 import { notFound } from 'next/navigation'
-import { formatPhoneNumber, toTitleCase } from '@/lib/utils'
-import { ConfirmedQuoteCard } from './confirmed-quote-card'
-import { getUserById } from '@/data/user'
+import { getConfirmedQuoteById } from '@/data/confirmed-quotes/confirmed-quotes'
+import WarehouseConfirmedQuotes from './_components/warehouse-confirmed-quotes'
+import AirConfirmedQuotes from './_components/air-confirmed-quotes'
+import LandConfirmedQuotes from './_components/land-confirmed-quotes'
+import SeaLclConfirmedQuotes from './_components/sea-lcl-confirmed-quotes'
+import SeaFclConfirmedQuotes from './_components/sea-fcl-confirmed-qoutes'
+import SeaDgConfirmedQuotes from './_components/sea-dg-confirmed-quotes'
+import SeaRfConfirmedQuotes from './_components/sea-rf-confirmed-quotes'
+import SeaIgConfirmedQuotes from './_components/sea-ig-confirmed-quotes'
+import SeaOogConfirmedQuotes from './_components/sea-oog-confirmed-quotes'
 
 export default async function ConfirmedQuotePage(props: {
   params: Promise<{ confirmId: string }>
@@ -14,31 +20,7 @@ export default async function ConfirmedQuotePage(props: {
   const confirmQuote = await getConfirmedQuoteById(params.confirmId)
   if (!confirmQuote) return notFound()
 
-  const {
-    blok_id,
-    user_id,
-    locations,
-    carrier,
-    container_type,
-    service_type,
-    transit_time,
-    total_cost,
-  } = confirmQuote
-  const user = await getUserById(user_id)
-  if (!user?.name || !user?.email || !user?.phone || !user?.companyName) {
-    return notFound()
-  }
-  const origin = locations?.[0]?.name || 'N/A'
-  const destination = locations?.at(-1)?.name || 'N/A'
-  const transitTime = confirmQuote.transit_time
-  const transitTimeInfo = transitTime
-    ? `Est. ${transit_time} days port to port`
-    : 'N/A'
-  // const totalInr = confirmQuote.data.reduce(
-  //   (acc, value) => (acc += value.inr),
-  //   0
-  // )
-  const totalUsd = total_cost.usd
+  const { blok_id, mode } = confirmQuote
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center p-4">
@@ -54,22 +36,27 @@ export default async function ConfirmedQuotePage(props: {
       </section>
 
       {/* Selected Offer Details */}
-      <ConfirmedQuoteCard
-        id={blok_id}
-        userName={toTitleCase(user.name)}
-        userEmail={user.email}
-        userPhone={formatPhoneNumber(user.phone)}
-        userCompany={toTitleCase(user.companyName)}
-        transitInfo={transitTimeInfo}
-        origin={origin}
-        destination={destination}
-        containerType={container_type}
-        tag={service_type.toUpperCase()}
-        carrier={carrier.toUpperCase()}
-        total={totalUsd}
-        currency="USD"
-        tableData={confirmQuote.data}
-      />
+      {mode === 'CONFIRMED_WAR' ? (
+        <WarehouseConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_AIR' ? (
+        <AirConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_LAND' ? (
+        <LandConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_LCL' ? (
+        <SeaLclConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_FCL' ? (
+        <SeaFclConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_DG' ? (
+        <SeaDgConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_RF' ? (
+        <SeaRfConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_IG' ? (
+        <SeaIgConfirmedQuotes {...confirmQuote} />
+      ) : mode === 'CONFIRMED_SEA_OOG' ? (
+        <SeaOogConfirmedQuotes {...confirmQuote} />
+      ) : (
+        <></>
+      )}
 
       {/* Next Steps + Contact */}
       <div className="mb-8 grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">

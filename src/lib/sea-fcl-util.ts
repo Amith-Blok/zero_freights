@@ -79,3 +79,33 @@ const getTotalSeaFclCostAndCharges = (
   return { totalCharges }
 }
 export { getTotalCost, getSeaFclCharges, getTotalSeaFclCostAndCharges }
+
+export const getTargetCurrencySeaFclDataTableData = (
+  charges: ContainerCost[],
+  currency: 'INR' | 'USD'
+) => {
+  return charges.map((charge) => ({
+    label: charge.label,
+    currency: charge.currency as 'INR' | 'USD',
+    d2: currencyConverter({
+      cost: charge.d2,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    d4: currencyConverter({
+      cost: charge.d4,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    d5: currencyConverter({
+      cost: charge.d5,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+    total: currencyConverter({
+      cost: charge.total,
+      sourceCurrency: charge.currency as any,
+      targetCurrency: currency,
+    }),
+  }))
+}
