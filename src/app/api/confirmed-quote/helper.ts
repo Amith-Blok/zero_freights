@@ -21,6 +21,7 @@ import { createSeaDgConfirmedQuote } from '@/data/confirmed-quotes/sea-dg-confir
 import { createSeaRfConfirmedQuote } from '@/data/confirmed-quotes/sea-rf-confirmed-quote'
 import { createSeaIgConfirmedQuote } from '@/data/confirmed-quotes/sea-ig-confirmed-quote'
 import { createSeaOogConfirmedQuote } from '@/data/confirmed-quotes/sea-oog-confirmed-quote'
+import { sendQuoteInfoToZeroFreight } from '@/lib/mail'
 
 export const generateConfirmedQuoteBase = async (params: Offer) => {
   const confirmedQuoteId = await generateConfirmedQuoteId()
@@ -63,21 +64,23 @@ export const generateConfirmedQuoteWarehouse = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.package_type,
+    total: params.total_cost.inr,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: params.estimated_days
+      ? `Est. ${params.estimated_days} days port to port`
+      : 'N/A',
+    carrier: params.carrier.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -99,21 +102,23 @@ export const generateConfirmedQuoteAir = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.package_type,
+    total: params.total_cost.inr,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: params.estimated_days
+      ? `Est. ${params.estimated_days} days port to port`
+      : 'N/A',
+    carrier: params.carrier.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -134,21 +139,21 @@ export const generateConfirmedQuoteLand = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.package_type,
+    total: params.total_cost.inr,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: 'N/A',
+    carrier: params.carrier.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -169,21 +174,21 @@ export const generateConfirmedQuoteSeaLcl = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.package_type,
+    total: params.total_cost.inr,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: 'N/A',
+    carrier: params.carrier.toUpperCase(),
+  })
   return id.toString()
 }
 export const generateConfirmedQuoteSeaFcl = async (
@@ -220,21 +225,23 @@ export const generateConfirmedQuoteSeaFcl = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.container_types.join(', '),
+    total: lineOffer.cost_breakdown.total_cost.inr.total,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: lineOffer.estimated_days
+      ? `Est. ${lineOffer.estimated_days} days port to port`
+      : 'N/A',
+    carrier: lineOffer.line_name.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -279,21 +286,23 @@ export const generateConfirmedQuoteSeaDg = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.container_types.join(', '),
+    total: lineOffer.cost_breakdown.total_cost.inr.total,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: lineOffer.estimated_days
+      ? `Est. ${lineOffer.estimated_days} days port to port`
+      : 'N/A',
+    carrier: lineOffer.line_name.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -340,21 +349,23 @@ export const generateConfirmedQuoteSeaRf = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.container_types.join(', '),
+    total: lineOffer.cost_breakdown.total_cost.inr.total,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: lineOffer.estimated_days
+      ? `Est. ${lineOffer.estimated_days} days port to port`
+      : 'N/A',
+    carrier: lineOffer.line_name.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -391,22 +402,23 @@ export const generateConfirmedQuoteSeaIg = async (
   const id = await createSeaIgConfirmedQuote(confirmedQuote)
 
   console.log('Confirmed quote created successfully', id)
-
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.container_types.join(', '),
+    total: lineOffer.cost_breakdown.total_cost.inr.total,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: lineOffer.estimated_days
+      ? `Est. ${lineOffer.estimated_days} days port to port`
+      : 'N/A',
+    carrier: lineOffer.line_name.toUpperCase(),
+  })
   return id.toString()
 }
 
@@ -444,20 +456,22 @@ export const generateConfirmedQuoteSeaOog = async (
 
   console.log('Confirmed quote created successfully', id)
 
-  // await sendQuoteInfoToZeroFreight({
-  //   userName: params.user?.name ?? '',
-  //   userEmail: params.user?.email ?? '',
-  //   userPhone: params.user?.phone ?? '',
-  //   userCompany: params.user?.companyName ?? '',
-  //   subject: params.subject,
-  //   tag: params.service_type.toString(),
-  //   containerType: params.package_type,
-  //   total: params.total_cost.inr,
-  //   detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
-  //   destination: params.locations.at(-1)?.name || 'N/A',
-  //   origin: params.locations[0].name,
-  //   transitInfo: params.estimated_days ? `Est. ${params.estimated_days} days port to port` : 'N/A',
-  //   carrier: params.carrier.toUpperCase(),
-  // })
+  await sendQuoteInfoToZeroFreight({
+    userName: params.user?.name ?? '',
+    userEmail: params.user?.email ?? '',
+    userPhone: params.user?.phone ?? '',
+    userCompany: params.user?.companyName ?? '',
+    subject: params.subject,
+    tag: params.service_type.toString(),
+    containerType: params.container_types.join(', '),
+    total: lineOffer.cost_breakdown.total_cost.inr.total,
+    detailPageUrl: `${process.env.NEXT_PUBLIC_APP_URL}/confirmed-quote/${id}`,
+    destination: params.locations.at(-1)?.name || 'N/A',
+    origin: params.locations[0].name,
+    transitInfo: lineOffer.estimated_days
+      ? `Est. ${lineOffer.estimated_days} days port to port`
+      : 'N/A',
+    carrier: lineOffer.line_name.toUpperCase(),
+  })
   return id.toString()
 }
