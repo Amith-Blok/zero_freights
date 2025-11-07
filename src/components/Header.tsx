@@ -10,6 +10,8 @@ import {
   Globe,
   Phone,
   Mail,
+  FileText,
+  Search,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -79,6 +81,24 @@ const servicesMenuItems = [
     href: '/get-rates?mode=WAR',
     description: 'Storage and distribution services',
     icon: Package,
+  },
+  {
+    title: 'Tracking',
+    href: '/tracking',
+    description: 'Track your shipment',
+    icon: Search, // Best icon for tracking shipment
+  },
+  {
+    title: 'Quotes',
+    href: '/offer',
+    description: 'View and manage your quotes',
+    icon: FileText, // Best icon for quotes
+  },
+  {
+    title: 'Booking',
+    href: '/confirmed-quote',
+    description: 'View and manage your confirmed bookings',
+    icon: Package, // Best icon for tracking shipment
   },
 ]
 
@@ -177,9 +197,9 @@ export default function Header() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center space-x-4 lg:flex">
-            <Button size="sm">
+            {/* <Button size="sm">
               <Link href="/tracking">Track Shipment</Link>
-            </Button>
+            </Button> */}
             {/* <Button >Dashboard</Button> */}
             <ProfileButton />
           </div>

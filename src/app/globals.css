@@ -93,3 +93,12 @@
   -moz-appearance: textfield;
   appearance: textfield;
 }
+.link {
+  color: #40b625; /* Tailwind text-blue-500 */
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.link:hover {
+  color: #25eb50; /* Tailwind text-blue-600 */
+  text-decoration: underline;
+}

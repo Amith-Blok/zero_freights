@@ -13,6 +13,7 @@ import {
   generateConfirmedQuoteSeaRf,
   generateConfirmedQuoteWarehouse,
 } from './helper'
+import { getConfirmedQuoteByBlokIdAndUserId } from '@/data/confirmed-quotes/confirmed-quotes'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
       console.log({ error: safeParseOffer.error })
       return NextResponse.json({ error: 'validation failded' }, { status: 400 })
     }
-    const { user_id, mode } = safeParseOffer.data
+    const { user_id, mode, blok_id: offer_blok_id } = safeParseOffer.data
 
     const dbUser = await getUserById(user_id)
     if (
@@ -38,6 +39,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'user not found' }, { status: 404 })
     }
 
+    const ExistingConfirmedQuote = await getConfirmedQuoteByBlokIdAndUserId({
+      offerId: offer_blok_id,
+      userId: dbUser.id,
+    }).catch((error) => {
+      console.log({ error })
+      return null
+    })
+    if (ExistingConfirmedQuote) {
+      console.log('confirmed quote already exists')
+      console.log({ ExistingConfirmedQuote })
+      return NextResponse.json(
+        { confirmed_quote_id: ExistingConfirmedQuote },
+        { status: 200 }
+      )
+    }
     let confirmedQuoteId
     switch (mode) {
       case 'WAR': {

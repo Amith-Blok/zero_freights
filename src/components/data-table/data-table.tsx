@@ -5,7 +5,6 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   getFilteredRowModel,
   useReactTable,
   Column,
@@ -52,7 +51,6 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   filter,
-  paginationState,
   setFilter,
   rowSelection,
   setRowSelection,
@@ -74,9 +72,8 @@ export function DataTable<TData, TValue>({
       rowId ? (originalRow as Record<string, any>)[rowId] : idx.toString(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Removed getPaginationRowModel() - pagination is  server-side
     state: {
-      pagination: paginationState,
       globalFilter: filter,
       columnPinning: columnPinningState,
       rowSelection,

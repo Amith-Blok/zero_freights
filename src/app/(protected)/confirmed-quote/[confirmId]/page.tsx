@@ -13,7 +13,7 @@ import SeaRfConfirmedQuotes from './_components/sea-rf-confirmed-quotes'
 import SeaIgConfirmedQuotes from './_components/sea-ig-confirmed-quotes'
 import SeaOogConfirmedQuotes from './_components/sea-oog-confirmed-quotes'
 
-export default async function ConfirmedQuotePage(props: {
+export default async function ConfirmedQuoteDetailsPage(props: {
   params: Promise<{ confirmId: string }>
 }) {
   const params = await props.params
