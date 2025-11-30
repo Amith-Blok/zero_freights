@@ -197,10 +197,6 @@ export default function Header() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center space-x-4 lg:flex">
-            {/* <Button size="sm">
-              <Link href="/tracking">Track Shipment</Link>
-            </Button> */}
-            {/* <Button >Dashboard</Button> */}
             <ProfileButton />
           </div>
 
@@ -227,23 +223,6 @@ export default function Header() {
               </SheetHeader>
 
               <nav className="mt-8 flex flex-col space-y-4">
-                {/* Company Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-md p-2 text-left hover:bg-stone-50">
-                    <span className="font-medium">Company</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    {companyMenuItems.map((item) => (
-                      <DropdownMenuItem key={item.title} asChild>
-                        <Link href={item.href} onClick={() => setIsOpen(false)}>
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
                 {/* Services Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-md p-2 text-left hover:bg-stone-50">
@@ -266,6 +245,23 @@ export default function Header() {
                         </DropdownMenuItem>
                       )
                     })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Company Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-md p-2 text-left hover:bg-stone-50">
+                    <span className="font-medium">Company</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    {companyMenuItems.map((item) => (
+                      <DropdownMenuItem key={item.title} asChild>
+                        <Link href={item.href} onClick={() => setIsOpen(false)}>
+                          {item.title}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
 

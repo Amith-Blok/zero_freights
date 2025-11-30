@@ -11,11 +11,13 @@ export async function getUserById(id: string) {
   return user
 }
 
-export async function updateUserCompanyNameAndPhone(
-  id: string,
-  companyName: string,
+export async function updateUserCompanyNameAndPhone(params: {
+  id: string
+  companyName: string
   phone: string
-) {
+  isBlokVerified?: boolean
+}) {
+  const { id, companyName, phone, isBlokVerified } = params
   const blokVerified = new Date().toISOString()
   const formattedPhone = formatPhoneNumber(phone)
   const formattedCompanyName = toTitleCase(companyName)
@@ -25,7 +27,7 @@ export async function updateUserCompanyNameAndPhone(
     {
       companyName: formattedCompanyName,
       phone: formattedPhone,
-      blokVerified: blokVerified,
+      ...(isBlokVerified ? { blokVerified: blokVerified } : {}),
     },
     { new: true }
   )

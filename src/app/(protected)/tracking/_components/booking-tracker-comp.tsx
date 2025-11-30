@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { TrackingTimeline } from './tracking-timeline'
 import { ServiceType } from '@/models/offer/shared-types'
+import { TrackingServiceTypeMapper } from '@/constants/tracking'
 
 export default function BookingTrackerComp(props: {
   tracking: BookingTracking
@@ -173,7 +174,7 @@ export default function BookingTrackerComp(props: {
         <div className="mb-2 flex items-center gap-2">
           <ServiceIcon className="h-6 w-6 text-primary" />
           <h2 className="text-2xl font-bold">
-            {tracking.service_type.replace(/_/g, ' ')} Tracking
+            {TrackingServiceTypeMapper[tracking.service_type]} Tracking
           </h2>
         </div>
         <p className="text-muted-foreground">
