@@ -15,6 +15,7 @@ interface PhoneInputWrapperProps {
   divProps?: ComponentProps<'div'>
   labelProps?: ComponentProps<'label'>
   placeHolder?: string
+  disabled?: boolean
 }
 
 export default function PhoneInputWrapper({
@@ -26,6 +27,7 @@ export default function PhoneInputWrapper({
   labelProps = {},
   divProps = {},
   placeHolder = 'Enter phone number',
+  disabled = false,
 }: PhoneInputWrapperProps) {
   const { control } = useFormContext() // Use FormContext to access control
 
@@ -65,6 +67,7 @@ export default function PhoneInputWrapper({
               value={value}
               onChange={(newValue) => onChange(newValue ?? '')}
               ref={ref}
+              disabled={disabled}
             />
             {error && (
               <span className="text-sm text-red-500">{error.message}</span>

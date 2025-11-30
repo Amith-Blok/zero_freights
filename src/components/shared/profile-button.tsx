@@ -10,22 +10,42 @@ import {
 import { LogoutButton } from '../auth/logout-button'
 import { IoMdExit } from 'react-icons/io'
 import { useSession } from 'next-auth/react'
-import { FaAngleDown } from 'react-icons/fa'
 import { LoginButton } from '../auth/login-button'
+import Link from 'next/link'
 
 const ProfileButton = () => {
   const { status, data } = useSession()
+
+  // Function to get initials from name
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return 'U'
+
+    const words = name.trim().split(/\s+/)
+
+    if (words.length >= 2) {
+      // First letter of first word + first letter of last word
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase()
+    } else if (words[0].length >= 2) {
+      // First two letters of first word
+      return words[0].substring(0, 2).toUpperCase()
+    } else {
+      // Single letter
+      return words[0][0].toUpperCase()
+    }
+  }
+
   return status === 'authenticated' ? (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center">
-        <span className="font-sans text-sm">{data.user.name} </span>
-        <FaAngleDown />
+      <DropdownMenuTrigger className="outline-none focus:outline-none focus-visible:outline-none">
+        <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-base font-bold text-white shadow-md ring-2 ring-green-100 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:ring-green-200">
+          {getInitials(data.user.name)}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" disabled>
-          Profile
+        <DropdownMenuItem className="cursor-pointer" asChild>
+          <Link href="/settings/profile">Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" disabled>
           Settings

@@ -23,6 +23,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { TrackingTimeline } from './tracking-timeline'
+import { TrackingServiceTypeMapper } from '@/constants/tracking'
 
 export default function ContainerTrackerComp(props: {
   tracking: ContainerTracking
@@ -159,7 +160,7 @@ export default function ContainerTrackerComp(props: {
         <div className="mb-2 flex items-center gap-2">
           <Container className="h-6 w-6 text-primary" />
           <h2 className="text-2xl font-bold">
-            {tracking.service_type.replace(/_/g, ' ')} Container Tracking
+            {TrackingServiceTypeMapper[tracking.service_type]} Tracking
           </h2>
         </div>
         <p className="text-muted-foreground">

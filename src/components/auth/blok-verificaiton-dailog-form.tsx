@@ -15,7 +15,7 @@ import {
 import { BlokVerificationSchema } from '@/schema/blok-verificaiton'
 import PhoneInputWrapper from '../shared/phone-input-wrapper'
 import { useState, useTransition } from 'react'
-import { blokVerificationAction } from '@/actions/blok-verification-action'
+import { blokVerificationAction } from '@/actions/user-action'
 import { Loader2Icon } from 'lucide-react'
 
 interface BlokVerificationDialogFormProps {
