@@ -17,5 +17,5 @@ export const createWarehouseConfirmedQuote = async (data: any) => {
   if (!response) {
     throw Error(' failed to create offer')
   }
-  return response.id
+  return response
 }

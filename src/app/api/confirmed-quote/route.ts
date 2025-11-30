@@ -47,12 +47,12 @@ export async function POST(request: NextRequest) {
       return null
     })
     if (ExistingConfirmedQuote) {
-      console.log('confirmed quote already exists')
-      console.log({ ExistingConfirmedQuote })
-      return NextResponse.json(
-        { confirmed_quote_id: ExistingConfirmedQuote },
-        { status: 200 }
-      )
+      // console.log('confirmed quote already exists')
+      // console.log({ ExistingConfirmedQuote })
+      // return NextResponse.json(
+      //   { confirmed_quote_id: ExistingConfirmedQuote },
+      //   { status: 200 }
+      // )
     }
     let confirmedQuoteId
     switch (mode) {

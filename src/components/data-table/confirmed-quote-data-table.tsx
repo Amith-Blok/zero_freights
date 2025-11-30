@@ -57,7 +57,7 @@ export default function ConfirmedQuoteDataTable() {
       cell: ({ row }) => {
         return (
           <Button variant="ghost" size="sm" className="text-xs">
-            <Link className="link" href={`/tracking/${row.original._id}`}>
+            <Link className="link" href={`/tracking/${row.original.blok_id}`}>
               Track
             </Link>
           </Button>
