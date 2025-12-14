@@ -1,4 +1,3 @@
-import React from 'react'
 import { CardWrapper } from '@/components/shared/card-wrapper'
 import {
   findTrackingByIdentifier,
@@ -28,7 +27,8 @@ export default async function TrackingDetailsPage(props: {
     identifier: identifer,
     userId: dbUser.id,
   })
-  console.log({ tracking: JSON.stringify(tracking, null, 2) })
+  const safeTracking = JSON.parse(JSON.stringify(tracking))
+  // console.log({ tracking: JSON.stringify(tracking, null, 2) })
   if (!tracking) {
     return notFound()
   }
@@ -42,9 +42,9 @@ export default async function TrackingDetailsPage(props: {
         cardClass="my-5  md:m-5 w-full min-h-screen bg-white bg-opacity-95"
       >
         {isContainerTracking(tracking as ShipmentTracking) ? (
-          <ContainerTrackerComp tracking={tracking as ContainerTracking} />
+          <ContainerTrackerComp tracking={safeTracking as ContainerTracking} />
         ) : (
-          <BookingTrackerComp tracking={tracking as BookingTracking} />
+          <BookingTrackerComp tracking={safeTracking as BookingTracking} />
         )}
       </CardWrapper>
     </div>

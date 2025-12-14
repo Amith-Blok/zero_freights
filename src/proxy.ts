@@ -123,7 +123,6 @@ export default auth(async (req) => {
 })
 
 export const config = {
-  runtime: 'nodejs',
   matcher: [
     // match all routes except static files and APIs
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|json)$).*)',
