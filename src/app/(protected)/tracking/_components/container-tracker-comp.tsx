@@ -4,7 +4,8 @@ import {
   ContainerTracking,
   TrackingStatus,
   MilestoneType,
-  ContainerDetails,
+  // ContainerDetails,
+  TrackingMilestone,
 } from '@/models/tracking/tracking-types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -19,8 +20,8 @@ import {
   AlertCircle,
   FileText,
   Container,
-  Thermometer,
-  AlertTriangle,
+  // Thermometer,
+  // AlertTriangle,
 } from 'lucide-react'
 import { TrackingTimeline } from './tracking-timeline'
 import { TrackingServiceTypeMapper } from '@/constants/tracking'
@@ -30,25 +31,41 @@ export default function ContainerTrackerComp(props: {
 }) {
   const { tracking } = props
 
-  // Helper function to get status color
+  // Helper function to get status color and hover styles
   const getStatusColor = (status: TrackingStatus) => {
     switch (status) {
       case TrackingStatus.DELIVERED:
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+        // Subtle hover: bg-emerald-50 -> bg-emerald-100 (light) / bg-emerald-900 -> bg-emerald-800 (dark)
+        return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-100 hover:bg-emerald-100 dark:hover:bg-emerald-800'
+
       case TrackingStatus.IN_TRANSIT:
       case TrackingStatus.OUT_FOR_DELIVERY:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+        // Subtle hover: bg-sky-50 -> bg-sky-100 (light) / bg-sky-900 -> bg-sky-800 (dark)
+        return 'bg-sky-50 text-sky-700 dark:bg-sky-900 dark:text-sky-100 hover:bg-sky-100 dark:hover:bg-sky-800'
+
       case TrackingStatus.BOOKING_PENDING:
+        // Changed to Stone for better distinction from Default Gray
+        return 'bg-stone-50 text-stone-700 dark:bg-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800'
+
       case TrackingStatus.CARGO_READY:
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+        // Subtle hover: bg-amber-50 -> bg-amber-100 (light) / bg-amber-900 -> bg-amber-800 (dark)
+        return 'bg-amber-50 text-amber-700 dark:bg-amber-900 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-800'
+
       case TrackingStatus.ON_HOLD:
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+        // Subtle hover: bg-orange-50 -> bg-orange-100 (light) / bg-orange-900 -> bg-orange-800 (dark)
+        return 'bg-orange-50 text-orange-700 dark:bg-orange-900 dark:text-orange-100 hover:bg-orange-100 dark:hover:bg-orange-800'
+
       case TrackingStatus.CANCELLED:
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+        // Subtle hover: bg-rose-50 -> bg-rose-100 (light) / bg-rose-900 -> bg-rose-800 (dark)
+        return 'bg-rose-50 text-rose-700 dark:bg-rose-900 dark:text-rose-100 hover:bg-rose-100 dark:hover:bg-rose-800'
+
       case TrackingStatus.CUSTOMS_CLEARANCE:
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+        // Subtle hover: bg-indigo-50 -> bg-indigo-100 (light) / bg-indigo-900 -> bg-indigo-800 (dark)
+        return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-100 hover:bg-indigo-100 dark:hover:bg-indigo-800'
+
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+        // Subtle hover: bg-gray-50 -> bg-gray-100 (light) / bg-gray-900 -> bg-gray-800 (dark)
+        return 'bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
     }
   }
 
@@ -129,8 +146,8 @@ export default function ContainerTrackerComp(props: {
   }
 
   // Helper function to transform container milestones to timeline events
-  const getContainerTimelineEvents = (container: ContainerDetails) => {
-    return container.milestones.map((milestone, index) => ({
+  const getContainerTimelineEvents = (milestones: TrackingMilestone[]) => {
+    return milestones.map((milestone, index) => ({
       id: index + 1,
       status: milestone.milestone_type
         .replace(/_/g, ' ')
@@ -153,6 +170,7 @@ export default function ContainerTrackerComp(props: {
     }))
   }
 
+  const timelineEvents = getContainerTimelineEvents(tracking.milestones)
   return (
     <div className="w-full space-y-6">
       {/* Header Section */}
@@ -211,7 +229,8 @@ export default function ContainerTrackerComp(props: {
                   Current Status
                 </p>
                 <Badge
-                  className={`${getStatusColor(tracking.current_status)} border-0`}
+                  className={`${getStatusColor(tracking.current_status)} border-0 text-xs`}
+                  variant={'outline'}
                 >
                   {tracking.current_status.replace(/_/g, ' ')}
                 </Badge>
@@ -386,160 +405,32 @@ export default function ContainerTrackerComp(props: {
         <h3 className="text-xl font-semibold">
           Containers ({tracking.total_containers})
         </h3>
-        {tracking.containers.map((container, index) => {
-          const containerTimelineEvents = getContainerTimelineEvents(container)
 
-          return (
-            <Card key={container.container_id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
+        <Card>
+          <CardHeader>
+            {/* <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">
-                    Container #{index + 1}:{' '}
-                    {container.container_number || container.container_id}
+                    Container #{tracking.total_containers}:{' '}
+                    {tracking.containers[0].container_number || tracking.containers[0].container_id}
                   </CardTitle>
                   <Badge
-                    className={`${getStatusColor(container.status)} border-0`}
+                    className={`${getStatusColor(tracking.containers[0].status)} border-0`}
                   >
-                    {container.status.replace(/_/g, ' ')}
+                    {tracking.containers[0].status.replace(/_/g, ' ')}
                   </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Container Identifiers */}
-                <div className="rounded-lg bg-muted/50 p-4">
-                  <h4 className="mb-3 text-sm font-semibold">Identifiers</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <div>
-                      <p className="mb-1 text-xs text-muted-foreground">
-                        Container ID
-                      </p>
-                      <p className="font-mono text-sm font-semibold">
-                        {container.container_id}
-                      </p>
-                    </div>
-                    {container.container_number && (
-                      <div>
-                        <p className="mb-1 text-xs text-muted-foreground">
-                          Container Number
-                        </p>
-                        <p className="font-mono text-sm font-semibold">
-                          {container.container_number}
-                        </p>
-                      </div>
-                    )}
-                    {container.seal_number && (
-                      <div>
-                        <p className="mb-1 text-xs text-muted-foreground">
-                          Seal Number
-                        </p>
-                        <p className="font-mono text-sm font-semibold">
-                          {container.seal_number}
-                        </p>
-                      </div>
-                    )}
-                    {container.hbl_number && (
-                      <div>
-                        <p className="mb-1 text-xs text-muted-foreground">
-                          House B/L Number
-                        </p>
-                        <p className="font-mono text-sm font-semibold">
-                          {container.hbl_number}
-                        </p>
-                      </div>
-                    )}
-                    {container.mbl_number && (
-                      <div>
-                        <p className="mb-1 text-xs text-muted-foreground">
-                          Master B/L Number
-                        </p>
-                        <p className="font-mono text-sm font-semibold">
-                          {container.mbl_number}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                </div> */}
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Container Identifiers */}
 
-                {/* Basic Container Info */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                  <div>
-                    <p className="mb-1 text-sm text-muted-foreground">Type</p>
-                    <Badge variant="outline">{container.container_type}</Badge>
-                  </div>
-                  {container.weight && (
-                    <div>
-                      <p className="mb-1 text-sm text-muted-foreground">
-                        Weight
-                      </p>
-                      <p className="font-semibold">
-                        {container.weight} {container.weight_unit || 'KG'}
-                      </p>
-                    </div>
-                  )}
-                  {container.volume && (
-                    <div>
-                      <p className="mb-1 text-sm text-muted-foreground">
-                        Volume
-                      </p>
-                      <p className="font-semibold">
-                        {container.volume} {container.volume_unit || 'CBM'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Special Indicators */}
-                {(container.is_hazardous ||
-                  container.temperature !== undefined ||
-                  container.is_oversized) && (
-                  <div className="flex flex-wrap gap-2">
-                    {container.is_hazardous && (
-                      <Badge variant="destructive" className="text-xs">
-                        <AlertTriangle className="mr-1 h-3 w-3" />
-                        Dangerous Goods{' '}
-                        {container.dg_class && `(${container.dg_class})`}
-                      </Badge>
-                    )}
-                    {container.temperature !== undefined && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Thermometer className="mr-1 h-3 w-3" />
-                        Reefer ({container.temperature}°C)
-                        {container.humidity !== undefined &&
-                          ` / ${container.humidity}% humidity`}
-                      </Badge>
-                    )}
-                    {container.is_oversized && (
-                      <Badge variant="secondary" className="text-xs">
-                        <PackageIcon className="mr-1 h-3 w-3" />
-                        Oversized
-                      </Badge>
-                    )}
-                  </div>
-                )}
-
-                {/* Cargo Description */}
-                {container.cargo_description && (
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <p className="mb-1 text-sm text-muted-foreground">
-                      Cargo Description
-                    </p>
-                    <p className="text-sm">{container.cargo_description}</p>
-                  </div>
-                )}
-
-                {/* Container Timeline */}
-                {containerTimelineEvents.length > 0 && (
-                  <div>
-                    <h4 className="mb-4 font-semibold">
-                      Container Tracking Timeline
-                    </h4>
-                    <TrackingTimeline events={containerTimelineEvents} />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )
-        })}
+            <div>
+              <h4 className="mb-4 font-semibold">
+                Container Tracking Timeline
+              </h4>
+              <TrackingTimeline events={timelineEvents} />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Special Instructions */}

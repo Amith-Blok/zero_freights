@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose'
+import mongoose, { Document, Model } from 'mongoose'
 const transform = (ret: any) => {
   ret.id = ret._id.toString()
   delete ret._id
@@ -24,4 +24,5 @@ const FormSchema = new mongoose.Schema<FormDocument>(
 )
 
 export type FormType = mongoose.SchemaType<typeof FormSchema>
-export default mongoose.models.forms || mongoose.model('forms', FormSchema)
+export default (mongoose.models.forms as Model<FormDocument>) ||
+  mongoose.model<FormDocument>('forms', FormSchema)

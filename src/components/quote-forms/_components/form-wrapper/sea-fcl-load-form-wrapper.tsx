@@ -48,8 +48,10 @@ export function SeaFclLoadFormWrapper({
   const totalSelectedWeight =
     containerType?.reduce((acc: number, id: string) => {
       const wt = weights?.[id]
+      const qty = quantities?.[id]
       const validWt = typeof wt === 'number' && !isNaN(wt) ? wt : 0
-      return acc + validWt
+      const validQty = typeof qty === 'number' && !isNaN(qty) ? qty : 0
+      return acc + validWt * validQty
     }, 0) ?? 0
 
   return (

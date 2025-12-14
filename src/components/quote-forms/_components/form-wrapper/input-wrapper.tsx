@@ -42,7 +42,7 @@ export const InputWrapper = ({
         control={control}
         render={({ field: { onChange, value, ref } }) => (
           <Input
-            className={cn('w-full placeholder:text-sm', inputClass)}
+            className={cn('no-arrows w-full placeholder:text-sm', inputClass)}
             {...inputProps}
             value={value || ''}
             onChange={(e) => {

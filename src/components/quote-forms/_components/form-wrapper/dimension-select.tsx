@@ -46,7 +46,7 @@ export const DimensionSelect = ({
         <div className="flex min-h-10 gap-0">
           <Input
             type="number"
-            className="w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="no-arrows w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
             {...register(inputFieldOne, {
               valueAsNumber: true,
               required: true,
@@ -56,7 +56,7 @@ export const DimensionSelect = ({
           />
           <Input
             type="number"
-            className="w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="no-arrows w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
             {...register(inputFieldTwo, {
               valueAsNumber: true,
               required: true,
@@ -66,7 +66,7 @@ export const DimensionSelect = ({
           />
           <Input
             type="number"
-            className="w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="no-arrows w-1/4 rounded-r-none border-y-0 border-l-0 px-2 py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
             {...register(inputFieldThree, {
               valueAsNumber: true,
               required: true,

@@ -34,10 +34,17 @@ import {
   TrackingStatus,
 } from '@/models/tracking/tracking-types'
 import { createMilestone } from '@/models/tracking/tracking-utils'
-import { convertDToStdContainer } from '@/lib/container'
-import { DContainerTypeSmallCase } from '@/types/containers'
+import {
+  convertDToStdContainer,
+  convertIgToStdIgContainer,
+} from '@/lib/container'
+import {
+  DContainerTypeSmallCase,
+  IgContainerSmallCase,
+} from '@/types/containers'
 import { AirFormSchema } from '@/schema/air-schema'
 import { LandFormSchema } from '@/schema/land-schema'
+import { SeaFormSchema } from '@/schema/sea-schema'
 export const generateConfirmedQuoteBase = async (params: Offer) => {
   const confirmedQuoteId = await generateConfirmedQuoteId()
   return {
@@ -352,9 +359,56 @@ export const generateConfirmedQuoteSeaLcl = async (
     data: params.offers,
   }
   console.log('Sea LCL confirmed quote generated successfully', confirmedQuote)
-  const id = await createSeaLclConfirmedQuote(confirmedQuote)
 
+  const formData = await getFormById(params.form_id)
+  if (!formData) {
+    throw new Error('Form not found')
+  }
+  const { data } = formData
+  console.log({ rawFormData: JSON.stringify(formData, null, 2) })
+  // Extract the actual form data from the nested structure
+  const actualFormData =
+    typeof data === 'object' && data !== null && 'data' in data
+      ? data.data
+      : data
+  const parsedData = SeaFormSchema.parse(actualFormData)
+  console.log({ unparsedData: JSON.stringify(parsedData, null, 2) })
+  if (!parsedData) {
+    throw new Error('Invalid form data')
+  }
+  let additionalData: BookingTrackingAdditionalData = {
+    package_type: params.package_type,
+    total_packages: 0,
+    total_weight: 0,
+    total_volume: 0,
+    weight_unit: 'TON',
+    volume_unit: 'CBM',
+    cargo_description: `${params.subject}`,
+    carrier_name: params.carrier,
+    booking_date: new Date(new Date().toISOString()),
+  }
+  const { modes } = parsedData
+  if (modes === 'LCL') {
+    const { lcl_load, lcl_cbm_ton } = parsedData
+    const { cbm, ton } = lcl_cbm_ton
+    additionalData.total_volume = cbm
+    additionalData.total_weight = ton
+    for (const load of lcl_load) {
+      additionalData.total_packages =
+        (additionalData.total_packages || 0) + load.lcl_quantity
+    }
+  }
+  const id = await createSeaLclConfirmedQuote(confirmedQuote)
   console.log('Confirmed quote created successfully', id)
+
+  const tracking = await createTrackingFromBooking({
+    confirmedQuote: confirmedQuote,
+    additionalData: { bookingTrackingAdditionalData: additionalData },
+  })
+  console.log('Tracking created successfully')
+  console.log({
+    tracking: JSON.stringify(tracking.toObject({ getters: true }), null, 2),
+  })
 
   await sendQuoteInfoToZeroFreight({
     userName: params.user?.name ?? '',
@@ -546,9 +600,91 @@ export const generateConfirmedQuoteSeaDg = async (
     data: lineOfferData,
   }
   console.log('Sea DG confirmed quote generated successfully', confirmedQuote)
-  const id = await createSeaDgConfirmedQuote(confirmedQuote)
 
+  let containerDetails: ContainerDetails[] = []
+  let flatContainersDimensions: {
+    container_type: string
+    weight: number
+    weight_unit: 'KG' | 'LBS'
+  }[] = []
+
+  console.log(
+    'Processing container details:',
+    JSON.stringify(container_details, null, 2)
+  )
+
+  for (let [key, value] of Object.entries(container_details)) {
+    const times = value?.quantity ?? 0
+    console.log(
+      `Container type ${key}: quantity=${times}, weight=${value?.weight}`
+    )
+    for (let i = 0; i < times; i++) {
+      flatContainersDimensions.push({
+        container_type: key,
+        weight: value?.weight ?? 0,
+        weight_unit: weight_unit || 'KG',
+      })
+    }
+  }
+
+  console.log(
+    `Created ${flatContainersDimensions.length} flat container dimensions`
+  )
+
+  for (let [index, container] of flatContainersDimensions.entries()) {
+    const containerId = `CONT${(index + 1).toString().padStart(5, '0')}`
+    containerDetails.push({
+      container_type: convertDToStdContainer(
+        container.container_type as DContainerTypeSmallCase
+      ),
+      weight: container.weight,
+      weight_unit: container.weight_unit,
+      cargo_description: `${params.subject}`,
+      status: TrackingStatus.BOOKING_CONFIRMED,
+      milestones: [
+        createMilestone(
+          MilestoneType.BOOKING_CREATED,
+          TrackingStatus.BOOKING_CONFIRMED,
+          'Booking created'
+        ),
+      ],
+      container_id: containerId,
+    })
+  }
+  const total_containers = containerDetails.length
+
+  console.log(`Total containers created: ${total_containers}`)
+  console.log({ containerDetails: JSON.stringify(containerDetails, null, 2) })
+
+  // Validate that we have containers before creating tracking
+  if (total_containers === 0) {
+    console.error(
+      'No containers found! Container details:',
+      JSON.stringify(container_details, null, 2)
+    )
+    throw new Error(
+      'Cannot create tracking: No containers found in container details. Please ensure at least one container has a quantity > 0.'
+    )
+  }
+  const id = await createSeaDgConfirmedQuote(confirmedQuote)
   console.log('Confirmed quote created successfully', id)
+
+  const tracking = await createTrackingFromBooking({
+    confirmedQuote: confirmedQuote,
+    additionalData: {
+      containerTrackingAdditionalData: {
+        containers: containerDetails,
+        carrier_name: confirmedQuote.carrier,
+        total_containers: total_containers,
+        booking_date: new Date(new Date().toISOString()),
+      },
+    },
+  })
+
+  console.log('Tracking created successfully')
+  console.log({
+    tracking: JSON.stringify(tracking.toObject({ getters: true }), null, 2),
+  })
 
   await sendQuoteInfoToZeroFreight({
     userName: params.user?.name ?? '',
@@ -608,8 +744,86 @@ export const generateConfirmedQuoteSeaRf = async (
     total_cost: cost_breakdown,
     data: lineOfferData,
   }
+  let containerDetails: ContainerDetails[] = []
+  let flatContainersDimensions: {
+    container_type: string
+    weight: number
+    weight_unit: 'KG' | 'LBS'
+  }[] = []
+  console.log(
+    'Processing container details:',
+    JSON.stringify(container_details, null, 2)
+  )
+  for (let [key, value] of Object.entries(container_details)) {
+    const times = value?.quantity ?? 0
+    console.log(
+      `Container type ${key}: quantity=${times}, weight=${value?.weight}`
+    )
+    for (let i = 0; i < times; i++) {
+      flatContainersDimensions.push({
+        container_type: key,
+        weight: value?.weight ?? 0,
+        weight_unit: weight_unit || 'KG',
+      })
+    }
+  }
+
+  console.log(
+    `Created ${flatContainersDimensions.length} flat container dimensions`
+  )
+
+  for (let [index, container] of flatContainersDimensions.entries()) {
+    const containerId = `CONT${(index + 1).toString().padStart(5, '0')}`
+    containerDetails.push({
+      container_type: convertDToStdContainer(
+        container.container_type as DContainerTypeSmallCase
+      ),
+      weight: container.weight,
+      weight_unit: container.weight_unit,
+      cargo_description: `${params.subject}`,
+      status: TrackingStatus.BOOKING_CONFIRMED,
+      milestones: [
+        createMilestone(
+          MilestoneType.BOOKING_CREATED,
+          TrackingStatus.BOOKING_CONFIRMED,
+          'Booking created'
+        ),
+      ],
+      container_id: containerId,
+    })
+  }
+  const total_containers = containerDetails.length
+
+  console.log(`Total containers created: ${total_containers}`)
+  console.log({ containerDetails: JSON.stringify(containerDetails, null, 2) })
+
+  // Validate that we have containers before creating tracking
+  if (total_containers === 0) {
+    console.error(
+      'No containers found! Container details:',
+      JSON.stringify(container_details, null, 2)
+    )
+    throw new Error(
+      'Cannot create tracking: No containers found in container details. Please ensure at least one container has a quantity > 0.'
+    )
+  }
   console.log('Sea RF confirmed quote generated successfully', confirmedQuote)
   const id = await createSeaRfConfirmedQuote(confirmedQuote)
+  const tracking = await createTrackingFromBooking({
+    confirmedQuote: confirmedQuote,
+    additionalData: {
+      containerTrackingAdditionalData: {
+        containers: containerDetails,
+        carrier_name: confirmedQuote.carrier,
+        total_containers: total_containers,
+        booking_date: new Date(new Date().toISOString()),
+      },
+    },
+  })
+  console.log('Tracking created successfully')
+  console.log({
+    tracking: JSON.stringify(tracking.toObject({ getters: true }), null, 2),
+  })
 
   console.log('Confirmed quote created successfully', id)
 
@@ -662,8 +876,90 @@ export const generateConfirmedQuoteSeaIg = async (
     total_cost: cost_breakdown,
     data: lineOfferData,
   }
-  console.log('Sea RF confirmed quote generated successfully', confirmedQuote)
+
+  let containerDetails: ContainerDetails[] = []
+  let flatContainersDimensions: {
+    container_type: string
+    weight: number
+    weight_unit: 'KG' | 'LBS'
+  }[] = []
+
+  console.log(
+    'Processing container details:',
+    JSON.stringify(container_details, null, 2)
+  )
+
+  for (let [key, value] of Object.entries(container_details)) {
+    const times = value?.quantity ?? 0
+    console.log(
+      `Container type ${key}: quantity=${times}, weight=${value?.weight}`
+    )
+    for (let i = 0; i < times; i++) {
+      flatContainersDimensions.push({
+        container_type: key,
+        weight: value?.weight ?? 0,
+        weight_unit: weight_unit || 'KG',
+      })
+    }
+  }
+
+  console.log(
+    `Created ${flatContainersDimensions.length} flat container dimensions`
+  )
+
+  for (let [index, container] of flatContainersDimensions.entries()) {
+    const containerId = `CONT${(index + 1).toString().padStart(5, '0')}`
+    containerDetails.push({
+      container_type: convertIgToStdIgContainer(
+        container.container_type as IgContainerSmallCase
+      ),
+      weight: container.weight,
+      weight_unit: container.weight_unit,
+      cargo_description: `${params.subject}`,
+      status: TrackingStatus.BOOKING_CONFIRMED,
+      milestones: [
+        createMilestone(
+          MilestoneType.BOOKING_CREATED,
+          TrackingStatus.BOOKING_CONFIRMED,
+          'Booking created'
+        ),
+      ],
+      container_id: containerId,
+    })
+  }
+  const total_containers = containerDetails.length
+
+  console.log(`Total containers created: ${total_containers}`)
+  console.log({ containerDetails: JSON.stringify(containerDetails, null, 2) })
+
+  // Validate that we have containers before creating tracking
+  if (total_containers === 0) {
+    console.error(
+      'No containers found! Container details:',
+      JSON.stringify(container_details, null, 2)
+    )
+    throw new Error(
+      'Cannot create tracking: No containers found in container details. Please ensure at least one container has a quantity > 0.'
+    )
+  }
+
+  console.log('Sea IG confirmed quote generated successfully', confirmedQuote)
   const id = await createSeaIgConfirmedQuote(confirmedQuote)
+  const tracking = await createTrackingFromBooking({
+    confirmedQuote: confirmedQuote,
+    additionalData: {
+      containerTrackingAdditionalData: {
+        containers: containerDetails,
+        carrier_name: confirmedQuote.carrier,
+        total_containers: total_containers,
+        booking_date: new Date(new Date().toISOString()),
+      },
+    },
+  })
+  console.log('Tracking created successfully')
+  console.log({
+    tracking: JSON.stringify(tracking.toObject({ getters: true }), null, 2),
+  })
 
   console.log('Confirmed quote created successfully', id)
   await sendQuoteInfoToZeroFreight({
@@ -715,9 +1011,89 @@ export const generateConfirmedQuoteSeaOog = async (
     total_cost: cost_breakdown,
     data: lineOfferData,
   }
-  console.log('Sea RF confirmed quote generated successfully', confirmedQuote)
-  const id = await createSeaOogConfirmedQuote(confirmedQuote)
+  let containerDetails: ContainerDetails[] = []
+  let flatContainersDimensions: {
+    container_type: string
+    weight: number
+    weight_unit: 'KG' | 'LBS'
+  }[] = []
 
+  console.log(
+    'Processing container details:',
+    JSON.stringify(container_details, null, 2)
+  )
+
+  for (let [key, value] of Object.entries(container_details)) {
+    const times = value?.quantity ?? 0
+    console.log(
+      `Container type ${key}: quantity=${times}, weight=${value?.weight}`
+    )
+    for (let i = 0; i < times; i++) {
+      flatContainersDimensions.push({
+        container_type: key,
+        weight: value?.weight ?? 0,
+        weight_unit: weight_unit || 'KG',
+      })
+    }
+  }
+
+  console.log(
+    `Created ${flatContainersDimensions.length} flat container dimensions`
+  )
+
+  for (let [index, container] of flatContainersDimensions.entries()) {
+    const containerId = `CONT${(index + 1).toString().padStart(5, '0')}`
+    containerDetails.push({
+      container_type: convertIgToStdIgContainer(
+        container.container_type as IgContainerSmallCase
+      ),
+      weight: container.weight,
+      weight_unit: container.weight_unit,
+      cargo_description: `${params.subject}`,
+      status: TrackingStatus.BOOKING_CONFIRMED,
+      milestones: [
+        createMilestone(
+          MilestoneType.BOOKING_CREATED,
+          TrackingStatus.BOOKING_CONFIRMED,
+          'Booking created'
+        ),
+      ],
+      container_id: containerId,
+    })
+  }
+  const total_containers = containerDetails.length
+
+  console.log(`Total containers created: ${total_containers}`)
+  console.log({ containerDetails: JSON.stringify(containerDetails, null, 2) })
+
+  // Validate that we have containers before creating tracking
+  if (total_containers === 0) {
+    console.error(
+      'No containers found! Container details:',
+      JSON.stringify(container_details, null, 2)
+    )
+    throw new Error(
+      'Cannot create tracking: No containers found in container details. Please ensure at least one container has a quantity > 0.'
+    )
+  }
+
+  console.log('Sea OOG confirmed quote generated successfully', confirmedQuote)
+  const id = await createSeaOogConfirmedQuote(confirmedQuote)
+  const tracking = await createTrackingFromBooking({
+    confirmedQuote: confirmedQuote,
+    additionalData: {
+      containerTrackingAdditionalData: {
+        containers: containerDetails,
+        carrier_name: confirmedQuote.carrier,
+        total_containers: total_containers,
+        booking_date: new Date(new Date().toISOString()),
+      },
+    },
+  })
+  console.log('Tracking created successfully')
+  console.log({
+    tracking: JSON.stringify(tracking.toObject({ getters: true }), null, 2),
+  })
   console.log('Confirmed quote created successfully', id)
 
   await sendQuoteInfoToZeroFreight({

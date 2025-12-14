@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       return null
     })
     if (ExistingConfirmedQuote) {
+      //NOTE: remove it after its done
       // console.log('confirmed quote already exists')
       // console.log({ ExistingConfirmedQuote })
       // return NextResponse.json(

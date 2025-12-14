@@ -10,12 +10,12 @@ export const createForm = async (data: Object): Promise<string> => {
   await mongoosedb()
 
   const response = await form.create({ data, created_at: new Date() })
-  if (!response) {
+  if (!response._id) {
     throw Error("couldn't create form something went wrong")
   }
   console.log('Success from created', response._id)
 
-  return response._id.toString()
+  return response._id.toString() as string
 }
 
 export const getFormById = async (id: string): Promise<FormType> => {
