@@ -17,6 +17,11 @@ import { useTransition } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { FormMetaProvider } from '@/provider'
 import { DevTool } from '@hookform/devtools'
+import {
+  AlertDialogWrapper,
+  AlertTypes,
+  useAlertDialog,
+} from '../_components/alert-dialog-wrapper'
 
 export const AirForm = () => {
   const airForm = useForm<AirFormTypes>({
@@ -26,6 +31,7 @@ export const AirForm = () => {
 
   const [loading, startTransition] = useTransition()
   const { toast } = useToast()
+  const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
 
   const onHandleSubmit = (data: AirFormTypes) => {
     // console.log({ data });
@@ -42,10 +48,22 @@ export const AirForm = () => {
       if (!response.ok) {
         console.log({ message: 'Failed to fetch', status: response.status })
         const errorResponse = await response.json()
-        toast({
-          variant: 'destructive',
+
+        showAlert(AlertTypes.ERROR, {
           title: 'Submission Failed',
-          description: errorResponse.error,
+          description:
+            errorResponse.error ||
+            'An error occurred while processing your request. Please try again.',
+          primaryAction: {
+            label: 'Try Again',
+            onClick: () => {},
+          },
+          secondaryAction: {
+            label: 'Contact Support',
+            onClick: () => {
+              window.location.href = 'https://www.bloksupplychain.com/contact'
+            },
+          },
         })
         return
       }
@@ -94,6 +112,14 @@ export const AirForm = () => {
           </div>
         </form>
         <DevTool control={airForm.control} />
+
+        {/* Alert Dialog */}
+        <AlertDialogWrapper
+          open={open}
+          onOpenChange={onOpenChange}
+          type={type}
+          customConfig={customConfig}
+        />
       </FormProvider>
     </FormMetaProvider.Provider>
   )

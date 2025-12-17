@@ -516,7 +516,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.log(error)
     return NextResponse.json(
-      { error: 'exception error air route:', details: error },
+      {
+        error:
+          'Air freight is not available for the selected route at this time. Please try another route or contact support for assistance.',
+      },
       { status: 500 }
     )
   }
