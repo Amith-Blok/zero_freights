@@ -21,7 +21,7 @@ export async function hsSixAutoCompleteByQuery(
       $limit: 8,
     },
   ])) as HsSixType[]
-  console.log({ response })
+  // console.log({ response })
   if (!response) {
     throw Error('hs_six not found')
   }

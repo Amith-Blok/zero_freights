@@ -15,8 +15,8 @@ import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
 import { createForm } from '@/data/form'
 import { createLandOffer } from '@/data/offer/land'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
-import { getDutyByHsCodeCountry } from '@/data/duties'
-import { USD_TO_INR } from '@/constants'
+// import { getDutyByHsCodeCountry } from '@/data/duties'
+// import { USD_TO_INR } from '@/constants'
 import { getUser } from '@/lib/user'
 
 export async function POST(request: NextRequest) {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       pickupLocationData.code = pickup_location.port_code
       pickupLocationData.name = pickup_location.port_name
 
-      truckingCost.label = 'trucking cost(FTL)'
+      truckingCost.label = 'Trucking cost(FTL)'
       const { sea_quantity, sea_unit, sea_weight } = validateData.data
       tags.push(`${sea_quantity} x ${sea_container_type}`)
       if (sea_weight) {
@@ -244,36 +244,36 @@ export async function POST(request: NextRequest) {
       quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
     }
     // //COMMENT: appended additional fees
-    const removeList =
-      modes === 'DOMESTIC_TRUCKING' ? [] : ['DELIVERY_ORDER_FEE']
-    if (country !== 'US') {
-      removeList.push('ISF')
-    }
+    const removeList = ['DELIVERY_ORDER_FEE', 'ISF', 'CUSTOMS_FEE']
+    //   modes === 'DOMESTIC_TRUCKING' ? [] : ['DELIVERY_ORDER_FEE']
+    // if (country !== 'US') {
+    //   removeList.push('ISF')
+    // }
     appendAdditionFees({
       data: quoteTableData,
       incoterms,
       removeList,
     })
     let duty
-    if (incoterms === 'DDP') {
-      duty = await getDutyByHsCodeCountry(hsn.code, country).catch((error) => {
-        console.log({ error })
-        return undefined
-      })
-    }
-    if (typeof duty === 'number') {
-      tags.push(`HS: ${hsn.code}`)
-      tags.push(`${value} USD`)
-      tags.push(`DUTY: ${duty.toFixed(2)}%`)
-      const dutyCost = (duty * value) / 100
-      quoteTableData.splice(quoteTableData.length - 2, 0, {
-        label: `Duty ${duty.toFixed(2)}%`,
-        usd: dutyCost,
-        inr: dutyCost * USD_TO_INR,
-      })
-    } else {
-      tags.push(`DUTY: N/A`)
-    }
+    // if (incoterms === 'DDP') {
+    //   duty = await getDutyByHsCodeCountry(hsn.code, country).catch((error) => {
+    //     console.log({ error })
+    //     return undefined
+    //   })
+    // }
+    // if (typeof duty === 'number') {
+    //   tags.push(`HS: ${hsn.code}`)
+    //   tags.push(`${value} USD`)
+    //   tags.push(`DUTY: ${duty.toFixed(2)}%`)
+    //   const dutyCost = (duty * value) / 100
+    //   quoteTableData.splice(quoteTableData.length - 2, 0, {
+    //     label: `Duty ${duty.toFixed(2)}%`,
+    //     usd: dutyCost,
+    //     inr: dutyCost * USD_TO_INR,
+    //   })
+    // } else {
+    //   tags.push(`DUTY: N/A`)
+    // }
     //Location generate location details
     let locations: Location[] = []
 

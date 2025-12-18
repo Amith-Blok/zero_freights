@@ -38,9 +38,9 @@ export const QuotePdfDownloadBtn = ({
   }
   return (
     <Button
-      variant="outline"
+      variant="default"
       onClick={downloadPdf}
-      className="ml-2 h-6 gap-1 border-green-200 text-green-700 print:hidden"
+      className="ml-2 h-6 gap-1 border-green-200 bg-green-600 hover:bg-green-500 print:hidden"
       disabled={loading}
     >
       <span className="text-xs">Download</span>
