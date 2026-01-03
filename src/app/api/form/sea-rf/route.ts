@@ -146,6 +146,7 @@ export async function POST(request: NextRequest) {
         (item: any) => item.code === 'SEA'
       )
     ) {
+      console.log('Found SEA')
       const seaCharge = linesRates.lines[0].sections[0].data.find(
         (item: any) => item.code === 'SEA'
       )
@@ -154,6 +155,10 @@ export async function POST(request: NextRequest) {
         seaCharge.d4 = seaCharge.d4 * RF_FREIGHT_MULTIPLIER
         seaCharge.d5 = seaCharge.d5 * RF_FREIGHT_MULTIPLIER
       }
+      console.log({ seaCharge })
+    } else {
+      console.log({ linesRates })
+      return NextResponse.json({ error: 'failed' }, { status: 500 })
     }
 
     if (
@@ -541,7 +546,7 @@ export async function POST(request: NextRequest) {
     const formId = await createForm(validateData.data)
 
     // --- Quote Details ---
-    let firstSlug = `SEA DG `
+    let firstSlug = `SEA RF `
     rf_container_type.forEach((containerType) => {
       firstSlug += `${rf_quantities[containerType] || 0} x ${containerType} (${rf_weights[containerType] || 0}${rf_unit}) `
     })

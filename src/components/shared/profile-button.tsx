@@ -37,8 +37,8 @@ const ProfileButton = () => {
   return status === 'authenticated' ? (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none focus:outline-none focus-visible:outline-none">
-        <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-base font-bold text-white shadow-md ring-2 ring-green-100 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:ring-green-200">
-          {getInitials(data.user.name)}
+        <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-xl font-semibold text-white shadow-md ring-2 ring-green-100 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:ring-green-200">
+          {data.user.name?.toUpperCase()?.charAt(0)}
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

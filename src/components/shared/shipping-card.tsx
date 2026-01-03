@@ -27,6 +27,7 @@ import {
 } from '@/models/offer/shared-types'
 import { PdfType } from '@/types/common'
 import { QuotePdfDownloadBtn } from '@/app/download/_component/quote-pdf-download-btn'
+import Link from 'next/link'
 
 interface ShippingCardProps {
   lineName: string
@@ -234,6 +235,16 @@ export default function ShippingCard({
         {isExpanded && children && (
           <div className="mt-4 overflow-x-auto rounded-lg bg-gray-50 p-4">
             {children}
+            {/* Footer Disclaimer */}
+            <div className="mt-8 border-t pt-4 text-[10pt] text-gray-700">
+              <p className="font-semibold">Disclaimer</p>
+              <p className="mt-1">
+                Rates are indicative and subject to change. Please refer to our
+                <Link href="/terms" className="text-green-600">
+                  &nbsp;Terms & Conditions.
+                </Link>
+              </p>
+            </div>
           </div>
         )}
         {/* View More Button */}

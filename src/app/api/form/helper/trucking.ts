@@ -103,6 +103,7 @@ export async function inLtlTruckingCost({
   cbm: number
 }) {
   //calculate indian trucking cost
+  //step FTL trucking
   const inTruckingCost = await inTrucking({
     start_latitude,
     start_longitude,
@@ -114,6 +115,7 @@ export async function inLtlTruckingCost({
   const oneUnit = Math.max(inTruckingCost.cost / 4, 11000)
   // console.log(oneUnit);
   //NOTE:INR Currenecy
+  //BUG: if logic incorrect
   if (cbm <= 15) return oneUnit
   if (cbm <= 30) return oneUnit * 2
   if (cbm <= 45) return oneUnit * 3
