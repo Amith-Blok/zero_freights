@@ -179,6 +179,14 @@ export function SeaOogComp({
             filters.currency
           )
 
+          const formatedValidity = new Date(line.valid_to).toLocaleDateString(
+            'en-US',
+            { month: 'short', day: 'numeric', year: 'numeric' }
+          )
+
+          const today = new Date().setHours(0, 0, 0, 0)
+          const isValid = new Date(line.valid_to).getTime() > today
+
           return (
             <div key={lineIdx} className="flex flex-col gap-3">
               <ShippingCard
@@ -206,6 +214,8 @@ export function SeaOogComp({
                 currency={filters.currency}
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
+                validityDate={formatedValidity}
+                isValid={isValid}
               >
                 <OfferSeaGaugeDataTable
                   data={totalCharges}

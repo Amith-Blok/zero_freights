@@ -38,9 +38,6 @@ export default async function DashboardPage() {
               deliveries, and optimize your supply chain.
             </p>
           </div>
-          <div className="hidden h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-2xl font-bold text-white shadow-lg md:flex">
-            🚚
-          </div>
         </div>
       </header>
 

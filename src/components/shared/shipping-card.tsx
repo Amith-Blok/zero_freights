@@ -41,6 +41,8 @@ interface ShippingCardProps {
   tags: string[]
   locations: Location[]
   price: number
+  isValid?: boolean
+  validityDate?: string
   localCost?: number
   currency?: 'INR' | 'USD'
   children: React.ReactNode
@@ -113,6 +115,8 @@ export default function ShippingCard({
   price,
   localCost,
   currency = 'USD',
+  isValid = true,
+  validityDate,
   url,
   children,
 }: ShippingCardProps) {
@@ -170,6 +174,11 @@ export default function ShippingCard({
                 containerType={containerType}
                 currency={currency}
               />
+              {validityDate && (
+                <Badge className="rounded-sm text-xs" variant="outline">
+                  Valid Utill: {validityDate}
+                </Badge>
+              )}
             </div>
 
             {/* Transport Info */}
@@ -201,33 +210,23 @@ export default function ShippingCard({
           {/* Price and Select Button */}
           <div className="flex flex-row items-center justify-between gap-3 border-t pt-4 lg:ml-6 lg:flex-col lg:items-end lg:border-t-0 lg:pt-0">
             <div className="text-left lg:text-right">
-              <div className="text-2xl font-bold text-gray-900">
-                {currency === 'INR'
-                  ? inFormater.format(price)
-                  : usFormater.format(price)}
-              </div>
-              {localCost && (
-                <div className="mt-0.5 text-[11px] font-medium text-gray-500">
-                  +{' '}
+              <div>
+                <div className="text-2xl font-bold text-gray-900">
                   {currency === 'INR'
-                    ? inFormater.format(localCost)
-                    : usFormater.format(localCost)}{' '}
-                  locals
+                    ? inFormater.format(price)
+                    : usFormater.format(price)}
                 </div>
-              )}
+                {localCost && (
+                  <div className="mt-0.5 text-[11px] font-medium text-gray-500">
+                    +{' '}
+                    {currency === 'INR'
+                      ? inFormater.format(localCost)
+                      : usFormater.format(localCost)}{' '}
+                    locals
+                  </div>
+                )}
+              </div>
             </div>
-            <Button
-              onClick={() => handleBookingSubmit(lineName.toLowerCase())}
-              disabled={loading}
-              className="h-8 shrink-0 gap-1"
-              size="sm"
-            >
-              {loading ? (
-                <span className="animate-pulse">Booking</span>
-              ) : (
-                <span>Book Now</span>
-              )}
-            </Button>
           </div>
         </div>
 
@@ -248,22 +247,36 @@ export default function ShippingCard({
           </div>
         )}
         {/* View More Button */}
-        <Button
-          onClick={() => setIsExpanded(!isExpanded)}
-          variant="outline"
-          size="sm"
-          className="mt-3 flex items-center justify-center gap-2 border-green-200 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
-        >
-          <span className="text-xs font-medium">
-            {' '}
-            View {isExpanded ? 'less' : 'more'}
-          </span>
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={() => setIsExpanded(!isExpanded)}
+            variant="outline"
+            size="sm"
+            className="mt-3 flex items-center justify-center gap-2 border-green-200 text-sm font-medium text-green-600 transition-colors hover:text-green-700"
+          >
+            <span className="text-xs font-medium">
+              {' '}
+              View {isExpanded ? 'less' : 'more'}
+            </span>
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          <Button
+            onClick={() => handleBookingSubmit(lineName.toLowerCase())}
+            disabled={loading || !isValid}
+            className="h-8 shrink-0 gap-1"
+            size="sm"
+          >
+            {loading ? (
+              <span className="animate-pulse">Booking</span>
+            ) : (
+              <span>Book Now</span>
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )

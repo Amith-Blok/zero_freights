@@ -49,7 +49,6 @@ export function SeaFclComp({
   localCharges,
   containerTypes,
   containerDetails,
-  // weightUnit : _weightUnit, //not used
   service_type,
   tags,
   locations,
@@ -77,52 +76,6 @@ export function SeaFclComp({
       ),
     [linesFreightRates, containerTypes, containerDetails, filters]
   )
-
-  // Convert container types to D types and filter only those with quantities > 0
-  // const availableContainers = useMemo(
-  //   () =>
-  //     containerTypes
-  //       .map(
-  //         (
-  //           containerType
-  //         ): {
-  //           dType: ContainerType
-  //           stdType: STDContainerType
-  //           containerType: string
-  //           containerTags: string[]
-  //         } | null => {
-  //           // Map FCL container types to D types
-  //           const containerMap: Record<string, ContainerType> = {
-  //             '20STD': 'd2',
-  //             '40STD': 'd4',
-  //             '40HC': 'd5',
-  //           }
-
-  //           const dType = containerMap[containerType] as ContainerType
-  //           if (!dType) return null
-
-  //           // Check if this container has quantity > 0
-  //           const quantity = containerDetails[dType]?.quantity ?? 0
-  //           if (quantity <= 0) return null
-
-  //           return {
-  //             dType,
-  //             stdType: containerType as STDContainerType,
-  //             containerType: containerType,
-  //             containerTags: [
-  //               `${quantity} x ${containerType}`,
-  //               `${containerDetails[dType]?.weight ?? 0} ${weightUnit}`,
-  //               ...tags,
-  //             ],
-  //           }
-  //         }
-  //       )
-  //       .filter(
-  //         (container): container is NonNullable<typeof container> =>
-  //           container !== null
-  //       ),
-  //   [containerTypes, containerDetails, weightUnit, tags]
-  // )
 
   // Calculate total offers count for display
   const totalOffersCount = useMemo(() => {
@@ -173,6 +126,14 @@ export function SeaFclComp({
             filters.currency
           )
 
+          const formatedValidity = new Date(line.valid_to).toLocaleDateString(
+            'en-US',
+            { month: 'short', day: 'numeric', year: 'numeric' }
+          )
+
+          const today = new Date().setHours(0, 0, 0, 0)
+          const isValid = new Date(line.valid_to).getTime() > today
+
           return (
             <div key={lineIdx} className="flex flex-col gap-3">
               <ShippingCard
@@ -198,6 +159,8 @@ export function SeaFclComp({
                     : (line.cost_breakdown?.local_cost?.inr['total'] ?? 0)
                 }
                 currency={filters.currency}
+                validityDate={formatedValidity}
+                isValid={isValid}
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
               >
