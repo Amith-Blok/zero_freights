@@ -146,16 +146,15 @@ export async function POST(request: NextRequest) {
         (item: any) => item.code === 'SEA'
       )
     ) {
-      console.log('Found SEA')
-      const seaCharge = linesRates.lines[0].sections[0].data.find(
-        (item: any) => item.code === 'SEA'
-      )
-      if (seaCharge) {
+      for (let line of linesRates.lines) {
+        const seaCharge = line.sections[0].data.find(
+          (item) => item.code == 'SEA'
+        )
+        if (!seaCharge) continue
         seaCharge.d2 = seaCharge.d2 * RF_FREIGHT_MULTIPLIER
         seaCharge.d4 = seaCharge.d4 * RF_FREIGHT_MULTIPLIER
         seaCharge.d5 = seaCharge.d5 * RF_FREIGHT_MULTIPLIER
       }
-      console.log({ seaCharge })
     } else {
       console.log({ linesRates })
       return NextResponse.json({ error: 'failed' }, { status: 500 })

@@ -151,49 +151,18 @@ export async function POST(request: NextRequest) {
         (item: any) => item.code === 'SEA'
       )
     ) {
-      const seaCharge = linesRates.lines[0].sections[0].data.find(
-        (item: any) => item.code === 'SEA'
-      )
-      if (seaCharge) {
+      for (let line of linesRates.lines) {
+        const seaCharge = line.sections[0].data.find(
+          (item) => item.code == 'SEA'
+        )
+        if (!seaCharge) continue
         seaCharge.d2 = seaCharge.d2 + DG_ADDITIONAL_FREIGHT_CHARGE
         seaCharge.d4 = seaCharge.d4 + DG_ADDITIONAL_FREIGHT_CHARGE
         seaCharge.d5 = seaCharge.d5 + DG_ADDITIONAL_FREIGHT_CHARGE
       }
     }
 
-    if (
-      linesRates.lines[0].sections[1].data.find(
-        (item: any) => item.code === 'THO'
-      ) &&
-      ori_country === 'IN'
-    ) {
-      const terminalHandlingCharge = await getTerminalHandlingChargeByCode(
-        startSeaPort?.port_code ?? ''
-      ).catch((error) => {
-        console.log({ error })
-        return null
-      })
-      if (!terminalHandlingCharge) {
-        // Remove the item with code 'THO' from the data array instead of zeroing out values
-        const thoIndex = linesRates.lines[0].sections[1].data.findIndex(
-          (item: any) => item.code === 'THO'
-        )
-        if (thoIndex !== -1) {
-          linesRates.lines[0].sections[1].data.splice(thoIndex, 1)
-        }
-      } else {
-        linesRates.lines[0].sections[1].data.find(
-          (item: any) => item.code === 'THO'
-        )!.d2 = terminalHandlingCharge.h2
-        linesRates.lines[0].sections[1].data.find(
-          (item: any) => item.code === 'THO'
-        )!.d4 = terminalHandlingCharge.h4
-        linesRates.lines[0].sections[1].data.find(
-          (item: any) => item.code === 'THO'
-        )!.d5 = terminalHandlingCharge.h4
-      }
-    }
-
+    //NOTE: Terminal Handling Charge should be from the sheet
     let quoteTableData = formatLines({
       linesCharges: linesRates,
       fclQuantities: dg_quantities,
@@ -508,7 +477,6 @@ export async function POST(request: NextRequest) {
       exchanges: exchangeValues(),
       offers: quoteTableData as any,
     })
-
     return NextResponse.json({ offer_id, quoteTableData }, { status: 200 })
   } catch (error) {
     return errorResponse('exception error sea fcl route:', 500, error)

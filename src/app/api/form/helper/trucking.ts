@@ -104,7 +104,7 @@ export async function inLtlTruckingCost({
 }) {
   //calculate indian trucking cost
   //step FTL trucking
-  const inTruckingCost = await inTrucking({
+  const fullTruckingCost = await inTrucking({
     start_latitude,
     start_longitude,
     end_latitude,
@@ -112,14 +112,11 @@ export async function inLtlTruckingCost({
     ton,
   })
   // console.log({ InTruckingCost });
-  const oneUnit = Math.max(inTruckingCost.cost / 4, 11000)
-  // console.log(oneUnit);
-  //NOTE:INR Currenecy
-  //BUG: if logic incorrect
-  if (cbm <= 15) return oneUnit
-  if (cbm <= 30) return oneUnit * 2
-  if (cbm <= 45) return oneUnit * 3
-  return oneUnit * 4
+  if (cbm >= 15) {
+    return fullTruckingCost.cost
+  }
+
+  return (fullTruckingCost.cost / 15) * cbm
 }
 
 export async function usLtlTruckingCost({
