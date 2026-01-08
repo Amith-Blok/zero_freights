@@ -172,20 +172,30 @@ export async function getDutyIfNeeded({
         return undefined
       }
     )
-    console.log({ duty })
+    console.log({ duty, des_country })
     if (typeof duty === 'number') {
-      return {
-        label: `Duty ${duty.toFixed(2)}%`,
+      let dutyValue = (duty * value) / 100
+      let dutyLabel = `DUTY: ${duty.toFixed(2)}%`
+      if (des_country == 'US') {
+        dutyValue = dutyValue + value * 0.5
+        dutyLabel += ' + 50% Tariff'
+        console.log('inside condition')
+        console.log({ dutyLabel })
+      }
+      const dutyData = {
+        label: dutyLabel,
         currency: 'USD',
         additional_notes: `Duty:${duty}%`,
-        d2: (duty * value) / 100,
-        d4: (duty * value) / 100,
-        d5: (duty * value) / 100,
-        total: ((duty * value) / 100) * totalQuantity,
+        d2: dutyValue,
+        d4: dutyValue,
+        d5: dutyValue,
+        total: dutyValue * totalQuantity,
         tag: `HS: ${hsn.code}`,
         valueTag: `${value} USD`,
         dutyTag: `DUTY: ${duty.toFixed(2)}%`,
       }
+      console.log({ dutyData })
+      return dutyData
     }
   }
   return null

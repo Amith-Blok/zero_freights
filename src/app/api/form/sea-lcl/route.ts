@@ -219,9 +219,14 @@ export async function POST(request: NextRequest) {
         tags.push(`HS: ${hsn.code}`)
         tags.push(`${value} USD`)
         tags.push(`DUTY: ${duty.toFixed()}%`)
-        const dutyCost = (duty * value) / 100
+        let dutyCost = (duty * value) / 100
+        let dutyLabel = `Duty ${duty.toFixed(2)}%`
+        if (des_country == 'US') {
+          dutyCost += dutyCost + value * 0.5
+          dutyLabel += ' + 50% Tariff'
+        }
         quoteTableData.splice(quoteTableData.length - 2, 0, {
-          label: `Duty ${duty.toFixed(2)}%`,
+          label: dutyLabel,
           usd: dutyCost,
           inr: dutyCost * USD_TO_INR,
         })

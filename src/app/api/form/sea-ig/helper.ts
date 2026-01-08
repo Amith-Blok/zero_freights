@@ -219,8 +219,14 @@ export async function getIgDutyIfNeeded({
     )
     console.log({ duty })
     if (typeof duty === 'number') {
-      return {
-        label: `Duty ${duty.toFixed(2)}%`,
+      let dutyValue = (duty * value) / 100
+      let dutyLabel = `DUTY: ${duty.toFixed(2)}`
+      if (des_country == 'US') {
+        dutyValue = dutyValue + value * 0.5
+        dutyLabel += ' + 50% Tariff'
+      }
+      const dutyData = {
+        label: dutyLabel,
         currency: 'USD',
         additional_notes: `Duty:${duty}%`,
         ot2: (duty * value) / 100,
@@ -233,6 +239,7 @@ export async function getIgDutyIfNeeded({
         valueTag: `${value} USD`,
         dutyTag: `DUTY: ${duty.toFixed(2)}%`,
       }
+      return dutyData
     }
   }
   return null
