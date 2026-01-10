@@ -38,7 +38,7 @@ let IN_RF_CLEARANCE_FEE = {
   total: 0,
 }
 
-let RF_FREIGHT_MULTIPLIER = 2
+let RF_FREIGHT_MULTIPLIER = 3
 
 // --- Main Handler ---
 export async function POST(request: NextRequest) {
