@@ -1,5 +1,8 @@
+import { LabeledCost } from '@/models/offer/shared-types'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
 import { inLtlTruckingCost, newUsLtlTruckingCost } from '../helper/trucking'
+import { US_LTL_SURCHARGES } from '@/constants/us-ltl'
+import { INR_TO_USD, USD_TO_INR } from '@/constants'
 
 const pickupLTLBase = {
   label: 'Pickup LTL',
@@ -112,3 +115,27 @@ export async function calculateLtlCost({
   return { pickupLTL, destinationLTL }
 }
 // --- End helper ---
+
+export function appendUsLtlSurcharges(params: {
+  quoteTable: LabeledCost[]
+  position?: number
+}): LabeledCost[] {
+  const { quoteTable, position } = params
+  US_LTL_SURCHARGES.reverse().forEach((surcharge) => {
+    const inr =
+      surcharge.currency === 'USD'
+        ? surcharge.value * USD_TO_INR
+        : surcharge.value
+    const usd =
+      surcharge.currency == 'USD'
+        ? surcharge.value
+        : surcharge.value * INR_TO_USD
+
+    quoteTable.splice(position || quoteTable.length - 2, 0, {
+      label: surcharge.name,
+      inr,
+      usd,
+    })
+  })
+  return quoteTable
+}

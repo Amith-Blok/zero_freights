@@ -12,14 +12,14 @@ export const SEA_MODES = [
   { label: 'Dangerous Goods(DG)', value: 'DG' },
 ]
 export const LAND_MODES = [
-  { label: 'Seaport Trucking', value: 'SEAPORT_TRUCKING' },
-  { label: 'Domestic Trucking', value: 'DOMESTIC_TRUCKING' },
-  { label: 'Airport Trucking', value: 'AIRPORT_TRUCKING' },
+  { label: 'Seaport Trucking (FCL)', value: 'SEAPORT_TRUCKING' },
+  { label: 'Domestic Trucking (LTL)', value: 'DOMESTIC_TRUCKING' },
+  { label: 'Airport Trucking (LTL)', value: 'AIRPORT_TRUCKING' },
 ]
 export const WAREHOUSE_MODES = [
-  { label: 'Full Container Load(FCL)', value: 'FCL_WAREHOUSE' },
-  { label: 'Less Container Load(LCL)', value: 'LCL_WAREHOUSE' },
-  { label: 'Less than Truckload(LTL)', value: 'LTL_WAREHOUSE' },
+  { label: 'Full Container Load (FCL)', value: 'FCL_WAREHOUSE' },
+  { label: 'Less Container Load (LCL)', value: 'LCL_WAREHOUSE' },
+  { label: 'Less than Truckload (LTL)', value: 'LTL_WAREHOUSE' },
 ]
 
 export const BULK_TYPE_LIST = [

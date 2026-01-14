@@ -11,7 +11,7 @@ import { createSeaLclOffer } from '@/data/offer/sea-lcl-offer'
 import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 import { getDutyByHsCodeCountry } from '@/data/duties'
 import { getUser } from '@/lib/user'
-import { calculateLtlCost } from './helper'
+import { appendUsLtlSurcharges, calculateLtlCost } from './helper'
 
 export async function POST(request: NextRequest) {
   try {
@@ -104,12 +104,12 @@ export async function POST(request: NextRequest) {
       usd: 0,
       inr: 0,
     }
-    const chasisFee = {
-      label: 'Chasis Fee',
-      currency: 'USD',
-      usd: 0,
-      inr: 0,
-    }
+    // const chasisFee = {
+    //   label: 'Chasis Fee',
+    //   currency: 'USD',
+    //   usd: 0,
+    //   inr: 0,
+    // }
     let tags: string[] = []
 
     // Fetch sea freight cost from the database
@@ -160,8 +160,8 @@ export async function POST(request: NextRequest) {
       ddcCharge.usd = Math.max(50, 28.1 * cbm)
       ddcCharge.inr = ddcCharge.usd * USD_TO_INR
 
-      chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
-      chasisFee.inr = chasisFee.usd * USD_TO_INR
+      // chasisFee.usd = Math.max(15, Math.max(5 * cbm, 5 * ton))
+      // chasisFee.inr = chasisFee.usd * USD_TO_INR
 
       // Calculate LTL costs
       const { pickupLTL, destinationLTL } = await calculateLtlCost({
@@ -187,13 +187,19 @@ export async function POST(request: NextRequest) {
         docCharge,
         vgmCharge,
         ddcCharge,
-        chasisFee,
         loadUnLoadFee,
       ]
 
       if (pickupLTL.inr > 0) quoteTableData.splice(1, 0, pickupLTL)
-      if (destinationLTL.inr > 0)
+      if (destinationLTL.inr > 0) {
         quoteTableData.splice(quoteTableData.length - 2, 0, destinationLTL)
+        if (des_country != 'INR') {
+          appendUsLtlSurcharges({
+            quoteTable: quoteTableData,
+            position: quoteTableData.length - 2,
+          })
+        }
+      }
       if (ori_country === 'IN' && incoterms !== 'DAP')
         quoteTableData.splice(3, 0, CLEARANCE_FEE_OBJ)
 

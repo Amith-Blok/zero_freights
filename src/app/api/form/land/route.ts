@@ -18,6 +18,7 @@ import { CLEARANCE_FEE_OBJ } from '@/constants/us-custom'
 // import { getDutyByHsCodeCountry } from '@/data/duties'
 // import { USD_TO_INR } from '@/constants'
 import { getUser } from '@/lib/user'
+import { appendUsLtlSurcharges } from '../sea-lcl/helper'
 
 export async function POST(request: NextRequest) {
   try {
@@ -242,6 +243,12 @@ export async function POST(request: NextRequest) {
     //COMMENT: added clearance fee if origin is india
     if (country == 'IN' && incoterms !== 'DAP') {
       quoteTableData.splice(1, 0, CLEARANCE_FEE_OBJ)
+    }
+    if (country !== 'IN' && modes != 'SEAPORT_TRUCKING') {
+      appendUsLtlSurcharges({
+        quoteTable: quoteTableData,
+        position: quoteTableData.length,
+      })
     }
     // //COMMENT: appended additional fees
     const removeList = ['DELIVERY_ORDER_FEE', 'ISF', 'CUSTOMS_FEE']
