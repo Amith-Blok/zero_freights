@@ -1,4 +1,6 @@
-export const DG_CLASSES = [
+import { DgClassCodeType } from '@/types/sea-dg'
+
+export const DG_CLASS_CODE = [
   'C1',
   'C2',
   'C3',
@@ -9,6 +11,7 @@ export const DG_CLASSES = [
   'C8',
   'C9',
 ] as const
+
 export const DG_CLASSES_OPTIONS = [
   { label: 'Class 1: Explosives', value: 'C1' },
   { label: 'Class 2: Gases', value: 'C2' },
@@ -20,3 +23,15 @@ export const DG_CLASSES_OPTIONS = [
   { label: 'Class 8: Corrosive Substances', value: 'C8' },
   { label: 'Class 9: Miscellaneous Dangerous Goods', value: 'C9' },
 ]
+
+export const DG_CLASS_CODE_MAPPER: Record<DgClassCodeType, string> = {
+  C1: 'Class 1',
+  C2: 'Class 2',
+  C3: 'Class 3',
+  C4: 'Class 4',
+  C5: 'Class 5',
+  C6: 'Class 6',
+  C7: 'Class 7',
+  C8: 'Class 8',
+  C9: 'Class 9',
+}

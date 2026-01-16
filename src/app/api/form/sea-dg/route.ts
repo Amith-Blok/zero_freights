@@ -22,6 +22,7 @@ import {
 } from '../sea-fcl/helper'
 import { createSeaDgOffer } from '@/data/offer/sea-dg-offer'
 import { getTerminalHandlingChargeByCode } from '@/data/terminal-handling-charges'
+import { getDgClassLabelFromCode } from '@/lib/sea-df-utils'
 
 // --- Constants ---
 let IN_DG_CLEARANCE_FEE = {
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest) {
       des_port_if_rail,
       dg_unit,
       dg_class,
+      dg_un,
       dg_quantities,
       dg_weights,
       dg_container_type,
@@ -130,7 +132,8 @@ export async function POST(request: NextRequest) {
         `${dg_quantities[containerType] || 0} x ${containerType} (${dg_weights[containerType] || 0}${dg_unit})`
       )
     })
-    tags.push(dg_class)
+    tags.push(getDgClassLabelFromCode(dg_class))
+    tags.push(`UN:${dg_un}`)
     tags.push(incoterms)
 
     // --- Shipline Rates ---

@@ -7,6 +7,8 @@ import { SeaFclLoadFormWrapper } from '../_components/form-wrapper/sea-fcl-load-
 import { DG_CLASSES_OPTIONS } from '@/constants/sea-dg-form'
 import InputInlineAddonWrapper from '../_components/form-wrapper/input-inline-addon-wrapper'
 import { SeaIgLoadFormWrapper } from '../_components/form-wrapper/sea-ig-load-form-wrapper'
+import { InputWrapper } from '../_components/form-wrapper/input-wrapper'
+import { ChangeEvent } from 'react'
 
 export const LoadFclForm = () => {
   return (
@@ -56,11 +58,25 @@ export const LoadLclForm = () => {
 export const LoadDgForm = () => {
   return (
     <div className="flex flex-col space-y-2">
-      <SelectWrapper
-        label="DG Class"
-        field="dg_class"
-        data={DG_CLASSES_OPTIONS}
-      />
+      <div className="flex flex-col space-x-2 md:flex-row">
+        <SelectWrapper
+          label="DG Class"
+          field="dg_class"
+          data={DG_CLASSES_OPTIONS}
+        />
+        <InputWrapper
+          label="UN Number"
+          field="dg_un"
+          inputProps={{
+            placeholder: '1002',
+            type: 'text',
+            inputMode: 'numeric',
+            onInput: (e: ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/[^0-9]/g, '')
+            },
+          }}
+        />
+      </div>
       <SeaFclLoadFormWrapper prefix="dg" />
     </div>
   )

@@ -6,7 +6,7 @@ import {
   LCL_PACKAGE_TYPE,
   TRUCKING_TYPE,
 } from '@/constants'
-import { DG_CLASSES } from '@/constants/sea-dg-form'
+import { DG_CLASS_CODE } from '@/constants/sea-dg-form'
 import { z } from 'zod'
 
 // COMMON SCHEMA
@@ -193,7 +193,8 @@ const LclSchema = z
 const DgSchema = z
   .object({
     modes: z.literal('DG'),
-    dg_class: z.enum(DG_CLASSES),
+    dg_class: z.enum(DG_CLASS_CODE),
+    dg_un: z.string().regex(/^\d{4}$/, 'UN number must be exactly 4 digits'),
     dg_container_type: z
       .array(DG_CONTAINER_ENUM)
       .nonempty('Select at least one container type.'),
