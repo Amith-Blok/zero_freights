@@ -1,7 +1,6 @@
 import NotFound from '@/app/not-found'
 import { QuoteDataTable } from '@/components/data-table/quote-data-table'
 import { QuoteTemplate } from '@/components/quote-output-template'
-import React from 'react'
 import { PdfType } from '@/types/common'
 import { convertDToStdContainer } from '@/lib/container'
 import { getOfferById } from '@/data/offer/offer'
