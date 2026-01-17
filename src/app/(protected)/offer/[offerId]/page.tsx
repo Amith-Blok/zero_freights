@@ -65,7 +65,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.usd}
+        totalCost={offers.total_cost}
       />
     )
   }
@@ -83,7 +83,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.usd}
+        totalCost={offers.total_cost}
       />
     )
   } else if (offers.mode === 'AIR') {
@@ -100,8 +100,8 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.usd}
         estimatedDays={estimated_days}
+        totalCost={offers.total_cost}
       />
     )
   } else if (offers.mode === 'SEA_LCL') {
@@ -118,7 +118,7 @@ const OfferComp = async ({ id }: { id: string }) => {
         offerId={offers.blok_id}
         offers={offers.offers}
         carrier={carrier}
-        price={offers.total_cost.usd}
+        totalCost={offers.total_cost}
       />
     )
   } else if (offers.mode === 'SEA_DG') {

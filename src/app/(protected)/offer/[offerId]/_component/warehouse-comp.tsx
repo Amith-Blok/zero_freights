@@ -1,6 +1,14 @@
-import { OfferDataTable } from '@/components/data-table/offer-data-table'
+'use client'
+import { OfferDataTableNew } from '@/components/data-table/offer-data-table-new'
 import ShippingCard from '@/components/shared/shipping-card'
-import { LabeledCost, Location, ServiceType } from '@/models/offer/shared-types'
+import { seaLclFilterAndSort } from '@/lib/sea-lcl-filter-utils'
+import {
+  LabeledCost,
+  Location,
+  ServiceType,
+  TotalCost,
+} from '@/models/offer/shared-types'
+import { useMemo, useState } from 'react'
 
 interface WarehouseCompProps {
   id: string
@@ -8,12 +16,15 @@ interface WarehouseCompProps {
   offers: LabeledCost[]
   service_type: ServiceType
   tags: string[]
-  price: number
   locations: Location[]
   containerType: string
   containerLabel: string
   offerId: string
   mode: string
+  totalCost: TotalCost
+}
+interface IFilterState {
+  currency: 'USD' | 'INR'
 }
 export default function WarehouseComp({
   id,
@@ -21,13 +32,24 @@ export default function WarehouseComp({
   carrier,
   service_type,
   tags,
-  price,
   locations,
   containerType,
   containerLabel,
   offerId,
+  totalCost,
   mode: _ = 'WAR',
 }: WarehouseCompProps) {
+  const [filterState, setFilterState] = useState<IFilterState>({
+    currency: 'USD',
+  })
+  const filteredOffer = useMemo(() => {
+    return seaLclFilterAndSort({
+      data: offers,
+      filterState: filterState,
+    })
+  }, [offers, filterState])
+  const grandTotal =
+    filterState.currency == 'USD' ? totalCost.usd : totalCost.inr
   return (
     <ShippingCard
       id={id}
@@ -40,15 +62,16 @@ export default function WarehouseComp({
       portToDays={0}
       containerLabel={containerLabel}
       containerType={containerType}
-      price={price}
+      price={grandTotal}
+      currency={filterState.currency}
       url={`/api/confirmed-quote`}
       offerId={offerId}
     >
-      <OfferDataTable
-        data={offers}
+      <OfferDataTableNew
+        data={filteredOffer}
         containerType={''}
-        grandTotal={price}
-        currency="USD"
+        grandTotal={grandTotal}
+        currency={filterState.currency}
       />
     </ShippingCard>
   )
