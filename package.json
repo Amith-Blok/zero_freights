@@ -88,6 +88,7 @@
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.0.1",
+    "baseline-browser-mapping": "^2.9.19",
     "esbuild": "^0.21.5",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.0.10",
