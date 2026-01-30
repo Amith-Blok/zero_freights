@@ -38,7 +38,7 @@ export const SeaForm = () => {
   const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
 
   const onHandleSubmit = (data: SeaFormType) => {
-    // console.log({ data })
+    console.log({ data })
     const apiRouteString = getApiRouteStringForSeaFormByMode(data.modes)
 
     if (!apiRouteString) {
@@ -91,9 +91,9 @@ export const SeaForm = () => {
       }
       const result = await response.json()
       if (result.offer_id) {
-        router.push(`/offer/${result.offer_id}`)
+        // router.push(`/offer/${result.offer_id}`)
       }
-      // console.log({ result });
+      console.log({ result })
     })
   }
   // const restoreData = SeaFormResetStore((state) => state.sea)

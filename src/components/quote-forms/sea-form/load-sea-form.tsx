@@ -32,6 +32,22 @@ export const LoadSeaForm = () => {
       ]
       setValue('lcl_load', defaultLclLoad)
     }
+    if (watchMode == 'OOG') {
+      const defaultOogLoad = [
+        {
+          oog_type: 'OT40',
+          oog_wid: undefined,
+          oog_hgt: undefined,
+          oog_lgt: undefined,
+          oog_volume_unit: 'CM',
+          oog_qty: undefined,
+          oog_weight: undefined,
+          oog_weight_unit: 'KG',
+        },
+      ]
+      setValue('oog_load', defaultOogLoad)
+      setValue('oog_container_type', ['OT40'])
+    }
   }, [watchMode, setValue])
   return (
     <>

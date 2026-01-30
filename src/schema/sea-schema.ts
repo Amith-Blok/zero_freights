@@ -380,67 +380,19 @@ export const OogSchema = z
     modes: z.literal('OOG'),
     oog_container_type: z
       .array(IG_CONTAINER_ENUM)
-      .nonempty('Select at least one container type.'),
-    oog_quantities: z.object({
-      OT20: z.coerce
-        .number({ invalid_type_error: 'Invalid quantity' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .optional(),
-      OT40: z.coerce
-        .number({ invalid_type_error: 'Invalid quantity' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .optional(),
-      FR20: z.coerce
-        .number({ invalid_type_error: 'Invalid quantity' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .optional(),
-      FR40: z.coerce
-        .number({ invalid_type_error: 'Invalid quantity' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .optional(),
-      FR45: z.coerce
-        .number({ invalid_type_error: 'Invalid quantity' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .optional(),
-    }),
-    oog_weights: z.object({
-      OT20: z.coerce
-        .number({ invalid_type_error: 'Invalid weight' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .max(40000, 'Must be less than 40000.')
-        .optional(),
-      OT40: z.coerce
-        .number({ invalid_type_error: 'Invalid weight' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .max(40000, 'Must be less than 40000.')
-        .optional(),
-      FR20: z.coerce
-        .number({ invalid_type_error: 'Invalid weight' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .max(40000, 'Must be less than 40000.')
-        .optional(),
-      FR40: z.coerce
-        .number({ invalid_type_error: 'Invalid weight' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .max(40000, 'Must be less than 40000.')
-        .optional(),
-      FR45: z.coerce
-        .number({ invalid_type_error: 'Invalid weight' })
-        .int('Must be an a whole number.')
-        .min(0, 'Must be 0 or more.')
-        .max(40000, 'Must be less than 40000.')
-        .optional(),
-    }),
-    oog_unit: z.enum(KG_LBS),
+      .nonempty('Select atleast one container'),
+    oog_load: z.array(
+      z.object({
+        oog_type: IG_CONTAINER_ENUM,
+        oog_qty: z.coerce.number(),
+        oog_wid: z.coerce.number(),
+        oog_hgt: z.coerce.number(),
+        oog_lgt: z.coerce.number(),
+        oog_volume_unit: z.enum(IN_CM),
+        oog_weight: z.coerce.number(),
+        oog_weight_unit: z.enum(KG_LBS),
+      })
+    ),
   })
   .merge(CommonSchema)
 
@@ -586,7 +538,7 @@ export const SeaFormSchema = z
       }
     }
     if (data.modes === 'OOG') {
-      if (data.oog_container_type.length === 0) {
+      if (data.oog_load.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'container type is required',
@@ -604,9 +556,11 @@ export type IgWeightsType = z.infer<typeof IgSchema>['ig_weights']
 export type IgUnitType = z.infer<typeof IgSchema>['ig_unit']
 export type FclWeightUnitType = z.infer<typeof FclSchema>['fcl_unit']
 export type FclWeightsType = z.infer<typeof FclSchema>['fcl_weights']
+export type OogLoadType = z.infer<typeof OogSchema>['oog_load']
 export type PickupDeliveryLocationType = z.infer<
   typeof SeaFormSchema
 >['pickup_location']
 export type PortType = z.infer<typeof SeaFormSchema>['ori_port_rail']
+export type PortIfRailType = z.infer<typeof SeaFormSchema>['ori_port_if_rail']
 export type IncotermsType = z.infer<typeof SeaFormSchema>['incoterms']
 export type ModesType = z.infer<typeof SeaFormSchema>['modes']

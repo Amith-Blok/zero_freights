@@ -11,7 +11,9 @@ export default async function FormLayoutPage({
       <main className="absolute min-h-screen min-w-[100%] justify-center">
         <Header />
         {children}
-        <Footer />
+        <section className="hidden md:block">
+          <Footer />
+        </section>
       </main>
       <Toaster />
     </>

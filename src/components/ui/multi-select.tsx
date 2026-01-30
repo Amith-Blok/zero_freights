@@ -127,6 +127,9 @@ export default function MultiSelect({
                   return (
                     <CommandItem
                       key={opt.value}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                      }}
                       onSelect={() => toggle(opt.value)}
                       className="cursor-pointer"
                     >

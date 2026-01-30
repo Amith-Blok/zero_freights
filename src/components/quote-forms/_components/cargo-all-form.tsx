@@ -18,7 +18,7 @@ export const CargoAllForm = () => {
     formState: { errors },
   } = useFormContext()
   const { loading } = useContext(FormMetaProvider)
-  // console.log({ errors })
+  console.log({ errors })
   const watchModes = useWatch({ control, name: 'modes' }) ?? ''
   const isWarehouse = watchModes.includes('WAREHOUSE')
   return (

@@ -63,6 +63,9 @@ export const meterToMile = (distance: number): number => {
 export const meterToKilometer = (distance: number): number => {
   return distance / 1000
 }
+export const lbsToKg = (lbs: number) => {
+  return lbs * 0.45359237
+}
 export const usFormater = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',

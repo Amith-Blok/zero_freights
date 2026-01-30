@@ -1,4 +1,4 @@
-import { SeaFormSchema } from '@/schema/sea-schema'
+import { IgQuantitiesType, SeaFormSchema } from '@/schema/sea-schema'
 import { NextRequest, NextResponse } from 'next/server'
 import { generateOfferId, generateQuoteMetaDetails } from '../helper/lib'
 import { getGoogleLocationByPlaceId } from '../helper/google-map'
@@ -16,7 +16,7 @@ import {
   getTruckingCost,
   selectPorts,
 } from '../sea-fcl/helper'
-import { getIgDutyIfNeeded, getIgRailCost } from '../sea-ig/helper'
+import { getIgDutyIfNeeded, getOogRailCost } from '../sea-ig/helper'
 import { createSeaOogOffer } from '@/data/offer/sea-oog-offer'
 import { OogLineFormatter } from './helper'
 
@@ -67,10 +67,8 @@ export async function POST(request: NextRequest) {
       des_country,
       des_port_rail,
       des_port_if_rail,
-      oog_unit,
-      oog_quantities,
-      oog_weights,
       oog_container_type,
+      oog_load,
       trucking,
       incoterms,
       hsn,
@@ -78,12 +76,13 @@ export async function POST(request: NextRequest) {
     } = validateData.data
 
     //--- Calculate total quantity of containers ---
-    const totalQuantity =
-      (oog_quantities['OT20'] || 0) +
-      (oog_quantities['OT40'] || 0) +
-      (oog_quantities['FR20'] || 0) +
-      (oog_quantities['FR40'] || 0) +
-      (oog_quantities['FR45'] || 0)
+    const totalQuantity = oog_load.reduce((a, b) => a + b.oog_qty, 0)
+
+    // oog_quantities
+    const oog_quantities = {} as IgQuantitiesType
+    oog_load.forEach((load) => {
+      oog_quantities[load.oog_type] = load.oog_qty
+    })
 
     // --- Port Selection ---
     const { startSeaPort, endSeaPort } = selectPorts({
@@ -104,9 +103,9 @@ export async function POST(request: NextRequest) {
     }
 
     let tags: string[] = []
-    oog_container_type.forEach((containerType) => {
+    oog_load.forEach((load) => {
       tags.push(
-        `${oog_quantities[containerType] || 0} x ${containerType} (${oog_weights[containerType] || 0}${oog_unit})`
+        `${load.oog_qty} x ${load.oog_type} | ${load.oog_lgt} x ${load.oog_wid} x ${load.oog_hgt} ${load.oog_volume_unit}| ${load.oog_weight + ' ' + load.oog_weight_unit} `
       )
     })
     tags.push(incoterms)
@@ -140,16 +139,14 @@ export async function POST(request: NextRequest) {
 
     if (incoterms !== 'CIF' && incoterms !== 'FOB') {
       // --- Rail Cost ---
-      const railCostResult = await getIgRailCost({
+      const railCostResult = await getOogRailCost({
         ori_country,
         ori_port_rail,
         des_country,
         des_port_rail,
         ori_port_if_rail,
         des_port_if_rail,
-        unit: oog_unit,
-        weights: oog_weights,
-        quantities: oog_quantities,
+        oog_load: oog_load,
       })
       if (railCostResult?.indianRailRate && railCostResult?.indianPortForRail) {
         const { indianRail, indianPortForRail, indianRailRate } = railCostResult
@@ -411,35 +408,35 @@ export async function POST(request: NextRequest) {
     // --- Generate container details ---
     let containerDetails: Record<string, { quantity: number; weight: number }> =
       {}
-    oog_container_type.forEach((containerType) => {
-      if (containerType === 'OT20') {
+    oog_load.forEach((load) => {
+      if (load.oog_type === 'OT20') {
         containerDetails['ot2'] = {
-          quantity: oog_quantities[containerType] || 0,
-          weight: oog_weights[containerType] || 0,
+          quantity: load.oog_qty,
+          weight: load.oog_weight,
         }
       }
-      if (containerType === 'OT40') {
+      if (load.oog_type === 'OT40') {
         containerDetails['ot4'] = {
-          quantity: oog_quantities[containerType] || 0,
-          weight: oog_weights[containerType] || 0,
+          quantity: load.oog_qty,
+          weight: load.oog_weight,
         }
       }
-      if (containerType === 'FR20') {
+      if (load.oog_type === 'FR20') {
         containerDetails['fr2'] = {
-          quantity: oog_quantities[containerType] || 0,
-          weight: oog_weights[containerType] || 0,
+          quantity: load.oog_qty,
+          weight: load.oog_weight,
         }
       }
-      if (containerType === 'FR40') {
+      if (load.oog_type === 'FR40') {
         containerDetails['fr4'] = {
-          quantity: oog_quantities[containerType] || 0,
-          weight: oog_weights[containerType] || 0,
+          quantity: load.oog_qty,
+          weight: load.oog_weight,
         }
       }
-      if (containerType === 'FR45') {
+      if (load.oog_type === 'FR45') {
         containerDetails['fr5'] = {
-          quantity: oog_quantities[containerType] || 0,
-          weight: oog_weights[containerType] || 0,
+          quantity: load.oog_qty,
+          weight: load.oog_weight,
         }
       }
     })
@@ -449,8 +446,8 @@ export async function POST(request: NextRequest) {
 
     // --- Quote Details ---
     let firstSlug = `SEA OOG `
-    oog_container_type.forEach((containerType) => {
-      firstSlug += `${oog_quantities[containerType] || 0} x ${containerType} (${oog_weights[containerType] || 0}${oog_unit}) `
+    oog_load.forEach((load) => {
+      firstSlug += `${load.oog_qty} x ${load.oog_type} | ${load.oog_lgt} x ${load.oog_wid} x ${load.oog_hgt} ${load.oog_volume_unit}| ${load.oog_weight + ' ' + load.oog_weight_unit} `
     })
     const { pointDetination, placeOfSupply, subject } =
       generateQuoteMetaDetails({
@@ -479,7 +476,7 @@ export async function POST(request: NextRequest) {
       service_type: ServiceType.SEA_OOG,
       container_types: oog_container_type,
       container_details: containerDetails,
-      weight_unit: oog_unit,
+      weight_unit: oog_load[0].oog_weight_unit,
       tags,
       locations: locations as any,
       exchanges: exchangeValues(),

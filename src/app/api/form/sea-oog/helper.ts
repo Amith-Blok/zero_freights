@@ -2,7 +2,6 @@ import { LinesChargesType } from '@/models/lines_charges'
 import { IgQuantitiesType } from '@/schema/sea-schema'
 
 const OOG_ADDITIONAL_FREIGHT_MULTIPLIER = 4
-const OOG_FR_45_MULTIPLIER = 1.5 * 2.5
 export function OogLineFormatter({
   linesRates,
   oogQuantities,
@@ -50,7 +49,9 @@ export function OogLineFormatter({
             (oogQuantities['FR40'] || 0) *
             OOG_ADDITIONAL_FREIGHT_MULTIPLIER
           const fr5 =
-            item.d5 * (oogQuantities['FR45'] || 0) * OOG_FR_45_MULTIPLIER
+            item.d5 *
+            (oogQuantities['FR45'] || 0) *
+            OOG_ADDITIONAL_FREIGHT_MULTIPLIER
           const total = ot2 + ot4 + fr2 + fr4 + fr5
 
           sea_freights.push({

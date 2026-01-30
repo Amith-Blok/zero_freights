@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { filterHaulageRateByWeight } from '../helper/india-haulage-rate'
+import { calculateHaulageCostByWeight } from '../helper/india-haulage-rate'
 import { getAllIndiaOutboundHaulageRatesByCode } from '@/data/india-outbound-haulage'
 import { inTrucking, usTrucking } from '../helper/trucking'
 import { Location as LocationType } from '@/models/offer/shared-types'
@@ -60,7 +60,7 @@ export async function getRailCost({
         start_code: indianRail.port_code,
         end_code: indianPortForRail.port_code,
       })
-    indianRailRate = filterHaulageRateByWeight({
+    indianRailRate = calculateHaulageCostByWeight({
       haulageRates: IndiaOutboundHaulageRates,
       weights,
       unit,

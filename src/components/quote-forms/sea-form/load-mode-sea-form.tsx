@@ -9,6 +9,7 @@ import InputInlineAddonWrapper from '../_components/form-wrapper/input-inline-ad
 import { SeaIgLoadFormWrapper } from '../_components/form-wrapper/sea-ig-load-form-wrapper'
 import { InputWrapper } from '../_components/form-wrapper/input-wrapper'
 import { ChangeEvent } from 'react'
+import { FieldArrayOogLoadComp } from '../_components/form-wrapper/sea-oog-load-form-wrapper'
 
 export const LoadFclForm = () => {
   return (
@@ -29,7 +30,7 @@ export const LoadLclForm = () => {
       />
       <FieldArrayLoadComp
         fieldArrayName="lcl_load"
-        dimLabel="Volumne"
+        dimLabel="Volume"
         dimInputFieldOne="lcl_lgt"
         dimInputFieldTwo="lcl_hgt"
         dimInputFieldThree="lcl_wid"
@@ -115,7 +116,20 @@ export const LoadIgForm = () => {
 export const LoadOogForm = () => {
   return (
     <div className="flex flex-col space-y-2">
-      <SeaIgLoadFormWrapper prefix="oog" />
+      <FieldArrayOogLoadComp
+        fieldArrayName="oog_load"
+        dimLabel="Volume"
+        dimInputFieldOne="oog_lgt"
+        dimInputFieldTwo="oog_hgt"
+        dimInputFieldThree="oog_wid"
+        dimSelectField="oog_volume_unit"
+        dimSelectData={[...IN_CM]}
+        inputFieldOne="oog_qty"
+        inputFieldTwo="oog_type"
+        inputSelectFieldOne="oog_weight"
+        inputSelectFieldTwo="oog_weight_unit"
+        inputSelecFieldData={[...KG_LBS]}
+      />
     </div>
   )
 }
