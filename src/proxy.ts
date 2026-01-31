@@ -6,6 +6,7 @@ import {
   API_AUTH_PREFIX,
   LOGIN_ROUTE,
   DEFAULT_HOME_ROUTE,
+  MANIFEST_ROUTE,
 } from '@/routes'
 import { verifyPdfToken } from '@/lib/pdf-token'
 
@@ -24,6 +25,12 @@ export default auth(async (req) => {
   const isLoggedIn = !!req.auth
   const pathname = nextUrl.pathname
 
+  // Allow manifest for PWA (must be public so PWA builders and install prompts can fetch it)
+  if (pathname === '/manifest.webmanifest' || pathname === '/manifest') {
+    return NextResponse.next()
+  }
+  // Check if the route is an Manifest route
+  const isManifestRoute = MANIFEST_ROUTE.includes(pathname)
   // Check if the route is an API authentication route
   const isApiAuthRoute = pathname.startsWith(API_AUTH_PREFIX)
 
@@ -46,6 +53,11 @@ export default auth(async (req) => {
 
   // Allow API routes to pass through
   if (isApiRoute) {
+    return NextResponse.next()
+  }
+
+  //Allow Manifest to pass through
+  if (isManifestRoute) {
     return NextResponse.next()
   }
 
@@ -124,7 +136,7 @@ export default auth(async (req) => {
 
 export const config = {
   matcher: [
-    // match all routes except static files and APIs
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|json)$).*)',
+    // match all routes except static files, APIs, and PWA manifest
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest\\.webmanifest|manifest|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|json)$).*)',
   ],
 }

@@ -27,6 +27,18 @@ export const authRoutes = [
 ]
 
 /**
+ * An array of routes that are manifest
+ */
+
+export const MANIFEST_ROUTE = [
+  '/manifest.webmanifest',
+  '/manifest',
+  '/manifest.json',
+  '/sw.js',
+  '/favicon.ico',
+]
+
+/**
  * The prefix for API authentication routes
  * Routes that start with this prefix are used for API authentication purposes
  * @type {string}
