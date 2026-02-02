@@ -2,6 +2,8 @@ import { LinesChargesType } from '@/models/lines_charges'
 import { IgQuantitiesType } from '@/schema/sea-schema'
 
 const OOG_ADDITIONAL_FREIGHT_MULTIPLIER = 4
+//OOG Handling Charge Multiplier
+const OOG_ADDITIONAL_THO_MULTIPLIER = 4
 export function OogLineFormatter({
   linesRates,
   oogQuantities,
@@ -77,6 +79,15 @@ export function OogLineFormatter({
           let fr4 = (oogQuantities['FR40'] || 0) > 0 ? item.d4 : 0
           let fr5 = (oogQuantities['FR45'] || 0) > 0 ? item.d5 : 0
           let total = 0
+
+          //Multiple THO by 2 for oog
+          if (item.code == 'THO') {
+            ot2 = ot2 * OOG_ADDITIONAL_THO_MULTIPLIER
+            ot4 = ot4 * OOG_ADDITIONAL_THO_MULTIPLIER
+            fr2 = fr2 * OOG_ADDITIONAL_THO_MULTIPLIER
+            fr4 = fr4 * OOG_ADDITIONAL_THO_MULTIPLIER
+            fr5 = fr5 * OOG_ADDITIONAL_THO_MULTIPLIER
+          }
 
           if (multipleByTotalQuantityCode.includes(item.code)) {
             total = item.d2 * totalQuantity
