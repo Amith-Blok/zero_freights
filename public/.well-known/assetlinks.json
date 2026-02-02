@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.zerofreights.www.twa",
+        "sha256_cert_fingerprints": ["83:AB:5A:F7:B6:0E:8B:FE:D6:A5:82:D9:5A:34:9A:2C:9A:73:48:4D:4C:11:DC:10:22:51:B6:5B:21:89:66:E4"]
+      }
+    }]
