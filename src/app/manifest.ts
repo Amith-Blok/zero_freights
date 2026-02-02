@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'ZeroFreights',
     description:
       'ZeroFreights is a modern freight forwarding platform providing the best shipping quotations, seamless comparison of cargo options, and efficient end-to-end logistics solutions for global businesses.',
-    start_url: '/',
+    start_url: '/get-rates',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#000000',
