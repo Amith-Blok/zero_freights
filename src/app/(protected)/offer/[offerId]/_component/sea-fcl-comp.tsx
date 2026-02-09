@@ -160,7 +160,6 @@ export function SeaFclComp({
                 }
                 currency={filters.currency}
                 validityDate={formatedValidity}
-                isValid={isValid}
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
               >

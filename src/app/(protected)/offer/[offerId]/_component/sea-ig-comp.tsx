@@ -214,7 +214,6 @@ export function SeaIgComp({
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
                 validityDate={formatedValidity}
-                isValid={isValid}
               >
                 <OfferSeaGaugeDataTable
                   data={totalCharges}
