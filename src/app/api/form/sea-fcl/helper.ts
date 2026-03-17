@@ -177,8 +177,8 @@ export async function getDutyIfNeeded({
       let dutyValue = (duty * value) / 100
       let dutyLabel = `DUTY: ${duty.toFixed(2)}%`
       if (des_country == 'US') {
-        dutyValue = dutyValue + value * 0.5
-        dutyLabel += ' + 50% Tariff'
+        dutyValue = dutyValue + value * 0.1
+        dutyLabel += ' + 10% Tariff'
         console.log('inside condition')
         console.log({ dutyLabel })
       }

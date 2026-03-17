@@ -231,12 +231,24 @@ async function getDutyCost({
 }: GetDutyCostArgs): Promise<DutyCostType | null> {
   if (incoterms === 'DAP') return null
   try {
+    //NOTE: ADD US 10% tarrif
+
+    const tariff = 10
     const duty = await getDutyByHsCodeCountry(hsn.code, des_country)
     if (typeof duty === 'number') {
+      let label = `Duty ${duty.toFixed(2)}%`
+      let usd = (duty * value) / 100
+      let inr = usd * USD_TO_INR
+      if (des_country == 'US') {
+        label += ` + ${tariff}% Tarif`
+        const tariffValue = (value * tariff) / 100
+        usd += usd + tariffValue
+        inr = usd * USD_TO_INR
+      }
       return {
-        label: `Duty ${duty.toFixed(2)}%`,
-        usd: (duty * value) / 100,
-        inr: ((duty * value) / 100) * USD_TO_INR,
+        label: label,
+        usd: usd,
+        inr: inr,
         percent: duty,
       }
     }
@@ -377,7 +389,7 @@ export async function POST(request: NextRequest) {
     let locations = []
     let dutyCost = null
 
-    if (incoterms !== 'CIF' && incoterms !== 'FOB') {
+    if (incoterms !== 'FOB') {
       // Calculate LTLs
       const pickupLTL = await calculatePickupLTL({
         ori_country,

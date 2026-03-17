@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     let origin_trucking_days = 0
     let destionation_trucking_days = 0
 
-    if (incoterms !== 'CIF' && incoterms !== 'FOB') {
+    if (incoterms !== 'FOB') {
       // --- Rail Cost ---
       const railCostResult = await getOogRailCost({
         ori_country,

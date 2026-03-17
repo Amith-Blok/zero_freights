@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
 
     let quoteTableData: LabeledCost[] = []
 
-    if (incoterms !== 'CIF' && incoterms !== 'FOB') {
+    if (incoterms !== 'FOB') {
       terminalCharge.inr = Math.max(
         1250 * Math.max(2, cbm),
         1750 * Math.max(2, ton)
@@ -228,8 +228,8 @@ export async function POST(request: NextRequest) {
         let dutyCost = (duty * value) / 100
         let dutyLabel = `Duty ${duty.toFixed(2)}%`
         if (des_country == 'US') {
-          dutyCost += dutyCost + value * 0.5
-          dutyLabel += ' + 50% Tariff'
+          dutyCost += dutyCost + value * 0.1
+          dutyLabel += ' + 10% Tariff'
         }
         quoteTableData.splice(quoteTableData.length - 2, 0, {
           label: dutyLabel,
