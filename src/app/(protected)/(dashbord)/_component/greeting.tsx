@@ -16,6 +16,7 @@ export default function Greeting() {
   const [greeting, setGreeting] = useState('')
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGreeting(getGreeting())
     // Re-check every minute so the greeting changes while the page is open
     const interval = setInterval(() => setGreeting(getGreeting()), 60 * 1000)
