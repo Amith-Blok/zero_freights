@@ -6,9 +6,10 @@ import { CardWrapper } from '@/components/shared/card-wrapper'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getUser } from '@/lib/user'
 import { BlokVerificationDialogForm } from '@/components/auth/blok-verificaiton-dailog-form'
+import { getSeaFormDataForEdit } from '@/data/edit-shipment'
 
 export default async function HomePage(props: {
-  searchParams: Promise<{ mode: string }>
+  searchParams: Promise<{ mode: string; edit?: string }>
 }) {
   const user = await getUser()
 
@@ -26,6 +27,15 @@ export default async function HomePage(props: {
       />
     )
   }
+  // Edit shipment details: load the saved sea form of this offer (owner only)
+  const seaInitialData =
+    searchParams.edit && user?.id
+      ? await getSeaFormDataForEdit({
+          offerId: searchParams.edit,
+          userId: user.id,
+        })
+      : null
+  if (seaInitialData) defaultMode = 'SEA'
   // console.log({ defaultMode })
   return (
     <div className="flex w-full items-center justify-center bg-transparent">
@@ -35,13 +45,20 @@ export default async function HomePage(props: {
         titleClass="text-2xl"
         cardClass="my-5  md:m-5 w-full min-h-screen bg-white bg-opacity-95"
       >
-        <TabComponent key={defaultMode} defaultTab={defaultMode} />
+        <TabComponent
+          key={defaultMode}
+          defaultTab={defaultMode}
+          seaInitialData={seaInitialData}
+        />
       </CardWrapper>
     </div>
   )
 }
 
-const TabComponent = async (params: { defaultTab: string }) => {
+const TabComponent = async (params: {
+  defaultTab: string
+  seaInitialData: Record<string, unknown> | null
+}) => {
   return (
     <Tabs defaultValue={params.defaultTab}>
       <div className="flex flex-col">
@@ -63,7 +80,7 @@ const TabComponent = async (params: { defaultTab: string }) => {
         </div>
         <div>
           <TabsContent value="SEA">
-            <SeaForm />
+            <SeaForm initialData={params.seaInitialData} />
           </TabsContent>
           <TabsContent value="AIR">
             <AirForm />

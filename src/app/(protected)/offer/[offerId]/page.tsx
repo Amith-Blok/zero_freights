@@ -1,5 +1,7 @@
 import { CardWrapper } from '@/components/shared/card-wrapper'
 import React from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { getOfferById } from '@/data/offer/offer'
 import { SeaFclComp } from './_component/sea-fcl-comp'
 import WarehouseComp from './_component/warehouse-comp'
@@ -34,6 +36,31 @@ export default async function OfferPage(props: {
 
 const OfferComp = async ({ id }: { id: string }) => {
   const offers = await getOfferById(id)
+  // Edit shipment details: for now only for sea offers
+  const canEdit = offers.mode.startsWith('SEA_')
+  return (
+    <>
+      {canEdit && (
+        <div className="mb-4 flex justify-end">
+          <Button asChild variant="outline">
+            <Link href={`/get-rates?mode=SEA&edit=${id}`}>
+              Edit shipment details
+            </Link>
+          </Button>
+        </div>
+      )}
+      <OfferRates id={id} offers={offers} />
+    </>
+  )
+}
+
+const OfferRates = ({
+  id,
+  offers,
+}: {
+  id: string
+  offers: Awaited<ReturnType<typeof getOfferById>>
+}) => {
   if (offers.mode === 'SEA_FCL') {
     const linesFreightRates = offers.offers.line_charges
     const localsRates = offers.offers.local_charges
