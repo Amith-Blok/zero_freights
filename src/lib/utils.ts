@@ -9,6 +9,71 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// --- Quote estimate / expiry dates ---
+// Dates are worked out in Indian time (IST, UTC+5:30), not the server's clock.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000
+const MONTH_NAMES = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
+// Formats a calendar date as e.g. "23 Nov 2026"
+const formatCalendarDate = (year: number, month: number, day: number) => {
+  // Date.UTC handles month overflow (e.g. December + 1 -> January next year)
+  const date = new Date(Date.UTC(year, month, day))
+  return `${date.getUTCDate()} ${MONTH_NAMES[date.getUTCMonth()]} ${date.getUTCFullYear()}`
+}
+
+/**
+ * Returns the quote's estimate date and expiry date as readable text.
+ *
+ * Expiry rule (based on the day the quote was created, in IST):
+ * - All months except February:
+ *   1st-12th  -> 15th of the same month
+ *   13th-27th -> 30th of the same month
+ *   28th-end  -> 15th of the next month
+ * - February:
+ *   1st-12th  -> 15th February
+ *   13th-25th -> last day of February (28th, or 29th in a leap year)
+ *   26th-end  -> 15th March
+ */
+export const getQuoteDates = (
+  createdAt?: Date | null
+): { estimateDate: string; expiryDate: string } => {
+  if (!createdAt) return { estimateDate: '', expiryDate: '' }
+
+  const istDate = new Date(createdAt.getTime() + IST_OFFSET_MS)
+  const year = istDate.getUTCFullYear()
+  const month = istDate.getUTCMonth() // 0 = January, 1 = February
+  const day = istDate.getUTCDate()
+
+  const isFebruary = month === 1
+  const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+  const midPeriodEnd = isFebruary ? 25 : 27
+  const midPeriodExpiryDay = isFebruary ? lastDayOfMonth : 30
+
+  let expiryDate: string
+  if (day <= 12) {
+    expiryDate = formatCalendarDate(year, month, 15)
+  } else if (day <= midPeriodEnd) {
+    expiryDate = formatCalendarDate(year, month, midPeriodExpiryDay)
+  } else {
+    expiryDate = formatCalendarDate(year, month + 1, 15)
+  }
+
+  return { estimateDate: formatCalendarDate(year, month, day), expiryDate }
+}
+
 export const arrayToSelectData = (data: string[]): SelectDataType => {
   return data.map((x) => {
     return {

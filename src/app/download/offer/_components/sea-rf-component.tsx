@@ -2,6 +2,7 @@ import { PdfType } from '@/types/common'
 import React from 'react'
 import { QuotePdfDownloadBtn } from '../../_component/quote-pdf-download-btn'
 import { QuoteTemplate } from '@/components/quote-output-template'
+import { getQuoteDates } from '@/lib/utils'
 import {
   ContainerCost,
   ContainerDetailsType,
@@ -60,8 +61,8 @@ export default async function SeaRfComponent({
               company: offer.user.companyName ?? '',
               address: offer.bill_to,
             }}
-            validFrom={offer.created_at?.toISOString() ?? ''}
-            validTo={offer.created_at?.toISOString() ?? ''}
+            validFrom={getQuoteDates(offer.created_at).estimateDate}
+            validTo={getQuoteDates(offer.created_at).expiryDate}
             placeOfSupply={offer.place_of_supply}
             shipTo={offer.bill_to}
             subject={subject}

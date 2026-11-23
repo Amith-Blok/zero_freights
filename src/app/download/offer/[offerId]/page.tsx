@@ -1,6 +1,7 @@
 import NotFound from '@/app/not-found'
 import { QuoteDataTable } from '@/components/data-table/quote-data-table'
 import { QuoteTemplate } from '@/components/quote-output-template'
+import { getQuoteDates } from '@/lib/utils'
 import { PdfType } from '@/types/common'
 import { convertDToStdContainer } from '@/lib/container'
 import { getOfferById } from '@/data/offer/offer'
@@ -281,8 +282,8 @@ export default async function QuotePage({
               company: user.companyName ?? '',
               address: offer.bill_to,
             }}
-            validFrom={offer.created_at?.toISOString() ?? ''}
-            validTo={offer.created_at?.toISOString() ?? ''}
+            validFrom={getQuoteDates(offer.created_at).estimateDate}
+            validTo={getQuoteDates(offer.created_at).expiryDate}
             placeOfSupply={offer.place_of_supply}
             shipTo={offer.bill_to}
             subject={subject}
