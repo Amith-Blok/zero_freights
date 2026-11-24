@@ -206,6 +206,7 @@ export function SeaRFComp({
                 currency={filters.currency}
                 url={`/api/confirmed-quote`}
                 validityDate={formatedValidity}
+                isValid={isValid}
                 offerId={offerId}
               >
                 <OfferSeaFclDataTable

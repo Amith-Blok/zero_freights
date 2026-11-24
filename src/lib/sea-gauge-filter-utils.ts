@@ -54,11 +54,18 @@ export function filterAndSortIgOffers(
       const quantity = containerDetails[igType]?.quantity ?? 0
       if (quantity <= 0) return
 
-      const price =
+      const containerPrice =
         filters.currency === 'USD'
           ? (line.cost_breakdown?.total_cost?.usd?.[igType] ?? 0)
           : (line.cost_breakdown?.total_cost?.inr?.[igType] ?? 0)
-      if (price === 0) return
+      if (containerPrice === 0) return
+
+      // Sort by the offer's total price (all containers), not one container
+      const totalPrice =
+        filters.currency === 'USD'
+          ? (line.cost_breakdown?.total_cost?.usd?.['total'] ?? 0)
+          : (line.cost_breakdown?.total_cost?.inr?.['total'] ?? 0)
+      const price = totalPrice > 0 ? totalPrice : containerPrice
 
       allOffers.push({
         lineData: line,

@@ -208,6 +208,7 @@ export function SeaDGComp({
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
                 validityDate={formatedValidity}
+                isValid={isValid}
               >
                 <OfferSeaFclDataTable
                   data={totalCharges}

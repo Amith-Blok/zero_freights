@@ -266,7 +266,7 @@ export default function Header() {
                 </DropdownMenu>
 
                 <Link
-                  href="/documentation"
+                  href="https://www.bloksupplychain.com"
                   className="rounded-md p-2 font-medium hover:bg-stone-50"
                   onClick={() => setIsOpen(false)}
                 >

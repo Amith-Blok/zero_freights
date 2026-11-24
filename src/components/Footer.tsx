@@ -50,28 +50,28 @@ export default function Footer() {
             </h4>
             <div className="space-y-3">
               <Link
-                href="/?mode=SEA"
+                href="/get-rates?mode=SEA"
                 className="group flex items-center space-x-2 text-sm text-gray-600 transition-colors hover:text-green-600"
               >
                 <span className="h-1 w-1 rounded-full bg-green-600 transition-all group-hover:w-2"></span>
                 <span>Sea Freight (FCL & LCL)</span>
               </Link>
               <Link
-                href="/?mode=AIR"
+                href="/get-rates?mode=AIR"
                 className="group flex items-center space-x-2 text-sm text-gray-600 transition-colors hover:text-green-600"
               >
                 <span className="h-1 w-1 rounded-full bg-green-600 transition-all group-hover:w-2"></span>
                 <span>Air Freight</span>
               </Link>
               <Link
-                href="/?mode=LAND"
+                href="/get-rates?mode=LAND"
                 className="group flex items-center space-x-2 text-sm text-gray-600 transition-colors hover:text-green-600"
               >
                 <span className="h-1 w-1 rounded-full bg-green-600 transition-all group-hover:w-2"></span>
                 <span>Land Transportation</span>
               </Link>
               <Link
-                href="/?mode=WAR"
+                href="/get-rates?mode=WAR"
                 className="group flex items-center space-x-2 text-sm text-gray-600 transition-colors hover:text-green-600"
               >
                 <span className="h-1 w-1 rounded-full bg-green-600 transition-all group-hover:w-2"></span>

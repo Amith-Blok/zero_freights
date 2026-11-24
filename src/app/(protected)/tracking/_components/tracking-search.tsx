@@ -38,7 +38,7 @@ export function TrackingSearch(params: { userId: string }) {
       setError('')
       router.push(`/tracking/${tracking.tracking_id}`)
     } else {
-      setError('Booking number not found. Try BK001234 or BK005678')
+      setError('Booking number not found. Please check the number on your Booking page (e.g. ZFBSCQ000133).')
     }
   }
 
@@ -66,7 +66,7 @@ export function TrackingSearch(params: { userId: string }) {
           <CardContent>
             <form onSubmit={handleSearch} className="flex gap-2">
               <Input
-                placeholder="e.g., BK001234"
+                placeholder="e.g., ZFBSCQ000133"
                 value={bookingNumber}
                 onChange={(e) => setBookingNumber(e.target.value)}
                 className="flex-1"

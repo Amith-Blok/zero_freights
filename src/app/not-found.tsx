@@ -12,7 +12,7 @@ export default function NotFound({ message }: { message?: string }) {
           <Package2 size={18} />
         </span>{' '}
         {message ||
-          'Oops! The page you&apos;re looking for doesn&apos;t exist. It might have been moved or deleted.'}
+          "Oops! The page you're looking for doesn't exist. It might have been moved or deleted."}
       </p>
       <Link href="/">
         <Button>Return Home</Button>
