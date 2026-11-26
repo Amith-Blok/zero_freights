@@ -1,10 +1,11 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, ChangeEvent, ComponentProps } from 'react'
+import React, { useContext, useState, ChangeEvent, ComponentProps } from 'react'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Label } from '@/components/ui/label'
 import { addParamsToRelativeUrl, cn } from '@/lib/utils'
+import { FormMetaProvider } from '@/provider'
 
 type FilteredComboboxProps<T> = {
   label: string
@@ -33,11 +34,20 @@ export const FilteredCombobox = <T,>({
     control,
     formState: { errors },
     trigger,
+    getValues,
   } = useFormContext()
+  const { isPrefilling } = useContext(FormMetaProvider)
 
   const [options, setOptions] = useState<T[]>([])
   const [loading, setLoading] = useState<boolean>(false)
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(() => {
+    // Edit shipment: show the saved value's text on first load
+    if (!isPrefilling?.current) return ''
+    const savedValue = getValues(fieldName)
+    return savedValue && typeof savedValue === 'object'
+      ? getOptionLabel(savedValue as T)
+      : ''
+  })
 
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setLoading(true)

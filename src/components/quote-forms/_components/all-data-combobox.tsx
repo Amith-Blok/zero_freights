@@ -1,12 +1,13 @@
 'use client'
 /* eslint-disable no-unused-vars */
-import React, { ComponentProps, useEffect, useState } from 'react'
+import React, { ComponentProps, useContext, useEffect, useState } from 'react'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { useFormContext, Controller } from 'react-hook-form'
 import useFetch from '@/hooks/use-fetch'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { FormMetaProvider } from '@/provider'
 
 type AutoCompleteCompProps<T> = {
   label?: string
@@ -35,16 +36,27 @@ export const AllDataCombobox = <T,>({
     control,
     formState: { errors },
     resetField,
+    getValues,
   } = useFormContext()
+  const { isPrefilling } = useContext(FormMetaProvider)
 
   const [inputValue, setInputValue] = useState('')
   const { data: options, loading } = useFetch<T>(fetchUrl)
 
   useEffect(() => {
+    // Edit shipment: keep the saved value on first load and show its text
+    if (isPrefilling?.current) {
+      const savedValue = getValues(fieldName)
+      if (savedValue && typeof savedValue === 'object') {
+        setInputValue(getOptionLabel(savedValue as T))
+        return
+      }
+    }
     // Clears both the internal field value and input display
     resetField(fieldName, { defaultValue: '' })
     setInputValue('')
-  }, [resetString, fieldName, resetField])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetString, fieldName, resetField, getValues, isPrefilling])
 
   return (
     <div className={cn('w-full', divClass)}>

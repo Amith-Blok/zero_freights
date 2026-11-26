@@ -160,6 +160,8 @@ export function SeaFclComp({
                 }
                 currency={filters.currency}
                 validityDate={formatedValidity}
+                // Locks Book Now once the validity date has passed
+                isValid={isValid}
                 url={`/api/confirmed-quote`}
                 offerId={offerId}
               >

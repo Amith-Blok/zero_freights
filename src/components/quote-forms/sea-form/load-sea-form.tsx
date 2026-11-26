@@ -1,5 +1,6 @@
 'use client'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
+import { FormMetaProvider } from '@/provider'
 import {
   LoadDgForm,
   LoadFclForm,
@@ -17,7 +18,10 @@ export const LoadSeaForm = () => {
   const { watch, setValue } = useFormContext()
 
   const watchMode: ModesType = watch('modes')
+  const { isPrefilling } = useContext(FormMetaProvider)
   useEffect(() => {
+    // Edit shipment: keep the saved load details on first load
+    if (isPrefilling?.current) return
     if (watchMode == 'LCL') {
       const defaultLclLoad = [
         {
@@ -48,7 +52,7 @@ export const LoadSeaForm = () => {
       setValue('oog_load', defaultOogLoad)
       setValue('oog_container_type', ['OT40'])
     }
-  }, [watchMode, setValue])
+  }, [watchMode, setValue, isPrefilling])
   return (
     <>
       <SelectWrapper

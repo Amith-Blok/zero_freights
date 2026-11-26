@@ -18,7 +18,23 @@ interface SeaFclComponentProps {
   totalCharges: ContainerCost[]
   totalCost: number
   currency: 'INR' | 'USD'
+  // Validity date of the selected line (same as "Valid Until" on the offer card)
+  validTo?: string
 }
+
+// Formats a date as e.g. "24 Nov 2026" in Indian time
+const formatQuoteDate = (date?: Date | string | null) => {
+  if (!date) return ''
+  const parsed = new Date(date)
+  if (isNaN(parsed.getTime())) return ''
+  return parsed.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'Asia/Kolkata',
+  })
+}
+
 export default function SeaFclComponent({
   offerId,
   lineName,
@@ -28,6 +44,7 @@ export default function SeaFclComponent({
   containerDetails,
   totalCost,
   currency,
+  validTo,
 }: SeaFclComponentProps) {
   const containerLabels = {
     d2:
@@ -60,8 +77,8 @@ export default function SeaFclComponent({
               company: offer.user.companyName ?? '',
               address: offer.bill_to,
             }}
-            validFrom={offer.created_at?.toISOString() ?? ''}
-            validTo={offer.created_at?.toISOString() ?? ''}
+            validFrom={formatQuoteDate(offer.created_at)}
+            validTo={formatQuoteDate(validTo)}
             placeOfSupply={offer.place_of_supply}
             shipTo={offer.bill_to}
             subject={subject}
