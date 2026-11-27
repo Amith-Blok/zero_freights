@@ -47,9 +47,10 @@ export default async function QuotePage({
   let subject: string = ''
   if (offer.mode === 'SEA_FCL') {
     // console.log({ lines: offer.offers.line_charges })
-    const linesFreightRates = offer.offers.line_charges.find(
+    const selectedLine = offer.offers.line_charges.find(
       (line) => line.line_name === lineName
-    )?.data
+    )
+    const linesFreightRates = selectedLine?.data
     // console.log({ linesFreightRates: linesFreightRates })
     if (!linesFreightRates)
       return (
@@ -83,6 +84,7 @@ export default async function QuotePage({
         containerDetails={offer.container_details}
         totalCost={totalCost}
         currency={currency}
+        validTo={selectedLine?.valid_to}
       />
     )
   } else if (offer.mode === 'SEA_DG') {
