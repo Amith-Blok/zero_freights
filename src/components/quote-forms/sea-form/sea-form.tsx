@@ -1,5 +1,5 @@
 'use client'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, DefaultValues } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { CardWrapper } from '../../shared/card-wrapper'
@@ -19,7 +19,7 @@ import { SeaFormResetStore } from '@/store/form-restore'
 //   SelectValue,
 // } from '@/components/ui/select'
 import { useRouter } from 'next/navigation'
-import { useTransition } from 'react'
+import { useEffect, useRef, useTransition } from 'react'
 import { FormMetaProvider } from '@/provider'
 import {
   AlertDialogWrapper,
@@ -28,11 +28,27 @@ import {
 } from '../_components/alert-dialog-wrapper'
 import { getApiRouteStringForSeaFormByMode } from '../helper'
 
-export const SeaForm = () => {
+// initialData: saved details from an earlier search (Edit shipment details)
+export const SeaForm = ({
+  initialData,
+}: {
+  initialData?: Record<string, unknown> | null
+}) => {
   const seaForm = useForm<SeaFormType>({
     resolver: zodResolver(SeaFormSchema),
-    defaultValues: SEA_DEFAULT_VALUES,
+    defaultValues: initialData
+      ? (initialData as DefaultValues<SeaFormType>)
+      : SEA_DEFAULT_VALUES,
   })
+  // While true, fields keep the saved values instead of clearing them.
+  // It is switched off right after the form first loads.
+  const isPrefilling = useRef(!!initialData)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      isPrefilling.current = false
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [])
   const router = useRouter()
   const [loading, startTransition] = useTransition()
   const { open, type, customConfig, showAlert, onOpenChange } = useAlertDialog()
@@ -103,7 +119,7 @@ export const SeaForm = () => {
   //   seaForm.reset(restoreData[idx].data)
   // }
   return (
-    <FormMetaProvider.Provider value={{ loading }}>
+    <FormMetaProvider.Provider value={{ loading, isPrefilling }}>
       <FormProvider {...seaForm}>
         <form onSubmit={seaForm.handleSubmit(onHandleSubmit)}>
           {/* restore history */}
