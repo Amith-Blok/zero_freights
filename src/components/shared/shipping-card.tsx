@@ -175,8 +175,11 @@ export default function ShippingCard({
                 currency={currency}
               />
               {validityDate && (
-                <Badge className="rounded-sm text-xs" variant="outline">
-                  Valid Utill: {validityDate}
+                <Badge
+                  className={`rounded-sm text-xs ${isValid ? '' : 'border-red-200 bg-red-50 text-red-600'}`}
+                  variant="outline"
+                >
+                  {isValid ? 'Valid Until' : 'Expired'}: {validityDate}
                 </Badge>
               )}
             </div>
